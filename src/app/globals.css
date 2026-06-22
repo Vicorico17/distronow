@@ -63,6 +63,15 @@ nav a {
   text-decoration: none;
 }
 
+nav .nav-action {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-size: 14px;
+  padding: 9px 11px;
+}
+
 nav span {
   color: var(--muted);
   font-size: 14px;
@@ -206,7 +215,7 @@ select {
 .workspace {
   margin: 0 auto;
   max-width: 1160px;
-  padding: 28px 24px 56px;
+  padding: 18px 24px 56px;
 }
 
 .empty-state {
@@ -409,6 +418,27 @@ code {
   padding: 16px;
 }
 
+.json-details summary {
+  align-items: center;
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  font-weight: 800;
+  justify-content: space-between;
+  list-style: none;
+  padding: 13px 14px;
+}
+
+.json-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.json-details[open] summary {
+  margin-bottom: 12px;
+}
+
 .empty-copy {
   color: var(--muted);
   margin-bottom: 0;
@@ -420,76 +450,22 @@ code {
 }
 
 .project-header {
-  align-items: end;
-  display: grid;
-  gap: 24px;
-  grid-template-columns: minmax(0, 1fr) auto;
   margin: 0 auto;
   max-width: 1160px;
-  padding: 64px 24px 42px;
+  padding: 34px 24px 28px;
 }
 
 .project-header h1 {
-  font-size: clamp(40px, 6vw, 76px);
-  margin-bottom: 16px;
-  max-width: 860px;
-}
-
-.project-header .lede {
+  font-size: clamp(32px, 5vw, 54px);
   margin-bottom: 0;
-  overflow-wrap: anywhere;
-}
-
-.project-actions a {
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  color: #ffffff;
-  display: inline-flex;
-  font-weight: 800;
-  padding: 13px 16px;
-  text-decoration: none;
-}
-
-.project-meta {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0 auto;
-  max-width: 1160px;
-  padding: 18px 24px 0;
-}
-
-.project-meta div {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  min-width: 0;
-  padding: 14px;
-}
-
-.project-meta span,
-.project-meta strong {
-  display: block;
-}
-
-.project-meta span {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-}
-
-.project-meta strong {
-  overflow-wrap: anywhere;
+  max-width: 860px;
 }
 
 .content-workspace {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  margin: 0 auto 56px;
+  margin: 18px auto 0;
   max-width: 1160px;
   padding: 22px;
 }
@@ -499,10 +475,11 @@ code {
   display: grid;
   gap: 18px;
   grid-template-columns: minmax(0, 1fr) auto;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .content-header h2 {
+  font-size: 24px;
   margin-bottom: 0;
 }
 
@@ -612,7 +589,6 @@ code {
   .empty-state,
   .panel-grid,
   .project-header,
-  .project-meta,
   .content-header,
   .generator-controls,
   .draft-grid {

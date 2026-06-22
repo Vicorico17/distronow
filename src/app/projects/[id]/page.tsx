@@ -10,14 +10,6 @@ type ProjectPageProps = {
   }>;
 };
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  }).format(new Date(value));
-}
-
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
   const workspace = await getBrandProjectWorkspace(id);
@@ -33,44 +25,26 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <section className="project-hero">
         <nav>
           <Link href="/">DistroNow</Link>
-          <span>Content workspace</span>
+          <Link className="nav-action" href="/">
+            New brand
+          </Link>
         </nav>
 
         <div className="project-header">
           <div>
             <p className="eyebrow">Brand workspace</p>
             <h1>{project.name ?? project.domain}</h1>
-            <p className="lede">{project.websiteUrl}</p>
-          </div>
-
-          <div className="project-actions">
-            <Link href="/">New brand</Link>
           </div>
         </div>
       </section>
 
-      <section className="project-meta">
-        <div>
-          <span>Domain</span>
-          <strong>{project.domain}</strong>
-        </div>
-        <div>
-          <span>Source</span>
-          <strong>{latestExtraction.provider}</strong>
-        </div>
-        <div>
-          <span>Updated</span>
-          <strong>{formatDate(project.updatedAt)}</strong>
-        </div>
-      </section>
+      <PostDraftPanel projectId={project.id} initialDrafts={workspace.postDrafts} />
 
       <BrandProfile
         extraction={latestExtraction}
         projectLabel="Workspace brand kit"
         stored={{ projectId: project.id, extractionId: latestExtraction.id }}
       />
-
-      <PostDraftPanel projectId={project.id} initialDrafts={workspace.postDrafts} />
     </main>
   );
 }

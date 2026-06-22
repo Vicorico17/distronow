@@ -122,10 +122,13 @@ export function BrandProfile({
 
         <section className="panel panel-wide">
           <div className="panel-title">
-            <h3>Pipeline Payload</h3>
-            <span>Ready for generation</span>
+            <h3>Brand Data</h3>
+            <span>Reference</span>
           </div>
-          <JsonPreview extraction={extraction} />
+          <details className="json-details">
+            <summary>Show extracted payload</summary>
+            <JsonPreview extraction={extraction} />
+          </details>
         </section>
       </div>
     </section>

@@ -58,8 +58,8 @@ export function PostDraftPanel({ projectId, initialDrafts }: { projectId: string
     <section className="content-workspace">
       <div className="content-header">
         <div>
-          <p className="eyebrow">Content drafts</p>
-          <h2>Generate post ideas from this brand.</h2>
+          <p className="eyebrow">Next step</p>
+          <h2>Create the first content drafts.</h2>
         </div>
         <button disabled={state.status === "loading"} onClick={generateDrafts} type="button">
           {state.status === "loading" ? "Generating" : "Generate drafts"}
