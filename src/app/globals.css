@@ -447,25 +447,14 @@ code {
 .project-hero {
   background: #e8f0ed;
   border-bottom: 1px solid var(--line);
-}
-
-.project-header {
-  margin: 0 auto;
-  max-width: 1160px;
-  padding: 34px 24px 28px;
-}
-
-.project-header h1 {
-  font-size: clamp(32px, 5vw, 54px);
-  margin-bottom: 0;
-  max-width: 860px;
+  padding-bottom: 20px;
 }
 
 .content-workspace {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  margin: 18px auto 0;
+  margin: 0 auto 56px;
   max-width: 1160px;
   padding: 22px;
 }
@@ -588,7 +577,6 @@ code {
   .intro-grid,
   .empty-state,
   .panel-grid,
-  .project-header,
   .content-header,
   .generator-controls,
   .draft-grid {

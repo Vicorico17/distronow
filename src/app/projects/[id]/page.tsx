@@ -29,22 +29,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             New brand
           </Link>
         </nav>
-
-        <div className="project-header">
-          <div>
-            <p className="eyebrow">Brand workspace</p>
-            <h1>{project.name ?? project.domain}</h1>
-          </div>
-        </div>
       </section>
-
-      <PostDraftPanel projectId={project.id} initialDrafts={workspace.postDrafts} />
 
       <BrandProfile
         extraction={latestExtraction}
         projectLabel="Workspace brand kit"
+        showRawData={false}
         stored={{ projectId: project.id, extractionId: latestExtraction.id }}
       />
+
+      <PostDraftPanel projectId={project.id} initialDrafts={workspace.postDrafts} />
     </main>
   );
 }

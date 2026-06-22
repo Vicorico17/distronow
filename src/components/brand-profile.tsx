@@ -43,11 +43,13 @@ function ColorGrid({ extraction }: { extraction: BrandExtraction }) {
 export function BrandProfile({
   extraction,
   stored,
-  projectLabel
+  projectLabel,
+  showRawData = true
 }: {
   extraction: BrandExtraction;
   stored?: StoredBrandExtraction | null;
   projectLabel?: string;
+  showRawData?: boolean;
 }) {
   const branding = extraction.branding;
   const logo = branding.logo ?? branding.images?.logo ?? branding.images?.favicon;
@@ -120,16 +122,18 @@ export function BrandProfile({
           </div>
         </section>
 
-        <section className="panel panel-wide">
-          <div className="panel-title">
-            <h3>Brand Data</h3>
-            <span>Reference</span>
-          </div>
-          <details className="json-details">
-            <summary>Show extracted payload</summary>
-            <JsonPreview extraction={extraction} />
-          </details>
-        </section>
+        {showRawData ? (
+          <section className="panel panel-wide">
+            <div className="panel-title">
+              <h3>Brand Data</h3>
+              <span>Reference</span>
+            </div>
+            <details className="json-details">
+              <summary>Show extracted payload</summary>
+              <JsonPreview extraction={extraction} />
+            </details>
+          </section>
+        ) : null}
       </div>
     </section>
   );
