@@ -32,18 +32,18 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <section className="project-hero">
         <nav>
           <Link href="/">DistroNow</Link>
-          <span>Project workspace</span>
+          <span>Content workspace</span>
         </nav>
 
         <div className="project-header">
           <div>
-            <p className="eyebrow">Saved project</p>
+            <p className="eyebrow">Brand workspace</p>
             <h1>{project.name ?? project.domain}</h1>
             <p className="lede">{project.websiteUrl}</p>
           </div>
 
           <div className="project-actions">
-            <Link href="/">New scrape</Link>
+            <Link href="/">New brand</Link>
           </div>
         </div>
       </section>
@@ -54,7 +54,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <strong>{project.domain}</strong>
         </div>
         <div>
-          <span>Provider</span>
+          <span>Source</span>
           <strong>{latestExtraction.provider}</strong>
         </div>
         <div>

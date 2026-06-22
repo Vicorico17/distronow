@@ -51,7 +51,7 @@ export default function Home() {
       <section className="intro">
         <nav>
           <strong>DistroNow</strong>
-          <span>Brand ingestion pipeline</span>
+          <span>Distribution workspace</span>
         </nav>
 
         <div className="intro-grid">
@@ -79,7 +79,6 @@ export default function Home() {
                 {state.status === "loading" ? "Extracting" : "Extract"}
               </button>
             </div>
-            <p>Server key: FIRECRAWL_API_KEY in .env.local.</p>
             {state.status === "error" ? <div className="error-box">{state.message}</div> : null}
           </form>
         </div>
@@ -90,14 +89,14 @@ export default function Home() {
       ) : (
         <section className="empty-state">
           <div>
-            <h2>Pipeline shape</h2>
-            <p>URL input flows into Firecrawl branding extraction, then becomes the canonical brand profile.</p>
+            <h2>From website to workspace</h2>
+            <p>Start by capturing the brand identity. The next workspace keeps the profile ready for social content.</p>
           </div>
           <ol>
-            <li>Normalize website URL</li>
-            <li>Request Firecrawl branding scrape</li>
-            <li>Review extracted brand identity</li>
-            <li>Use profile for content generation workflows</li>
+            <li>Capture the visual system</li>
+            <li>Save the brand profile</li>
+            <li>Review colors, type, and assets</li>
+            <li>Prepare reusable content prompts</li>
           </ol>
         </section>
       )}
