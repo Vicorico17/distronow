@@ -2,11 +2,12 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { BrandExtraction, getColorEntries } from "@/lib/brand";
+import { StoredBrandExtraction } from "@/lib/brand-store";
 
 type ScrapeState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "success"; extraction: BrandExtraction }
+  | { status: "success"; extraction: BrandExtraction; stored: StoredBrandExtraction | null }
   | { status: "error"; message: string };
 
 const samplePrompts = [
@@ -53,7 +54,7 @@ function ColorGrid({ extraction }: { extraction: BrandExtraction }) {
   );
 }
 
-function BrandResult({ extraction }: { extraction: BrandExtraction }) {
+function BrandResult({ extraction, stored }: { extraction: BrandExtraction; stored: StoredBrandExtraction | null }) {
   const branding = extraction.branding;
   const logo = branding.logo ?? branding.images?.logo ?? branding.images?.favicon;
   const fonts = [
@@ -79,6 +80,7 @@ function BrandResult({ extraction }: { extraction: BrandExtraction }) {
         <div className="meta-row">
           <span>{new URL(extraction.sourceUrl).hostname}</span>
           <span>Captured {formatDate(extraction.capturedAt)}</span>
+          {stored ? <span>Saved project {stored.projectId.slice(0, 8)}</span> : <span>Not saved locally</span>}
         </div>
       </div>
 
@@ -152,6 +154,7 @@ export default function Home() {
 
     const payload = (await response.json()) as {
       extraction?: BrandExtraction;
+      stored?: StoredBrandExtraction | null;
       error?: string;
     };
 
@@ -160,7 +163,7 @@ export default function Home() {
       return;
     }
 
-    setState({ status: "success", extraction: payload.extraction });
+    setState({ status: "success", extraction: payload.extraction, stored: payload.stored ?? null });
   }
 
   return (
@@ -203,7 +206,7 @@ export default function Home() {
       </section>
 
       {state.status === "success" ? (
-        <BrandResult extraction={state.extraction} />
+        <BrandResult extraction={state.extraction} stored={state.stored} />
       ) : (
         <section className="empty-state">
           <div>
