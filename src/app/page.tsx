@@ -14,7 +14,7 @@ type ScrapeState =
 
 export default function Home() {
   const router = useRouter();
-  const [url, setUrl] = useState("www.rektgang.com");
+  const [url, setUrl] = useState("");
   const [state, setState] = useState<ScrapeState>({ status: "idle" });
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -71,7 +71,7 @@ export default function Home() {
                 id="website"
                 name="website"
                 onChange={(event) => setUrl(event.target.value)}
-                placeholder="example.com"
+                placeholder="Enter a URL"
                 type="text"
                 value={url}
               />
@@ -84,22 +84,7 @@ export default function Home() {
         </div>
       </section>
 
-      {state.status === "success" ? (
-        <BrandProfile extraction={state.extraction} stored={state.stored} />
-      ) : (
-        <section className="empty-state">
-          <div>
-            <h2>From website to workspace</h2>
-            <p>Start by capturing the brand identity. The next workspace keeps the profile ready for social content.</p>
-          </div>
-          <ol>
-            <li>Capture the visual system</li>
-            <li>Save the brand profile</li>
-            <li>Review colors, type, and assets</li>
-            <li>Prepare reusable content prompts</li>
-          </ol>
-        </section>
-      )}
+      {state.status === "success" ? <BrandProfile extraction={state.extraction} stored={state.stored} /> : null}
     </main>
   );
 }
