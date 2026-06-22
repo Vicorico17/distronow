@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { normalizeWebsiteUrl } from "@/lib/brand";
+import { saveBrandExtraction } from "@/lib/brand-store";
 import { scrapeBranding } from "@/lib/firecrawl";
 
 const requestSchema = z.object({
@@ -18,12 +19,12 @@ export async function POST(request: Request) {
   try {
     const url = normalizeWebsiteUrl(parsed.data.url);
     const extraction = await scrapeBranding(url);
+    const stored = await saveBrandExtraction(extraction);
 
-    return NextResponse.json({ extraction });
+    return NextResponse.json({ extraction, stored });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Brand extraction failed.";
 
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
-
