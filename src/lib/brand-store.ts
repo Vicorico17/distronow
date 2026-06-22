@@ -1,4 +1,5 @@
 import { BrandExtraction, BrandProfile } from "@/lib/brand";
+import { ContentChannel, ContentIntent, GeneratedPostDraft } from "@/lib/post-generator";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 
@@ -20,6 +21,14 @@ export type BrandProjectWorkspace = {
     id: string;
     provider: string;
   };
+  postDrafts: SavedPostDraft[];
+};
+
+export type SavedPostDraft = GeneratedPostDraft & {
+  id: string;
+  projectId: string;
+  brandExtractionId: string | null;
+  createdAt: string;
 };
 
 function getDomain(sourceUrl: string) {
@@ -132,7 +141,92 @@ export async function getBrandProjectWorkspace(projectId: string): Promise<Brand
       branding: extraction.branding as BrandProfile,
       rawMetadata: (extraction.raw_metadata ?? undefined) as Record<string, unknown> | undefined,
       capturedAt: extraction.captured_at
-    }
+    },
+    postDrafts: await getPostDrafts(project.id)
   };
 }
 
+export async function getPostDrafts(projectId: string): Promise<SavedPostDraft[]> {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("post_drafts")
+    .select("id,project_id,brand_extraction_id,channel,intent,headline,body,cta,hashtags,created_at")
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false })
+    .limit(12);
+
+  if (error) {
+    if (error.code === "42P01") {
+      return [];
+    }
+
+    throw new Error(`Could not load post drafts: ${error.message}`);
+  }
+
+  return data.map((draft) => ({
+    id: draft.id,
+    projectId: draft.project_id,
+    brandExtractionId: draft.brand_extraction_id,
+    channel: draft.channel as ContentChannel,
+    intent: draft.intent as ContentIntent,
+    headline: draft.headline,
+    body: draft.body,
+    cta: draft.cta ?? "",
+    hashtags: draft.hashtags,
+    createdAt: draft.created_at
+  }));
+}
+
+export async function savePostDrafts({
+  projectId,
+  brandExtractionId,
+  drafts
+}: {
+  projectId: string;
+  brandExtractionId: string;
+  drafts: GeneratedPostDraft[];
+}) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("post_drafts")
+    .insert(
+      drafts.map((draft) => ({
+        project_id: projectId,
+        brand_extraction_id: brandExtractionId,
+        channel: draft.channel,
+        intent: draft.intent,
+        headline: draft.headline,
+        body: draft.body,
+        cta: draft.cta,
+        hashtags: draft.hashtags
+      }))
+    )
+    .select("id,project_id,brand_extraction_id,channel,intent,headline,body,cta,hashtags,created_at");
+
+  if (error) {
+    throw new Error(`Could not save post drafts: ${error.message}`);
+  }
+
+  return data.map((draft) => ({
+    id: draft.id,
+    projectId: draft.project_id,
+    brandExtractionId: draft.brand_extraction_id,
+    channel: draft.channel as ContentChannel,
+    intent: draft.intent as ContentIntent,
+    headline: draft.headline,
+    body: draft.body,
+    cta: draft.cta ?? "",
+    hashtags: draft.hashtags,
+    createdAt: draft.created_at
+  }));
+}

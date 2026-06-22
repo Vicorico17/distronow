@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BrandProfile } from "@/components/brand-profile";
+import { PostDraftPanel } from "@/components/post-draft-panel";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 
 type ProjectPageProps = {
@@ -68,6 +69,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         projectLabel="Workspace brand kit"
         stored={{ projectId: project.id, extractionId: latestExtraction.id }}
       />
+
+      <PostDraftPanel projectId={project.id} initialDrafts={workspace.postDrafts} />
     </main>
   );
 }

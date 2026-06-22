@@ -28,11 +28,12 @@ Do not expose `SUPABASE_SERVICE_ROLE_KEY` in client code. It is only used by ser
 
 ## Database
 
-Run the SQL in `supabase/migrations/20260622172000_create_brand_pipeline.sql` against the Supabase project.
+Run the SQL migrations in `supabase/migrations/` against the Supabase project.
 
 Current tables:
 
 - `projects`: one row per website/domain.
 - `brand_extractions`: append-only Firecrawl extraction history for each project.
+- `post_drafts`: saved social post ideas generated from a project brand profile.
 
 The API route `POST /api/brand/scrape` works without Supabase keys, but it only saves results when the server role key is configured.

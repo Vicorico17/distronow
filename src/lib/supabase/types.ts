@@ -77,6 +77,60 @@ export type Database = {
           }
         ];
       };
+      post_drafts: {
+        Row: {
+          id: string;
+          project_id: string;
+          brand_extraction_id: string | null;
+          channel: string;
+          intent: string;
+          headline: string;
+          body: string;
+          cta: string | null;
+          hashtags: string[];
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          brand_extraction_id?: string | null;
+          channel: string;
+          intent: string;
+          headline: string;
+          body: string;
+          cta?: string | null;
+          hashtags?: string[];
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          brand_extraction_id?: string | null;
+          channel?: string;
+          intent?: string;
+          headline?: string;
+          body?: string;
+          cta?: string | null;
+          hashtags?: string[];
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "post_drafts_brand_extraction_id_fkey";
+            columns: ["brand_extraction_id"];
+            isOneToOne: false;
+            referencedRelation: "brand_extractions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "post_drafts_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
