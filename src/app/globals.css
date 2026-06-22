@@ -55,6 +55,13 @@ nav strong {
   font-size: 18px;
 }
 
+nav a {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 nav span {
   color: var(--muted);
   font-size: 14px;
@@ -396,6 +403,77 @@ code {
   margin-bottom: 0;
 }
 
+.project-hero {
+  background: #e8f0ed;
+  border-bottom: 1px solid var(--line);
+}
+
+.project-header {
+  align-items: end;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0 auto;
+  max-width: 1160px;
+  padding: 64px 24px 42px;
+}
+
+.project-header h1 {
+  font-size: clamp(40px, 6vw, 76px);
+  margin-bottom: 16px;
+  max-width: 860px;
+}
+
+.project-header .lede {
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+
+.project-actions a {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: #ffffff;
+  display: inline-flex;
+  font-weight: 800;
+  padding: 13px 16px;
+  text-decoration: none;
+}
+
+.project-meta {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: 1160px;
+  padding: 18px 24px 0;
+}
+
+.project-meta div {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-width: 0;
+  padding: 14px;
+}
+
+.project-meta span,
+.project-meta strong {
+  display: block;
+}
+
+.project-meta span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.project-meta strong {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 860px) {
   nav,
   .intro-grid,
@@ -407,7 +485,9 @@ code {
 
   .intro-grid,
   .empty-state,
-  .panel-grid {
+  .panel-grid,
+  .project-header,
+  .project-meta {
     grid-template-columns: 1fr;
   }
 

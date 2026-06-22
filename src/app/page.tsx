@@ -1,8 +1,10 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { BrandExtraction, getColorEntries } from "@/lib/brand";
-import { StoredBrandExtraction } from "@/lib/brand-store";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { BrandExtraction } from "@/lib/brand";
+import { BrandProfile } from "@/components/brand-profile";
+import type { StoredBrandExtraction } from "@/lib/brand-store";
 
 type ScrapeState =
   | { status: "idle" }
@@ -10,135 +12,8 @@ type ScrapeState =
   | { status: "success"; extraction: BrandExtraction; stored: StoredBrandExtraction | null }
   | { status: "error"; message: string };
 
-const samplePrompts = [
-  "Launch announcement",
-  "Founder update",
-  "Product benefit",
-  "Customer proof"
-];
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(new Date(value));
-}
-
-function JsonPreview({ extraction }: { extraction: BrandExtraction }) {
-  const value = useMemo(() => JSON.stringify(extraction, null, 2), [extraction]);
-
-  return <pre className="json-preview">{value}</pre>;
-}
-
-function ColorGrid({ extraction }: { extraction: BrandExtraction }) {
-  const colors = getColorEntries(extraction.branding.colors);
-
-  if (colors.length === 0) {
-    return <p className="empty-copy">No color tokens were returned.</p>;
-  }
-
-  return (
-    <div className="color-grid">
-      {colors.map(([name, value]) => (
-        <div className="color-token" key={name}>
-          <span className="swatch" style={{ background: value }} />
-          <span>
-            <strong>{name}</strong>
-            <code>{value}</code>
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function BrandResult({ extraction, stored }: { extraction: BrandExtraction; stored: StoredBrandExtraction | null }) {
-  const branding = extraction.branding;
-  const logo = branding.logo ?? branding.images?.logo ?? branding.images?.favicon;
-  const fonts = [
-    branding.typography?.fontFamilies?.heading,
-    branding.typography?.fontFamilies?.primary,
-    ...(branding.fonts ?? []).map((font) => font.family)
-  ].filter(Boolean);
-
-  return (
-    <section className="workspace" aria-label="Extracted brand profile">
-      <div className="brand-summary">
-        <div className="brand-heading">
-          <div className="logo-box">
-            {logo ? <img src={logo} alt="" /> : <span>{extraction.title?.slice(0, 1) ?? "D"}</span>}
-          </div>
-          <div>
-            <p className="eyebrow">Brand profile</p>
-            <h2>{extraction.title ?? extraction.sourceUrl}</h2>
-            <p>{extraction.description ?? "A reusable identity kit is ready for the next distribution workflow."}</p>
-          </div>
-        </div>
-
-        <div className="meta-row">
-          <span>{new URL(extraction.sourceUrl).hostname}</span>
-          <span>Captured {formatDate(extraction.capturedAt)}</span>
-          {stored ? <span>Saved project {stored.projectId.slice(0, 8)}</span> : <span>Not saved locally</span>}
-        </div>
-      </div>
-
-      <div className="panel-grid">
-        <section className="panel">
-          <div className="panel-title">
-            <h3>Colors</h3>
-            <span>{getColorEntries(branding.colors).length} tokens</span>
-          </div>
-          <ColorGrid extraction={extraction} />
-        </section>
-
-        <section className="panel">
-          <div className="panel-title">
-            <h3>Type</h3>
-            <span>{fonts.length || 0} families</span>
-          </div>
-          <div className="type-stack">
-            {fonts.length ? (
-              [...new Set(fonts)].map((font) => (
-                <div key={font} className="type-row">
-                  <span>{font}</span>
-                  <strong style={{ fontFamily: font }}>{font}</strong>
-                </div>
-              ))
-            ) : (
-              <p className="empty-copy">No font data was returned.</p>
-            )}
-          </div>
-        </section>
-
-        <section className="panel">
-          <div className="panel-title">
-            <h3>Post Starters</h3>
-            <span>Next step</span>
-          </div>
-          <div className="prompt-grid">
-            {samplePrompts.map((prompt) => (
-              <button type="button" key={prompt}>
-                {prompt}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="panel panel-wide">
-          <div className="panel-title">
-            <h3>Pipeline Payload</h3>
-            <span>Ready for storage</span>
-          </div>
-          <JsonPreview extraction={extraction} />
-        </section>
-      </div>
-    </section>
-  );
-}
-
 export default function Home() {
+  const router = useRouter();
   const [url, setUrl] = useState("www.rektgang.com");
   const [state, setState] = useState<ScrapeState>({ status: "idle" });
 
@@ -163,7 +38,12 @@ export default function Home() {
       return;
     }
 
-    setState({ status: "success", extraction: payload.extraction, stored: payload.stored ?? null });
+    if (payload.stored?.projectId) {
+      router.push(`/projects/${payload.stored.projectId}`);
+      return;
+    }
+
+    setState({ status: "success", extraction: payload.extraction, stored: null });
   }
 
   return (
@@ -206,7 +86,7 @@ export default function Home() {
       </section>
 
       {state.status === "success" ? (
-        <BrandResult extraction={state.extraction} stored={state.stored} />
+        <BrandProfile extraction={state.extraction} stored={state.stored} />
       ) : (
         <section className="empty-state">
           <div>
