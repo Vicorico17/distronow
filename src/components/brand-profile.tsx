@@ -75,6 +75,7 @@ export function BrandProfile({
 
         <div className="meta-row">
           <span>{new URL(extraction.sourceUrl).hostname}</span>
+          {extraction.language ? <span>Language {extraction.language}</span> : null}
           <span>Captured {formatDate(extraction.capturedAt)}</span>
           {stored ? <span>Saved project {stored.projectId.slice(0, 8)}</span> : null}
         </div>

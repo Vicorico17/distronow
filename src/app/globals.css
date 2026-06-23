@@ -31,7 +31,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -155,7 +156,8 @@ h3 {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
-input {
+input,
+textarea {
   background: #fbfdfc;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -165,7 +167,13 @@ input {
   padding: 13px 14px;
 }
 
-input:focus {
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.14);
 }
@@ -489,7 +497,7 @@ code {
 .generator-controls {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 220px));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   margin-bottom: 18px;
 }
 
@@ -507,7 +515,8 @@ code {
 
 .draft-grid {
   display: grid;
-  gap: 14px;
+  align-items: start;
+  gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -517,26 +526,37 @@ code {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   min-width: 0;
-  padding: 16px;
+  padding: 18px;
 }
 
-.draft-card h3,
+.draft-card h3 {
+  font-size: 18px;
+  line-height: 1.2;
+  margin-bottom: 0;
+}
+
 .draft-empty h3 {
   font-size: 18px;
   line-height: 1.2;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
-.draft-card p,
+.draft-card p {
+  color: #3f4946;
+  line-height: 1.55;
+  margin-bottom: 0;
+  white-space: pre-line;
+}
+
 .draft-empty p {
   color: #3f4946;
   line-height: 1.55;
-  white-space: pre-line;
+  margin-bottom: 0;
 }
 
 .draft-card strong {
   display: block;
-  margin-bottom: 14px;
+  line-height: 1.4;
 }
 
 .draft-meta,
@@ -548,6 +568,83 @@ code {
 
 .draft-meta {
   margin-bottom: 12px;
+}
+
+.draft-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.draft-actions button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 7px 9px;
+}
+
+.draft-actions button:hover {
+  border-color: var(--accent);
+}
+
+.draft-actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.draft-section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  min-width: 0;
+  padding: 12px;
+}
+
+.draft-section input,
+.draft-section select,
+.draft-section textarea {
+  width: 100%;
+}
+
+.draft-status-section {
+  background: #f6faf8;
+}
+
+.draft-section-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.draft-section-header > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.draft-section-header button,
+.draft-empty button {
+  background: #f2f7f5;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 9px;
+}
+
+.draft-section-header button:hover,
+.draft-empty button:hover {
+  border-color: var(--accent);
 }
 
 .draft-meta span,
@@ -562,7 +659,20 @@ code {
 }
 
 .draft-empty {
+  align-items: center;
+  display: flex;
+  gap: 16px;
   grid-column: 1 / -1;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.draft-empty button {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  flex: 0 0 auto;
+  padding: 10px 12px;
 }
 
 @media (max-width: 860px) {
@@ -590,6 +700,11 @@ code {
 
   .brand-heading {
     align-items: flex-start;
+  }
+
+  .draft-empty {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 

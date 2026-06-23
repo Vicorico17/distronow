@@ -79,6 +79,7 @@ export type BrandExtraction = {
   sourceUrl: string;
   title?: string;
   description?: string;
+  language?: string;
   branding: BrandProfile;
   capturedAt: string;
   rawMetadata?: Record<string, unknown>;
@@ -108,3 +109,56 @@ export function getColorEntries(colors?: BrandColors) {
   });
 }
 
+function readMetadataString(metadata: Record<string, unknown> | undefined, keys: string[]) {
+  for (const key of keys) {
+    const value = metadata?.[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return undefined;
+}
+
+function inferLanguageFromText(value: string | undefined) {
+  const text = value?.toLowerCase() ?? "";
+
+  if (!text) {
+    return undefined;
+  }
+
+  const languageSignals: Array<[string, RegExp]> = [
+    ["Romanian", /\b(si|sau|pentru|este|sunt|din|cu|produse|servicii|afaceri|comanda|livrare)\b|[ăâîșț]/i],
+    ["Spanish", /\b(el|la|los|las|para|con|servicios|productos|empresa|envio|compra)\b|[ñáéíóú]/i],
+    ["French", /\b(le|la|les|pour|avec|services|produits|entreprise|livraison|acheter)\b|[àâçéèêëîïôûùüÿ]/i],
+    ["German", /\b(der|die|das|und|fur|für|mit|produkte|dienstleistungen|unternehmen|kaufen)\b|[äöüß]/i],
+    ["English", /\b(the|and|for|with|services|products|business|delivery|shop|learn)\b/i]
+  ];
+
+  return languageSignals.find(([, pattern]) => pattern.test(text))?.[0];
+}
+
+export function detectBrandLanguage(extraction: Pick<BrandExtraction, "title" | "description" | "rawMetadata">) {
+  const explicitLanguage = readMetadataString(extraction.rawMetadata, [
+    "language",
+    "lang",
+    "og:locale",
+    "locale",
+    "htmlLang"
+  ]);
+
+  if (explicitLanguage) {
+    const normalized = explicitLanguage.toLowerCase();
+
+    if (normalized.startsWith("ro")) return "Romanian";
+    if (normalized.startsWith("en")) return "English";
+    if (normalized.startsWith("es")) return "Spanish";
+    if (normalized.startsWith("fr")) return "French";
+    if (normalized.startsWith("de")) return "German";
+
+    return explicitLanguage;
+  }
+
+  return inferLanguageFromText([extraction.title, extraction.description].filter(Boolean).join(" "));
+}

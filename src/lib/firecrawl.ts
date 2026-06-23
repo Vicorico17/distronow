@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BrandExtraction, BrandProfile } from "./brand";
+import { BrandExtraction, BrandProfile, detectBrandLanguage } from "./brand";
 
 const firecrawlResponseSchema = z.object({
   success: z.boolean().optional(),
@@ -66,12 +66,17 @@ export async function scrapeBranding(url: string): Promise<BrandExtraction> {
 
   const metadata = data.metadata;
 
-  return {
+  const extraction = {
     sourceUrl: readString(metadata?.sourceURL) ?? readString(metadata?.url) ?? url,
     title: readString(metadata?.title),
     description: readString(metadata?.description),
     branding,
     capturedAt: new Date().toISOString(),
     rawMetadata: metadata
+  };
+
+  return {
+    ...extraction,
+    language: detectBrandLanguage(extraction)
   };
 }

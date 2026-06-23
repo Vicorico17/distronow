@@ -9,6 +9,9 @@ export type Database = {
           name: string | null;
           website_url: string;
           domain: string;
+          language: string | null;
+          tone: string | null;
+          audience: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -17,6 +20,9 @@ export type Database = {
           name?: string | null;
           website_url: string;
           domain: string;
+          language?: string | null;
+          tone?: string | null;
+          audience?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -25,6 +31,9 @@ export type Database = {
           name?: string | null;
           website_url?: string;
           domain?: string;
+          language?: string | null;
+          tone?: string | null;
+          audience?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -38,6 +47,7 @@ export type Database = {
           source_url: string;
           title: string | null;
           description: string | null;
+          language: string | null;
           branding: Json;
           raw_metadata: Json | null;
           captured_at: string;
@@ -50,6 +60,7 @@ export type Database = {
           source_url: string;
           title?: string | null;
           description?: string | null;
+          language?: string | null;
           branding: Json;
           raw_metadata?: Json | null;
           captured_at: string;
@@ -62,6 +73,7 @@ export type Database = {
           source_url?: string;
           title?: string | null;
           description?: string | null;
+          language?: string | null;
           branding?: Json;
           raw_metadata?: Json | null;
           captured_at?: string;
@@ -88,7 +100,16 @@ export type Database = {
           body: string;
           cta: string | null;
           hashtags: string[];
+          status: string;
+          language: string | null;
+          tone: string | null;
+          length: string | null;
+          provider: string;
+          model: string | null;
+          prompt_version: string | null;
+          settings: Json;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
@@ -100,7 +121,16 @@ export type Database = {
           body: string;
           cta?: string | null;
           hashtags?: string[];
+          status?: string;
+          language?: string | null;
+          tone?: string | null;
+          length?: string | null;
+          provider?: string;
+          model?: string | null;
+          prompt_version?: string | null;
+          settings?: Json;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
@@ -112,7 +142,16 @@ export type Database = {
           body?: string;
           cta?: string | null;
           hashtags?: string[];
+          status?: string;
+          language?: string | null;
+          tone?: string | null;
+          length?: string | null;
+          provider?: string;
+          model?: string | null;
+          prompt_version?: string | null;
+          settings?: Json;
           created_at?: string;
+          updated_at?: string;
         };
         Relationships: [
           {

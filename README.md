@@ -16,6 +16,15 @@ Required for scraping:
 FIRECRAWL_API_KEY=fc-your-api-key
 ```
 
+Optional for AI draft generation:
+
+```bash
+OPENAI_API_KEY=sk-your-openai-api-key
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+When `OPENAI_API_KEY` is not set, draft generation uses the deterministic template fallback.
+
 Required for persistence:
 
 ```bash

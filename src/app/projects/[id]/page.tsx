@@ -38,7 +38,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         stored={{ projectId: project.id, extractionId: latestExtraction.id }}
       />
 
-      <PostDraftPanel projectId={project.id} initialDrafts={workspace.postDrafts} />
+      <PostDraftPanel
+        initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}
+        projectId={project.id}
+        initialDrafts={workspace.postDrafts}
+      />
     </main>
   );
 }

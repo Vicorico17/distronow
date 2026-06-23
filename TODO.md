@@ -2,40 +2,40 @@
 
 ## Immediate Product Fixes
 
-- Improve draft display on the project page.
-  - Make drafts easier to scan and compare.
-  - Separate generated headline, body, CTA, and hashtags more clearly.
-  - Add copy actions for each section.
-  - Add a compact empty state that points users to the generator controls.
+- [x] Improve draft display on the project page.
+  - [x] Make drafts easier to scan and compare.
+  - [x] Separate generated headline, body, CTA, and hashtags more clearly.
+  - [x] Add copy actions for each section.
+  - [x] Add a compact empty state that points users to the generator controls.
 
-- Detect and preserve brand language.
-  - Store detected language from Firecrawl metadata when available.
-  - Infer language from title, description, and page metadata when Firecrawl does not provide it.
-  - Generate drafts in the brand language by default.
-  - Let users override language per project or per generation.
+- [x] Detect and preserve brand language.
+  - [x] Store detected language from Firecrawl metadata when available.
+  - [x] Infer language from title, description, and page metadata when Firecrawl does not provide it.
+  - [x] Generate drafts in the brand language by default.
+  - [x] Let users override language per generation.
 
-- Replace template-only drafts with AI generation.
-  - Add an OpenAI-backed generation service behind the existing post draft API.
-  - Keep the current deterministic generator as a fallback.
-  - Pass brand profile, language, channel, intent, and tone into the prompt.
-  - Save prompt version and generation provider with each draft.
+- [x] Replace template-only drafts with AI generation.
+  - [x] Add an OpenAI-backed generation service behind the existing post draft API.
+  - [x] Keep the current deterministic generator as a fallback.
+  - [x] Pass brand profile, language, channel, intent, and tone into the prompt.
+  - [x] Save prompt version and generation provider with each draft.
 
 ## Content Workspace
 
-- Add generation settings.
-  - Channel: LinkedIn, X, Instagram, Facebook, TikTok script.
-  - Intent: launch, educational, social proof, product benefit, promotion, community.
-  - Language: auto, Romanian, English, Spanish, French, German.
-  - Tone: auto, professional, playful, bold, luxury, technical.
-  - Length: short, medium, long.
+- [x] Add generation settings.
+  - [x] Channel: LinkedIn, X, Instagram, Facebook, TikTok script.
+  - [x] Intent: launch, educational, social proof, product benefit, promotion, community.
+  - [x] Language: auto, Romanian, English, Spanish, French, German.
+  - [x] Tone: auto, professional, playful, bold, luxury, technical.
+  - [x] Length: short, medium, long.
 
-- Add draft lifecycle.
-  - Draft status: generated, edited, approved, published.
-  - Editable draft cards.
-  - Duplicate draft.
-  - Delete draft.
-  - Regenerate one draft.
-  - Save edited draft back to Supabase.
+- [x] Add draft lifecycle.
+  - [x] Draft status: generated, edited, approved, published.
+  - [x] Editable draft cards.
+  - [x] Duplicate draft.
+  - [x] Delete draft.
+  - [x] Regenerate one draft.
+  - [x] Save edited draft back to Supabase.
 
 - Add campaign structure.
   - Group drafts into campaigns.
@@ -81,11 +81,11 @@
   - Confirm Firecrawl works from Vercel.
   - Confirm draft generation works from Vercel.
 
-- Add observability.
-  - Log scrape failures.
-  - Log generation failures.
-  - Show user-friendly error messages.
-  - Add basic rate limiting for scrape and generation endpoints.
+- [x] Add observability.
+  - [x] Log scrape failures.
+  - [x] Log generation failures.
+  - [x] Show user-friendly error messages.
+  - [x] Add basic rate limiting for scrape and generation endpoints.
 
 ## Later
 
@@ -99,4 +99,3 @@
   - X.
   - Instagram/Facebook via Meta.
   - Manual export before direct publishing.
-
