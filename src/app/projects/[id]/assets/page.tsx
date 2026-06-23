@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BrandProfile } from "@/components/brand-profile";
+import { PostDraftPanel } from "@/components/post-draft-panel";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 
-type ProjectPageProps = {
+type AssetsPageProps = {
   params: Promise<{
     id: string;
   }>;
 };
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
+export default async function AssetsPage({ params }: AssetsPageProps) {
   const { id } = await params;
   const workspace = await getBrandProjectWorkspace(id);
 
@@ -23,7 +24,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     <main>
       <section className="project-hero">
         <nav>
-          <Link href="/">DistroNow</Link>
+          <Link href={`/projects/${project.id}`}>Brand kit</Link>
           <Link className="nav-action" href="/">
             New brand
           </Link>
@@ -32,24 +33,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
       <BrandProfile
         extraction={latestExtraction}
-        projectLabel="Workspace brand kit"
+        projectLabel="Marketing assets source"
         showRawData={false}
         stored={{ projectId: project.id, extractionId: latestExtraction.id }}
       />
 
-      <section className="asset-entry">
-        <div>
-          <p className="eyebrow">Next step</p>
-          <h2>Generate marketing assets from this brand kit.</h2>
-          <p>
-            Use the saved brand profile to create channel-specific posts, founder updates, customer proof, and other
-            reusable distribution drafts.
-          </p>
-        </div>
-        <Link className="primary-action" href={`/projects/${project.id}/assets`}>
-          Generate marketing assets
-        </Link>
-      </section>
+      <PostDraftPanel
+        initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}
+        projectId={project.id}
+        initialDrafts={workspace.postDrafts}
+      />
     </main>
   );
 }

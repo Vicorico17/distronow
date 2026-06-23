@@ -8,7 +8,7 @@ import {
   ContentLanguage,
   ContentLength,
   ContentTone,
-  INTENTS,
+  GENERATION_INTENTS,
   LANGUAGES,
   LENGTHS,
   TONES
@@ -59,7 +59,7 @@ export function PostDraftPanel({
   initialLanguage?: string;
 }) {
   const [channel, setChannel] = useState<ContentChannel>("LinkedIn");
-  const [intent, setIntent] = useState<ContentIntent>("Launch");
+  const [intent, setIntent] = useState<ContentIntent>("Launch announcement");
   const [language, setLanguage] = useState<ContentLanguage>(normalizeInitialLanguage(initialLanguage));
   const [tone, setTone] = useState<ContentTone>("Auto");
   const [length, setLength] = useState<ContentLength>("Medium");
@@ -293,7 +293,7 @@ export function PostDraftPanel({
         <label>
           <span>Intent</span>
           <select onChange={(event) => setIntent(event.target.value as ContentIntent)} value={intent}>
-            {INTENTS.map((option) => (
+            {GENERATION_INTENTS.map((option) => (
               <option key={option}>{option}</option>
             ))}
           </select>

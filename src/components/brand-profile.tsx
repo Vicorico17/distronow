@@ -1,8 +1,6 @@
 import { BrandExtraction, getColorEntries } from "@/lib/brand";
 import type { StoredBrandExtraction } from "@/lib/brand-store";
 
-const samplePrompts = ["Launch announcement", "Founder update", "Product benefit", "Customer proof"];
-
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
     month: "short",
@@ -106,20 +104,6 @@ export function BrandProfile({
             ) : (
               <p className="empty-copy">No font data was returned.</p>
             )}
-          </div>
-        </section>
-
-        <section className="panel">
-          <div className="panel-title">
-            <h3>Post Starters</h3>
-            <span>Next step</span>
-          </div>
-          <div className="prompt-grid">
-            {samplePrompts.map((prompt) => (
-              <button type="button" key={prompt}>
-                {prompt}
-              </button>
-            ))}
           </div>
         </section>
 

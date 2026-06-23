@@ -1,7 +1,17 @@
 import { BrandExtraction, detectBrandLanguage } from "@/lib/brand";
 
 export const CHANNELS = ["LinkedIn", "X", "Instagram", "Facebook", "TikTok script"] as const;
-export const INTENTS = ["Launch", "Educational", "Social proof", "Product benefit", "Promotion", "Community"] as const;
+export const GENERATION_INTENTS = [
+  "Launch announcement",
+  "Founder update",
+  "Product benefit",
+  "Customer proof",
+  "Educational",
+  "Social proof",
+  "Promotion",
+  "Community"
+] as const;
+export const INTENTS = [...GENERATION_INTENTS, "Launch"] as const;
 export const LANGUAGES = ["Auto", "Romanian", "English", "Spanish", "French", "German"] as const;
 export const TONES = ["Auto", "Professional", "Playful", "Bold", "Luxury", "Technical"] as const;
 export const LENGTHS = ["Short", "Medium", "Long"] as const;
@@ -125,7 +135,7 @@ function templateDrafts({
   const toneLine = `The voice should feel ${resolvedTone}.`;
 
   const templates: Record<ContentIntent, Array<{ headline: string; lines: string[]; cta: string }>> = {
-    Launch: [
+    "Launch announcement": [
       {
         headline: `${brandName} is ready for more reach`,
         lines: [
@@ -143,6 +153,46 @@ function templateDrafts({
           "Now the focus moves to consistent distribution."
         ],
         cta: "Start with the brand profile."
+      }
+    ],
+    "Founder update": [
+      {
+        headline: `Why ${brandName} is building with more focus`,
+        lines: [
+          `${brandName} has a clear base to build from: identity, message, and a recognizable point of view.`,
+          "A founder update can make that progress feel direct and personal.",
+          `${toneLine} The post should explain what is changing and why it matters now.`
+        ],
+        cta: "Follow the build."
+      },
+      {
+        headline: `A note from behind ${brandName}`,
+        lines: [
+          "The most useful updates are specific, not polished into sameness.",
+          `${brandName} can use its brand profile to share what the team is learning, building, or improving.`,
+          "That gives the audience a reason to pay attention before the next launch."
+        ],
+        cta: "Share the next step."
+      }
+    ],
+    "Customer proof": [
+      {
+        headline: `${brandName} has a proof point to repeat`,
+        lines: [
+          summary,
+          "Customer proof works best when the post connects a real outcome to a simple reason.",
+          `${toneLine} Keep the claim clear, credible, and easy to remember.`
+        ],
+        cta: "Turn the result into a story."
+      },
+      {
+        headline: "Make the proof easier to trust",
+        lines: [
+          `${brandName} can use customer signals without sounding inflated.`,
+          "Lead with the pain, show the change, and make the takeaway useful for the next reader.",
+          "That gives the brand a stronger reason to show up again."
+        ],
+        cta: "Share the proof."
       }
     ],
     Educational: [
@@ -243,6 +293,26 @@ function templateDrafts({
           "Small interactions create stronger signals for future posts."
         ],
         cta: "Open the conversation."
+      }
+    ],
+    Launch: [
+      {
+        headline: `${brandName} is ready for more reach`,
+        lines: [
+          `${brandName} already has the raw ingredients for a recognizable presence.`,
+          summary,
+          `${toneLine} This post introduces the brand without overexplaining it.`
+        ],
+        cta: "Follow the next update."
+      },
+      {
+        headline: `A sharper way to introduce ${brandName}`,
+        lines: [
+          "Most launches lose time rebuilding the basics.",
+          `${brandName} can start from what already exists: logo, color, type, and a clear message.`,
+          "Now the focus moves to consistent distribution."
+        ],
+        cta: "Start with the brand profile."
       }
     ]
   };
