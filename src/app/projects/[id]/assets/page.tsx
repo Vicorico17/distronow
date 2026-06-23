@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BrandProfile } from "@/components/brand-profile";
 import { PostDraftPanel } from "@/components/post-draft-panel";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 
@@ -31,12 +30,18 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
         </nav>
       </section>
 
-      <BrandProfile
-        extraction={latestExtraction}
-        projectLabel="Marketing assets source"
-        showRawData={false}
-        stored={{ projectId: project.id, extractionId: latestExtraction.id }}
-      />
+      <section className="asset-context">
+        <div>
+          <p className="eyebrow">Content workspace</p>
+          <h1>{latestExtraction.title ?? project.name ?? project.domain}</h1>
+          <p>{latestExtraction.description ?? "Generate and manage content drafts from the saved brand profile."}</p>
+        </div>
+        <div className="asset-context-meta">
+          <span>{new URL(latestExtraction.sourceUrl).hostname}</span>
+          {latestExtraction.language ? <span>{latestExtraction.language}</span> : null}
+          <span>{workspace.postDrafts.length} drafts</span>
+        </div>
+      </section>
 
       <PostDraftPanel
         initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}

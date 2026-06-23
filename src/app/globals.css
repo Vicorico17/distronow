@@ -458,31 +458,6 @@ code {
   padding-bottom: 20px;
 }
 
-.asset-entry {
-  align-items: center;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  display: grid;
-  gap: 24px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  margin: 0 auto 56px;
-  max-width: 1160px;
-  padding: 22px;
-}
-
-.asset-entry h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.asset-entry p:last-child {
-  color: var(--muted);
-  line-height: 1.5;
-  margin-bottom: 0;
-  max-width: 720px;
-}
-
 .primary-action {
   background: var(--accent);
   border: 1px solid var(--accent);
@@ -492,6 +467,72 @@ code {
   padding: 13px 16px;
   text-align: center;
   text-decoration: none;
+}
+
+.panel-action {
+  align-content: start;
+  display: grid;
+  gap: 12px;
+}
+
+.panel-action .eyebrow {
+  margin-bottom: 0;
+}
+
+.panel-action h3 {
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.panel-action p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.panel-action .primary-action {
+  justify-self: start;
+}
+
+.asset-context {
+  align-items: end;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0 auto;
+  max-width: 1160px;
+  padding: 28px 24px 18px;
+}
+
+.asset-context h1 {
+  font-size: 30px;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  max-width: 760px;
+}
+
+.asset-context p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+  max-width: 760px;
+}
+
+.asset-context-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.asset-context-meta span {
+  background: #e8f0ed;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: #33413d;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 5px 8px;
 }
 
 .content-workspace {
@@ -723,7 +764,7 @@ code {
   .intro-grid,
   .empty-state,
   .panel-grid,
-  .asset-entry,
+  .asset-context,
   .content-header,
   .generator-controls,
   .draft-grid {
@@ -737,6 +778,10 @@ code {
 
   .brand-heading {
     align-items: flex-start;
+  }
+
+  .asset-context-meta {
+    justify-content: flex-start;
   }
 
   .draft-empty {

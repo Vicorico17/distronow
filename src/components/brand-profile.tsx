@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BrandExtraction, getColorEntries } from "@/lib/brand";
 import type { StoredBrandExtraction } from "@/lib/brand-store";
 
@@ -42,11 +43,19 @@ export function BrandProfile({
   extraction,
   stored,
   projectLabel,
+  action,
   showRawData = true
 }: {
   extraction: BrandExtraction;
   stored?: StoredBrandExtraction | null;
   projectLabel?: string;
+  action?: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    href: string;
+    label: string;
+  };
   showRawData?: boolean;
 }) {
   const branding = extraction.branding;
@@ -106,6 +115,17 @@ export function BrandProfile({
             )}
           </div>
         </section>
+
+        {action ? (
+          <section className="panel panel-action">
+            <p className="eyebrow">{action.eyebrow}</p>
+            <h3>{action.title}</h3>
+            <p>{action.description}</p>
+            <Link className="primary-action" href={action.href}>
+              {action.label}
+            </Link>
+          </section>
+        ) : null}
 
         {showRawData ? (
           <section className="panel panel-wide">

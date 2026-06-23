@@ -31,25 +31,18 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       </section>
 
       <BrandProfile
+        action={{
+          eyebrow: "Next step",
+          title: "Create the first content drafts.",
+          description: "Move into the focused content workspace and generate channel-ready marketing assets.",
+          href: `/projects/${project.id}/assets`,
+          label: "Generate drafts"
+        }}
         extraction={latestExtraction}
         projectLabel="Workspace brand kit"
         showRawData={false}
         stored={{ projectId: project.id, extractionId: latestExtraction.id }}
       />
-
-      <section className="asset-entry">
-        <div>
-          <p className="eyebrow">Next step</p>
-          <h2>Generate marketing assets from this brand kit.</h2>
-          <p>
-            Use the saved brand profile to create channel-specific posts, founder updates, customer proof, and other
-            reusable distribution drafts.
-          </p>
-        </div>
-        <Link className="primary-action" href={`/projects/${project.id}/assets`}>
-          Generate marketing assets
-        </Link>
-      </section>
     </main>
   );
 }
