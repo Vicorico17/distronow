@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/env";
 import type { Database } from "@/lib/supabase/types";
 
@@ -11,5 +11,5 @@ export function createSupabaseBrowserClient() {
     throw new Error("Missing Supabase publishable key.");
   }
 
-  return createClient<Database>(getSupabaseUrl(), anonKey);
+  return createBrowserClient<Database>(getSupabaseUrl(), anonKey);
 }

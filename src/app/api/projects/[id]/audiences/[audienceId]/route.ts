@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { updateBrandAudience } from "@/lib/brand-store";
+import { getBrandProjectWorkspace, updateBrandAudience } from "@/lib/brand-store";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 const patchSchema = z.object({
   name: z.string().min(1).optional(),
@@ -31,6 +32,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   try {
+    const user = await getCurrentUser();
+    const workspace = await getBrandProjectWorkspace(id, user?.id);
+
+    if (!workspace) {
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+
     const audience = await updateBrandAudience({
       projectId: id,
       audienceId,

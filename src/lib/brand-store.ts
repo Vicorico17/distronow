@@ -18,12 +18,19 @@ export type StoredBrandExtraction = {
 export type BrandProjectWorkspace = {
   project: {
     id: string;
+    userId: string | null;
     name: string | null;
     websiteUrl: string;
     domain: string;
     language: string | null;
     tone: string | null;
     audience: string | null;
+    brandName: string | null;
+    brandDescription: string | null;
+    brandColors: Json;
+    brandFonts: Json;
+    brandLogo: string | null;
+    brandFieldsStatus: Json;
     createdAt: string;
     updatedAt: string;
   };
@@ -32,6 +39,15 @@ export type BrandProjectWorkspace = {
     provider: string;
   };
   postDrafts: SavedPostDraft[];
+};
+
+export type BrandProjectListItem = {
+  id: string;
+  name: string | null;
+  domain: string;
+  websiteUrl: string;
+  language: string | null;
+  updatedAt: string;
 };
 
 export type SavedBrandAudience = {
@@ -93,6 +109,7 @@ export type SavedPostDraft = Omit<
 function mapSavedPostDraft(draft: {
   id: string;
   project_id: string;
+  user_id: string | null;
   brand_extraction_id: string | null;
   channel: string;
   intent: string;
@@ -135,7 +152,7 @@ function mapSavedPostDraft(draft: {
 }
 
 const postDraftSelect =
-  "id,project_id,brand_extraction_id,channel,intent,headline,body,cta,hashtags,status,language,tone,length,provider,model,prompt_version,settings,created_at,updated_at";
+  "id,project_id,user_id,brand_extraction_id,channel,intent,headline,body,cta,hashtags,status,language,tone,length,provider,model,prompt_version,settings,created_at,updated_at";
 const audienceSelect =
   "id,project_id,name,summary,pain_points,goals,buying_triggers,objections,channels,content_angles,is_primary,source,created_at,updated_at";
 const marketingAssetSelect =
@@ -219,7 +236,10 @@ function getDomain(sourceUrl: string) {
   return new URL(sourceUrl).hostname.replace(/^www\./, "");
 }
 
-export async function saveBrandExtraction(extraction: BrandExtraction): Promise<StoredBrandExtraction | null> {
+export async function saveBrandExtraction(
+  extraction: BrandExtraction,
+  userId?: string | null
+): Promise<StoredBrandExtraction | null> {
   const supabase = createSupabaseAdminClient();
 
   if (!supabase) {
@@ -227,20 +247,49 @@ export async function saveBrandExtraction(extraction: BrandExtraction): Promise<
   }
 
   const domain = getDomain(extraction.sourceUrl);
-  const { data: project, error: projectError } = await supabase
+  const { data: existingProject, error: existingProjectError } = await supabase
     .from("projects")
-    .upsert(
-      {
-        website_url: extraction.sourceUrl,
-        domain,
-        name: extraction.title ?? domain,
-        language: extraction.language ?? null,
-        updated_at: new Date().toISOString()
-      },
-      { onConflict: "domain" }
-    )
-    .select("id")
-    .single();
+    .select("id,user_id")
+    .eq("domain", domain)
+    .maybeSingle();
+
+  if (existingProjectError) {
+    throw new Error(`Could not check project: ${existingProjectError.message}`);
+  }
+
+  if (existingProject?.user_id && existingProject.user_id !== userId) {
+    throw new Error("This brand is already owned by another account.");
+  }
+
+  const projectPayload = {
+    website_url: extraction.sourceUrl,
+    domain,
+    name: extraction.title ?? domain,
+    language: extraction.language ?? null,
+    brand_name: extraction.title ?? domain,
+    brand_description: extraction.description ?? null,
+    brand_colors: (extraction.branding.colors ?? {}) as Json,
+    brand_fonts: (extraction.branding.fonts ?? []) as Json,
+    brand_logo: extraction.branding.logo ?? extraction.branding.images?.logo ?? extraction.branding.images?.favicon ?? null,
+    updated_at: new Date().toISOString(),
+    user_id: userId ?? existingProject?.user_id ?? null
+  };
+  const { data: project, error: projectError } = existingProject
+    ? await supabase
+        .from("projects")
+        .update(projectPayload)
+        .eq("id", existingProject.id)
+        .select("id")
+        .single()
+    : await supabase
+        .from("projects")
+        .insert({
+          ...projectPayload,
+          website_url: extraction.sourceUrl,
+          domain
+        })
+        .select("id")
+        .single();
 
   if (projectError) {
     throw new Error(`Could not save project: ${projectError.message}`);
@@ -250,6 +299,7 @@ export async function saveBrandExtraction(extraction: BrandExtraction): Promise<
     .from("brand_extractions")
     .insert({
       project_id: project.id,
+      user_id: userId ?? null,
       provider: "firecrawl",
       source_url: extraction.sourceUrl,
       title: extraction.title ?? null,
@@ -272,7 +322,10 @@ export async function saveBrandExtraction(extraction: BrandExtraction): Promise<
   };
 }
 
-export async function getBrandProjectWorkspace(projectId: string): Promise<BrandProjectWorkspace | null> {
+export async function getBrandProjectWorkspace(
+  projectId: string,
+  userId?: string | null
+): Promise<BrandProjectWorkspace | null> {
   const supabase = createSupabaseAdminClient();
 
   if (!supabase) {
@@ -281,7 +334,9 @@ export async function getBrandProjectWorkspace(projectId: string): Promise<Brand
 
   const { data: project, error: projectError } = await supabase
     .from("projects")
-    .select("id,name,website_url,domain,language,tone,audience,created_at,updated_at")
+    .select(
+      "id,user_id,name,website_url,domain,language,tone,audience,brand_name,brand_description,brand_colors,brand_fonts,brand_logo,brand_fields_status,created_at,updated_at"
+    )
     .eq("id", projectId)
     .single();
 
@@ -291,6 +346,10 @@ export async function getBrandProjectWorkspace(projectId: string): Promise<Brand
     }
 
     throw new Error(`Could not load project: ${projectError.message}`);
+  }
+
+  if (project.user_id && project.user_id !== userId) {
+    return null;
   }
 
   const { data: extraction, error: extractionError } = await supabase
@@ -309,15 +368,29 @@ export async function getBrandProjectWorkspace(projectId: string): Promise<Brand
     throw new Error(`Could not load brand extraction: ${extractionError.message}`);
   }
 
+  const editedBranding = {
+    ...(extraction.branding as BrandProfile),
+    colors: (project.brand_colors as BrandProfile["colors"]) ?? (extraction.branding as BrandProfile).colors,
+    fonts: (project.brand_fonts as BrandProfile["fonts"]) ?? (extraction.branding as BrandProfile).fonts,
+    logo: project.brand_logo ?? (extraction.branding as BrandProfile).logo
+  };
+
   return {
     project: {
       id: project.id,
+      userId: project.user_id,
       name: project.name,
       websiteUrl: project.website_url,
       domain: project.domain,
       language: project.language,
       tone: project.tone,
       audience: project.audience,
+      brandName: project.brand_name,
+      brandDescription: project.brand_description,
+      brandColors: project.brand_colors,
+      brandFonts: project.brand_fonts,
+      brandLogo: project.brand_logo,
+      brandFieldsStatus: project.brand_fields_status,
       createdAt: project.created_at,
       updatedAt: project.updated_at
     },
@@ -325,15 +398,108 @@ export async function getBrandProjectWorkspace(projectId: string): Promise<Brand
       id: extraction.id,
       provider: extraction.provider,
       sourceUrl: extraction.source_url,
-      title: extraction.title ?? undefined,
-      description: extraction.description ?? undefined,
-      language: extraction.language ?? undefined,
-      branding: extraction.branding as BrandProfile,
+      title: project.brand_name ?? extraction.title ?? undefined,
+      description: project.brand_description ?? extraction.description ?? undefined,
+      language: project.language ?? extraction.language ?? undefined,
+      branding: editedBranding,
       rawMetadata: (extraction.raw_metadata ?? undefined) as Record<string, unknown> | undefined,
       capturedAt: extraction.captured_at
     },
     postDrafts: await getPostDrafts(project.id)
   };
+}
+
+export async function getBrandProjects(userId?: string | null): Promise<BrandProjectListItem[]> {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  let query = supabase
+    .from("projects")
+    .select("id,name,domain,website_url,language,updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(24);
+
+  if (userId) {
+    query = query.eq("user_id", userId);
+  } else {
+    query = query.is("user_id", null);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`Could not load projects: ${error.message}`);
+  }
+
+  return data.map((project) => ({
+    id: project.id,
+    name: project.name,
+    domain: project.domain,
+    websiteUrl: project.website_url,
+    language: project.language,
+    updatedAt: project.updated_at
+  }));
+}
+
+export async function updateBrandProject({
+  projectId,
+  userId,
+  updates
+}: {
+  projectId: string;
+  userId?: string | null;
+  updates: {
+    brandName?: string | null;
+    brandDescription?: string | null;
+    language?: string | null;
+    tone?: string | null;
+    audience?: string | null;
+    brandLogo?: string | null;
+    brandColors?: Json;
+    brandFonts?: Json;
+    brandFieldsStatus?: Json;
+  };
+}) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const workspace = await getBrandProjectWorkspace(projectId, userId);
+
+  if (!workspace) {
+    throw new Error("Project not found.");
+  }
+
+  const { data, error } = await supabase
+    .from("projects")
+    .update({
+      name: updates.brandName,
+      brand_name: updates.brandName,
+      brand_description: updates.brandDescription,
+      language: updates.language,
+      tone: updates.tone,
+      audience: updates.audience,
+      brand_logo: updates.brandLogo,
+      brand_colors: updates.brandColors,
+      brand_fonts: updates.brandFonts,
+      brand_fields_status: updates.brandFieldsStatus
+    })
+    .eq("id", projectId)
+    .select(
+      "id,user_id,name,website_url,domain,language,tone,audience,brand_name,brand_description,brand_colors,brand_fonts,brand_logo,brand_fields_status,created_at,updated_at"
+    )
+    .single();
+
+  if (error) {
+    throw new Error(`Could not update brand profile: ${error.message}`);
+  }
+
+  return data;
 }
 
 export async function getPostDrafts(projectId: string): Promise<SavedPostDraft[]> {
@@ -364,11 +530,13 @@ export async function getPostDrafts(projectId: string): Promise<SavedPostDraft[]
 export async function savePostDrafts({
   projectId,
   brandExtractionId,
-  drafts
+  drafts,
+  userId
 }: {
   projectId: string;
   brandExtractionId: string;
   drafts: GeneratedPostDraft[];
+  userId?: string | null;
 }) {
   const supabase = createSupabaseAdminClient();
 
@@ -381,6 +549,7 @@ export async function savePostDrafts({
     .insert(
       drafts.map((draft) => ({
         project_id: projectId,
+        user_id: userId ?? null,
         brand_extraction_id: brandExtractionId,
         channel: draft.channel,
         intent: draft.intent,
@@ -478,6 +647,7 @@ export async function duplicatePostDraft({ projectId, draftId }: { projectId: st
     .from("post_drafts")
     .insert({
       project_id: projectId,
+      user_id: draft.user_id,
       brand_extraction_id: draft.brand_extraction_id,
       channel: draft.channel,
       intent: draft.intent,
@@ -531,10 +701,12 @@ export async function getBrandAudiences(projectId: string): Promise<SavedBrandAu
 
 export async function saveBrandAudiences({
   projectId,
-  audiences
+  audiences,
+  userId
 }: {
   projectId: string;
   audiences: Array<Omit<SavedBrandAudience, "id" | "projectId" | "createdAt" | "updatedAt">>;
+  userId?: string | null;
 }) {
   const supabase = createSupabaseAdminClient();
 
@@ -547,6 +719,7 @@ export async function saveBrandAudiences({
     .insert(
       audiences.map((audience) => ({
         project_id: projectId,
+        user_id: userId ?? null,
         name: audience.name,
         summary: audience.summary,
         pain_points: audience.painPoints,
@@ -640,6 +813,7 @@ export async function getMarketingAssets(projectId: string): Promise<SavedMarket
 
 export async function saveMarketingAsset({
   projectId,
+  userId,
   brandExtractionId,
   audienceId,
   assetType,
@@ -655,6 +829,7 @@ export async function saveMarketingAsset({
   settings
 }: {
   projectId: string;
+  userId?: string | null;
   brandExtractionId: string | null;
   audienceId: string | null;
   assetType: string;
@@ -679,6 +854,7 @@ export async function saveMarketingAsset({
     .from("marketing_assets")
     .insert({
       project_id: projectId,
+      user_id: userId ?? null,
       brand_extraction_id: brandExtractionId,
       audience_id: audienceId,
       asset_type: assetType,

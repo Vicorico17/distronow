@@ -6,34 +6,55 @@ export type Database = {
       projects: {
         Row: {
           id: string;
+          user_id: string | null;
           name: string | null;
           website_url: string;
           domain: string;
           language: string | null;
           tone: string | null;
           audience: string | null;
+          brand_name: string | null;
+          brand_description: string | null;
+          brand_colors: Json;
+          brand_fonts: Json;
+          brand_logo: string | null;
+          brand_fields_status: Json;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
+          user_id?: string | null;
           name?: string | null;
           website_url: string;
           domain: string;
           language?: string | null;
           tone?: string | null;
           audience?: string | null;
+          brand_name?: string | null;
+          brand_description?: string | null;
+          brand_colors?: Json;
+          brand_fonts?: Json;
+          brand_logo?: string | null;
+          brand_fields_status?: Json;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
+          user_id?: string | null;
           name?: string | null;
           website_url?: string;
           domain?: string;
           language?: string | null;
           tone?: string | null;
           audience?: string | null;
+          brand_name?: string | null;
+          brand_description?: string | null;
+          brand_colors?: Json;
+          brand_fonts?: Json;
+          brand_logo?: string | null;
+          brand_fields_status?: Json;
           created_at?: string;
           updated_at?: string;
         };
@@ -43,6 +64,7 @@ export type Database = {
         Row: {
           id: string;
           project_id: string;
+          user_id: string | null;
           provider: string;
           source_url: string;
           title: string | null;
@@ -56,6 +78,7 @@ export type Database = {
         Insert: {
           id?: string;
           project_id: string;
+          user_id?: string | null;
           provider?: string;
           source_url: string;
           title?: string | null;
@@ -69,6 +92,7 @@ export type Database = {
         Update: {
           id?: string;
           project_id?: string;
+          user_id?: string | null;
           provider?: string;
           source_url?: string;
           title?: string | null;
@@ -93,6 +117,7 @@ export type Database = {
         Row: {
           id: string;
           project_id: string;
+          user_id: string | null;
           brand_extraction_id: string | null;
           channel: string;
           intent: string;
@@ -114,6 +139,7 @@ export type Database = {
         Insert: {
           id?: string;
           project_id: string;
+          user_id?: string | null;
           brand_extraction_id?: string | null;
           channel: string;
           intent: string;
@@ -135,6 +161,7 @@ export type Database = {
         Update: {
           id?: string;
           project_id?: string;
+          user_id?: string | null;
           brand_extraction_id?: string | null;
           channel?: string;
           intent?: string;
@@ -174,6 +201,7 @@ export type Database = {
         Row: {
           id: string;
           project_id: string;
+          user_id: string | null;
           name: string;
           summary: string;
           pain_points: string[];
@@ -190,6 +218,7 @@ export type Database = {
         Insert: {
           id?: string;
           project_id: string;
+          user_id?: string | null;
           name: string;
           summary: string;
           pain_points?: string[];
@@ -206,6 +235,7 @@ export type Database = {
         Update: {
           id?: string;
           project_id?: string;
+          user_id?: string | null;
           name?: string;
           summary?: string;
           pain_points?: string[];
@@ -233,6 +263,7 @@ export type Database = {
         Row: {
           id: string;
           project_id: string;
+          user_id: string | null;
           brand_extraction_id: string | null;
           audience_id: string | null;
           asset_type: string;
@@ -252,6 +283,7 @@ export type Database = {
         Insert: {
           id?: string;
           project_id: string;
+          user_id?: string | null;
           brand_extraction_id?: string | null;
           audience_id?: string | null;
           asset_type: string;
@@ -271,6 +303,7 @@ export type Database = {
         Update: {
           id?: string;
           project_id?: string;
+          user_id?: string | null;
           brand_extraction_id?: string | null;
           audience_id?: string | null;
           asset_type?: string;

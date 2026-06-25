@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { deletePostDraft, duplicatePostDraft, updatePostDraft } from "@/lib/brand-store";
+import { deletePostDraft, duplicatePostDraft, getBrandProjectWorkspace, updatePostDraft } from "@/lib/brand-store";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 const statusSchema = z.enum(["generated", "edited", "approved", "published"]);
 
@@ -33,6 +34,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   try {
+    const user = await getCurrentUser();
+    const workspace = await getBrandProjectWorkspace(id, user?.id);
+
+    if (!workspace) {
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+
     const draft = await updatePostDraft({
       projectId: id,
       draftId,
@@ -57,6 +65,13 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   try {
+    const user = await getCurrentUser();
+    const workspace = await getBrandProjectWorkspace(id, user?.id);
+
+    if (!workspace) {
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+
     const draft = await duplicatePostDraft({ projectId: id, draftId });
 
     return NextResponse.json({ draft });
@@ -71,6 +86,13 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const { id, draftId } = await context.params;
 
   try {
+    const user = await getCurrentUser();
+    const workspace = await getBrandProjectWorkspace(id, user?.id);
+
+    if (!workspace) {
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+
     await deletePostDraft({ projectId: id, draftId });
 
     return NextResponse.json({ ok: true });

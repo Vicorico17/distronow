@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BrandReviewEditor } from "@/components/brand-review-editor";
 import { BrandProfile } from "@/components/brand-profile";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 type ProjectPageProps = {
   params: Promise<{
@@ -11,7 +13,8 @@ type ProjectPageProps = {
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
-  const workspace = await getBrandProjectWorkspace(id);
+  const user = await getCurrentUser();
+  const workspace = await getBrandProjectWorkspace(id, user?.id);
 
   if (!workspace) {
     notFound();
@@ -26,6 +29,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <Link href="/">DistroNow</Link>
           <Link className="nav-action" href="/">
             New brand
+          </Link>
+          <Link className="nav-action" href="/projects">
+            Projects
           </Link>
           <Link className="nav-action" href="/login">
             Log in
@@ -46,6 +52,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         showRawData={false}
         stored={{ projectId: project.id, extractionId: latestExtraction.id }}
       />
+
+      <BrandReviewEditor workspace={workspace} />
     </main>
   );
 }

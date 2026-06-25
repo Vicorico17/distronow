@@ -4,6 +4,7 @@ import { normalizeWebsiteUrl } from "@/lib/brand";
 import { saveBrandExtraction } from "@/lib/brand-store";
 import { scrapeBranding } from "@/lib/firecrawl";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 const requestSchema = z.object({
   url: z.string().min(1)
@@ -30,8 +31,9 @@ export async function POST(request: Request) {
 
   try {
     const url = normalizeWebsiteUrl(parsed.data.url);
+    const user = await getCurrentUser();
     const extraction = await scrapeBranding(url);
-    const stored = await saveBrandExtraction(extraction);
+    const stored = await saveBrandExtraction(extraction, user?.id);
 
     return NextResponse.json({ extraction, stored });
   } catch (error) {

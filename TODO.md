@@ -57,8 +57,8 @@
 ## Brand Profile
 
 - Improve brand extraction review.
-  - Let users edit brand name, description, language, colors, fonts, and tone.
-  - Mark extracted values as confirmed or ignored.
+  - [x] Let users edit brand name, description, language, colors, fonts, and tone.
+  - [x] Mark extracted values as confirmed or ignored.
   - Add a confidence indicator for extracted fields.
 
 - Add brand assets.
@@ -75,15 +75,17 @@
 
 - Add authentication.
   - [x] Supabase Auth or Clerk.
-  - Associate projects with users.
-  - Lock projects and drafts behind row-level security.
+  - [x] Associate projects with users.
+  - [x] Lock projects and drafts behind row-level security.
+  - Add logout and account settings.
+  - Backfill or claim anonymous projects.
 
 - Update database schema.
   - Add `language`, `tone`, and `audience` fields to projects or brand profiles.
   - Add `provider`, `model`, `prompt_version`, and `settings` to post drafts.
   - [x] Add audience/persona and marketing asset tables.
   - Add campaigns table.
-  - Add user ownership columns.
+  - [x] Add user ownership columns.
 
 ## Deployment And Operations
 

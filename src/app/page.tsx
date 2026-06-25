@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BrandExtraction } from "@/lib/brand";
 import { BrandProfile } from "@/components/brand-profile";
@@ -52,9 +53,14 @@ export default function Home() {
       <section className="intro">
         <nav>
           <strong>DistroNow</strong>
-          <a className="nav-action" href="/login">
-            Log in
-          </a>
+          <span className="nav-link-row">
+            <Link className="nav-action" href="/projects">
+              Projects
+            </Link>
+            <Link className="nav-action" href="/login">
+              Log in
+            </Link>
+          </span>
         </nav>
 
         <div className="intro-grid">

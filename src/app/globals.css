@@ -82,6 +82,11 @@ nav span {
   font-size: 14px;
 }
 
+.nav-link-row {
+  display: flex;
+  gap: 8px;
+}
+
 .intro {
   background: linear-gradient(180deg, #e8f0ed 0%, #f4f7f6 100%);
   border-bottom: 1px solid var(--line);
@@ -601,7 +606,8 @@ code {
 }
 
 .asset-selection,
-.login-panel {
+.login-panel,
+.projects-dashboard {
   margin: 0 auto 18px;
   max-width: 1160px;
   padding: 0 24px 18px;
@@ -850,6 +856,97 @@ code {
   -webkit-line-clamp: 4;
 }
 
+.brand-review-editor {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin: 0 auto 56px;
+  max-width: 1160px;
+  padding: 22px;
+}
+
+.brand-review-editor form {
+  display: grid;
+  gap: 16px;
+}
+
+.brand-editor-grid,
+.field-status-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.brand-editor-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field-status-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.brand-editor-grid label,
+.field-status-grid label {
+  display: grid;
+  gap: 7px;
+}
+
+.brand-editor-grid span,
+.field-status-grid span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.brand-review-editor button {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: #ffffff;
+  font-weight: 900;
+  justify-self: start;
+  padding: 11px 13px;
+}
+
+.project-list {
+  display: grid;
+  gap: 12px;
+}
+
+.project-list-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  text-decoration: none;
+}
+
+.project-list-card:hover {
+  border-color: var(--accent);
+}
+
+.project-list-card span,
+.project-list-card small {
+  color: var(--muted);
+}
+
+.project-list-card span {
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.project-list-card strong {
+  font-size: 20px;
+}
+
 .content-header {
   align-items: start;
   display: grid;
@@ -1064,7 +1161,8 @@ code {
   .empty-state,
   .workspace,
   .asset-selection,
-  .login-panel {
+  .login-panel,
+  .projects-dashboard {
     padding-left: 18px;
     padding-right: 18px;
   }
@@ -1080,6 +1178,8 @@ code {
   .audience-form,
   .image-generator-grid,
   .asset-output-grid,
+  .brand-editor-grid,
+  .field-status-grid,
   .content-header,
   .generator-controls,
   .draft-grid {
@@ -1110,6 +1210,10 @@ code {
     align-items: flex-start;
     gap: 8px;
     flex-direction: column;
+  }
+
+  .nav-link-row {
+    flex-wrap: wrap;
   }
 
   h1 {

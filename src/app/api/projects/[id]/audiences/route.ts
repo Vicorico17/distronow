@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { generateAudienceRecommendations } from "@/lib/audience-generator";
 import { getBrandProjectWorkspace, saveBrandAudiences } from "@/lib/brand-store";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 const audienceSchema = z.object({
   name: z.string().min(1),
@@ -36,7 +37,8 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   try {
-    const workspace = await getBrandProjectWorkspace(id);
+    const user = await getCurrentUser();
+    const workspace = await getBrandProjectWorkspace(id, user?.id);
 
     if (!workspace) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
@@ -48,7 +50,8 @@ export async function POST(request: Request, context: RouteContext) {
         : [{ ...parsed.data.audience, source: "manual" }];
     const saved = await saveBrandAudiences({
       projectId: id,
-      audiences
+      audiences,
+      userId: workspace.project.userId
     });
 
     return NextResponse.json({ audiences: saved });

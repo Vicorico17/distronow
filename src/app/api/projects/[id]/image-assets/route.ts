@@ -3,6 +3,7 @@ import { z } from "zod";
 import { IMAGE_ASSET_TYPES } from "@/lib/asset-types";
 import { getBrandAudiences, getBrandProjectWorkspace, saveMarketingAsset } from "@/lib/brand-store";
 import { generateImageAsset } from "@/lib/image-asset-generator";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 const requestSchema = z.object({
   assetType: z.enum(IMAGE_ASSET_TYPES),
@@ -26,7 +27,8 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   try {
-    const workspace = await getBrandProjectWorkspace(id);
+    const user = await getCurrentUser();
+    const workspace = await getBrandProjectWorkspace(id, user?.id);
 
     if (!workspace) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
@@ -43,6 +45,7 @@ export async function POST(request: Request, context: RouteContext) {
     });
     const asset = await saveMarketingAsset({
       projectId: id,
+      userId: workspace.project.userId,
       brandExtractionId: workspace.latestExtraction.id,
       audienceId: audience?.id ?? null,
       assetType: parsed.data.assetType,

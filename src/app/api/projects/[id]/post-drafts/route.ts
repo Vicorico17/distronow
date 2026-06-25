@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getBrandProjectWorkspace, savePostDrafts } from "@/lib/brand-store";
 import { CHANNELS, generatePostDrafts, INTENTS, LANGUAGES, LENGTHS, TONES } from "@/lib/post-generator";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 const requestSchema = z.object({
   channel: z.enum(CHANNELS),
@@ -39,7 +40,8 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   try {
-    const workspace = await getBrandProjectWorkspace(id);
+    const user = await getCurrentUser();
+    const workspace = await getBrandProjectWorkspace(id, user?.id);
 
     if (!workspace) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
@@ -52,7 +54,8 @@ export async function POST(request: Request, context: RouteContext) {
     const drafts = await savePostDrafts({
       projectId: workspace.project.id,
       brandExtractionId: workspace.latestExtraction.id,
-      drafts: generated
+      drafts: generated,
+      userId: workspace.project.userId
     });
 
     return NextResponse.json({ drafts });

@@ -10,6 +10,9 @@ export default function LoginPage() {
           <Link className="nav-action" href="/">
             New brand
           </Link>
+          <Link className="nav-action" href="/projects">
+            Projects
+          </Link>
         </nav>
       </section>
 

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AssetSelectionPanel } from "@/components/asset-selection-panel";
 import { PostDraftPanel } from "@/components/post-draft-panel";
 import { getBrandAudiences, getBrandProjectWorkspace, getMarketingAssets } from "@/lib/brand-store";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 type AssetsPageProps = {
   params: Promise<{
@@ -12,7 +13,8 @@ type AssetsPageProps = {
 
 export default async function AssetsPage({ params }: AssetsPageProps) {
   const { id } = await params;
-  const workspace = await getBrandProjectWorkspace(id);
+  const user = await getCurrentUser();
+  const workspace = await getBrandProjectWorkspace(id, user?.id);
 
   if (!workspace) {
     notFound();
@@ -28,6 +30,9 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
           <Link href={`/projects/${project.id}`}>Brand kit</Link>
           <Link className="nav-action" href="/">
             New brand
+          </Link>
+          <Link className="nav-action" href="/projects">
+            Projects
           </Link>
           <Link className="nav-action" href="/login">
             Log in
