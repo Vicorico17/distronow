@@ -43,6 +43,17 @@
   - Support multiple posts per channel.
   - Add campaign objective and audience.
 
+- [x] Add asset selection screen.
+  - [x] Show recommended audiences after brand extraction.
+  - [x] Let users edit and add audiences.
+  - [x] Show workflow cards for social content, slideshows/carousels, image assets, UGC, and video.
+  - [x] Keep UGC and Seedance workflows visible as planned items.
+
+- Add slideshow and carousel generation.
+  - Generate Instagram/TikTok slideshow outlines.
+  - Generate LinkedIn infographic carousel outlines.
+  - Turn selected outlines into image prompts.
+
 ## Brand Profile
 
 - Improve brand extraction review.
@@ -63,13 +74,14 @@
 ## Accounts And Data
 
 - Add authentication.
-  - Supabase Auth or Clerk.
+  - [x] Supabase Auth or Clerk.
   - Associate projects with users.
   - Lock projects and drafts behind row-level security.
 
 - Update database schema.
   - Add `language`, `tone`, and `audience` fields to projects or brand profiles.
   - Add `provider`, `model`, `prompt_version`, and `settings` to post drafts.
+  - [x] Add audience/persona and marketing asset tables.
   - Add campaigns table.
   - Add user ownership columns.
 
@@ -89,10 +101,16 @@
 
 ## Later
 
-- Add image post generation.
-  - Generate branded post images from saved colors, logo, and tone.
-  - Store image outputs.
+- [x] Add image post generation.
+  - [x] Generate branded post images from saved colors, logo, and tone.
+  - [x] Store image outputs.
   - Export platform-specific sizes.
+
+- Add Seedance video generation.
+  - Add Seedance provider configuration.
+  - Generate text-to-video and image-to-video assets.
+  - Store video outputs in Supabase Storage.
+  - Add polling/webhook handling for async jobs.
 
 - Add publishing integrations.
   - LinkedIn.

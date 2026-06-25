@@ -34,6 +34,43 @@ export type BrandProjectWorkspace = {
   postDrafts: SavedPostDraft[];
 };
 
+export type SavedBrandAudience = {
+  id: string;
+  projectId: string;
+  name: string;
+  summary: string;
+  painPoints: string[];
+  goals: string[];
+  buyingTriggers: string[];
+  objections: string[];
+  channels: string[];
+  contentAngles: string[];
+  isPrimary: boolean;
+  source: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SavedMarketingAsset = {
+  id: string;
+  projectId: string;
+  brandExtractionId: string | null;
+  audienceId: string | null;
+  assetType: string;
+  title: string;
+  brief: string | null;
+  prompt: string | null;
+  content: Json;
+  imageUrl: string | null;
+  storagePath: string | null;
+  provider: string;
+  model: string | null;
+  status: string;
+  settings: Json;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type SavedPostDraft = Omit<
   GeneratedPostDraft,
   "language" | "tone" | "length" | "provider" | "model" | "promptVersion" | "settings"
@@ -99,6 +136,84 @@ function mapSavedPostDraft(draft: {
 
 const postDraftSelect =
   "id,project_id,brand_extraction_id,channel,intent,headline,body,cta,hashtags,status,language,tone,length,provider,model,prompt_version,settings,created_at,updated_at";
+const audienceSelect =
+  "id,project_id,name,summary,pain_points,goals,buying_triggers,objections,channels,content_angles,is_primary,source,created_at,updated_at";
+const marketingAssetSelect =
+  "id,project_id,brand_extraction_id,audience_id,asset_type,title,brief,prompt,content,image_url,storage_path,provider,model,status,settings,created_at,updated_at";
+
+function mapSavedBrandAudience(audience: {
+  id: string;
+  project_id: string;
+  name: string;
+  summary: string;
+  pain_points: string[];
+  goals: string[];
+  buying_triggers: string[];
+  objections: string[];
+  channels: string[];
+  content_angles: string[];
+  is_primary: boolean;
+  source: string;
+  created_at: string;
+  updated_at: string;
+}): SavedBrandAudience {
+  return {
+    id: audience.id,
+    projectId: audience.project_id,
+    name: audience.name,
+    summary: audience.summary,
+    painPoints: audience.pain_points,
+    goals: audience.goals,
+    buyingTriggers: audience.buying_triggers,
+    objections: audience.objections,
+    channels: audience.channels,
+    contentAngles: audience.content_angles,
+    isPrimary: audience.is_primary,
+    source: audience.source,
+    createdAt: audience.created_at,
+    updatedAt: audience.updated_at
+  };
+}
+
+function mapSavedMarketingAsset(asset: {
+  id: string;
+  project_id: string;
+  brand_extraction_id: string | null;
+  audience_id: string | null;
+  asset_type: string;
+  title: string;
+  brief: string | null;
+  prompt: string | null;
+  content: Json;
+  image_url: string | null;
+  storage_path: string | null;
+  provider: string;
+  model: string | null;
+  status: string;
+  settings: Json;
+  created_at: string;
+  updated_at: string;
+}): SavedMarketingAsset {
+  return {
+    id: asset.id,
+    projectId: asset.project_id,
+    brandExtractionId: asset.brand_extraction_id,
+    audienceId: asset.audience_id,
+    assetType: asset.asset_type,
+    title: asset.title,
+    brief: asset.brief,
+    prompt: asset.prompt,
+    content: asset.content,
+    imageUrl: asset.image_url,
+    storagePath: asset.storage_path,
+    provider: asset.provider,
+    model: asset.model,
+    status: asset.status,
+    settings: asset.settings,
+    createdAt: asset.created_at,
+    updatedAt: asset.updated_at
+  };
+}
 
 function getDomain(sourceUrl: string) {
   return new URL(sourceUrl).hostname.replace(/^www\./, "");
@@ -387,4 +502,203 @@ export async function duplicatePostDraft({ projectId, draftId }: { projectId: st
   }
 
   return mapSavedPostDraft(data);
+}
+
+export async function getBrandAudiences(projectId: string): Promise<SavedBrandAudience[]> {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("brand_audiences")
+    .select(audienceSelect)
+    .eq("project_id", projectId)
+    .order("is_primary", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    if (error.code === "42P01") {
+      return [];
+    }
+
+    throw new Error(`Could not load brand audiences: ${error.message}`);
+  }
+
+  return data.map(mapSavedBrandAudience);
+}
+
+export async function saveBrandAudiences({
+  projectId,
+  audiences
+}: {
+  projectId: string;
+  audiences: Array<Omit<SavedBrandAudience, "id" | "projectId" | "createdAt" | "updatedAt">>;
+}) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("brand_audiences")
+    .insert(
+      audiences.map((audience) => ({
+        project_id: projectId,
+        name: audience.name,
+        summary: audience.summary,
+        pain_points: audience.painPoints,
+        goals: audience.goals,
+        buying_triggers: audience.buyingTriggers,
+        objections: audience.objections,
+        channels: audience.channels,
+        content_angles: audience.contentAngles,
+        is_primary: audience.isPrimary,
+        source: audience.source
+      }))
+    )
+    .select(audienceSelect);
+
+  if (error) {
+    throw new Error(`Could not save brand audiences: ${error.message}`);
+  }
+
+  return data.map(mapSavedBrandAudience);
+}
+
+export async function updateBrandAudience({
+  projectId,
+  audienceId,
+  updates
+}: {
+  projectId: string;
+  audienceId: string;
+  updates: Partial<
+    Pick<
+      SavedBrandAudience,
+      "name" | "summary" | "painPoints" | "goals" | "buyingTriggers" | "objections" | "channels" | "contentAngles" | "isPrimary"
+    >
+  >;
+}) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("brand_audiences")
+    .update({
+      name: updates.name,
+      summary: updates.summary,
+      pain_points: updates.painPoints,
+      goals: updates.goals,
+      buying_triggers: updates.buyingTriggers,
+      objections: updates.objections,
+      channels: updates.channels,
+      content_angles: updates.contentAngles,
+      is_primary: updates.isPrimary
+    })
+    .eq("project_id", projectId)
+    .eq("id", audienceId)
+    .select(audienceSelect)
+    .single();
+
+  if (error) {
+    throw new Error(`Could not update brand audience: ${error.message}`);
+  }
+
+  return mapSavedBrandAudience(data);
+}
+
+export async function getMarketingAssets(projectId: string): Promise<SavedMarketingAsset[]> {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("marketing_assets")
+    .select(marketingAssetSelect)
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false })
+    .limit(24);
+
+  if (error) {
+    if (error.code === "42P01") {
+      return [];
+    }
+
+    throw new Error(`Could not load marketing assets: ${error.message}`);
+  }
+
+  return data.map(mapSavedMarketingAsset);
+}
+
+export async function saveMarketingAsset({
+  projectId,
+  brandExtractionId,
+  audienceId,
+  assetType,
+  title,
+  brief,
+  prompt,
+  content,
+  imageUrl,
+  storagePath,
+  provider,
+  model,
+  status,
+  settings
+}: {
+  projectId: string;
+  brandExtractionId: string | null;
+  audienceId: string | null;
+  assetType: string;
+  title: string;
+  brief?: string | null;
+  prompt?: string | null;
+  content?: Json;
+  imageUrl?: string | null;
+  storagePath?: string | null;
+  provider: string;
+  model?: string | null;
+  status?: string;
+  settings?: Json;
+}) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("marketing_assets")
+    .insert({
+      project_id: projectId,
+      brand_extraction_id: brandExtractionId,
+      audience_id: audienceId,
+      asset_type: assetType,
+      title,
+      brief,
+      prompt,
+      content: content ?? {},
+      image_url: imageUrl,
+      storage_path: storagePath,
+      provider,
+      model,
+      status: status ?? "generated",
+      settings: settings ?? {}
+    })
+    .select(marketingAssetSelect)
+    .single();
+
+  if (error) {
+    throw new Error(`Could not save marketing asset: ${error.message}`);
+  }
+
+  return mapSavedMarketingAsset(data);
 }

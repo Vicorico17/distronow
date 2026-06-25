@@ -219,6 +219,16 @@ select {
   padding: 12px;
 }
 
+.success-box {
+  background: #edf8f1;
+  border: 1px solid #b9ddc5;
+  border-radius: var(--radius);
+  color: #245638;
+  font-size: 14px;
+  margin-top: 14px;
+  padding: 12px;
+}
+
 .empty-state,
 .workspace {
   margin: 0 auto;
@@ -544,6 +554,256 @@ code {
   padding: 22px;
 }
 
+.asset-selection,
+.login-panel {
+  margin: 0 auto 18px;
+  max-width: 1160px;
+  padding: 0 24px 18px;
+}
+
+.login-panel {
+  align-items: end;
+  display: grid;
+  gap: 34px;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.65fr);
+  padding-top: 58px;
+}
+
+.login-panel h1 {
+  font-size: clamp(40px, 6vw, 68px);
+  max-width: 780px;
+}
+
+.login-panel p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.5;
+  max-width: 680px;
+}
+
+.login-form {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.login-form label {
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.login-form button,
+.selection-panel button,
+.image-generator-panel button {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: #ffffff;
+  font-weight: 900;
+  padding: 11px 13px;
+}
+
+.login-form button:disabled,
+.selection-panel button:disabled,
+.image-generator-panel button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.selection-header {
+  align-items: center;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-bottom: 14px;
+}
+
+.selection-header h2 {
+  font-size: 24px;
+  margin-bottom: 0;
+}
+
+.secondary-action {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-weight: 900;
+  padding: 11px 13px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.selection-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.15fr);
+}
+
+.selection-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-width: 0;
+  padding: 18px;
+}
+
+.selection-panel .panel-title button {
+  background: #f2f7f5;
+  border-color: var(--line);
+  color: var(--accent-strong);
+  font-size: 12px;
+  padding: 7px 9px;
+}
+
+.audience-list,
+.workflow-grid,
+.asset-output-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.audience-card {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.audience-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.12);
+}
+
+.audience-card span,
+.workflow-card span,
+.asset-output-card span,
+.audience-form span,
+.image-generator-grid span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.audience-card strong {
+  font-size: 15px;
+}
+
+.audience-card small,
+.workflow-card p,
+.asset-output-card p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.audience-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.workflow-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.workflow-card {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-width: 0;
+  padding: 12px;
+}
+
+.workflow-card.muted {
+  opacity: 0.64;
+}
+
+.workflow-card h4 {
+  font-size: 15px;
+  margin: 7px 0;
+}
+
+.audience-editor,
+.image-generator-panel {
+  margin-top: 16px;
+}
+
+.audience-form,
+.image-generator-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.audience-form label,
+.image-generator-grid label {
+  display: grid;
+  gap: 7px;
+}
+
+.audience-form label:nth-child(2),
+.image-notes {
+  grid-column: 1 / -1;
+}
+
+.checkbox-row {
+  align-items: center;
+  display: flex !important;
+  flex-direction: row;
+}
+
+.checkbox-row input {
+  width: auto;
+}
+
+.image-generator-grid button {
+  align-self: end;
+}
+
+.asset-output-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.asset-output-card {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.asset-output-card img {
+  aspect-ratio: 1;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.asset-output-card div {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+}
+
+.asset-output-card p {
+  display: -webkit-box;
+  font-size: 12px;
+  margin-bottom: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
 .content-header {
   align-items: start;
   display: grid;
@@ -756,7 +1016,9 @@ code {
   nav,
   .intro-grid,
   .empty-state,
-  .workspace {
+  .workspace,
+  .asset-selection,
+  .login-panel {
     padding-left: 18px;
     padding-right: 18px;
   }
@@ -765,6 +1027,13 @@ code {
   .empty-state,
   .panel-grid,
   .asset-context,
+  .login-panel,
+  .selection-header,
+  .selection-grid,
+  .workflow-grid,
+  .audience-form,
+  .image-generator-grid,
+  .asset-output-grid,
   .content-header,
   .generator-controls,
   .draft-grid {

@@ -21,6 +21,7 @@ Optional for AI draft generation:
 ```bash
 OPENAI_API_KEY=sk-your-openai-api-key
 OPENAI_MODEL=gpt-4.1-mini
+OPENAI_IMAGE_MODEL=gpt-image-2
 ```
 
 When `OPENAI_API_KEY` is not set, draft generation uses the deterministic template fallback.
@@ -44,5 +45,7 @@ Current tables:
 - `projects`: one row per website/domain.
 - `brand_extractions`: append-only Firecrawl extraction history for each project.
 - `post_drafts`: saved social post ideas generated from a project brand profile.
+- `brand_audiences`: recommended and manually edited best-customer personas.
+- `marketing_assets`: generated image/content asset records linked to projects and audiences.
 
 The API route `POST /api/brand/scrape` works without Supabase keys, but it only saves results when the server role key is configured.

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AssetSelectionPanel } from "@/components/asset-selection-panel";
 import { PostDraftPanel } from "@/components/post-draft-panel";
-import { getBrandProjectWorkspace } from "@/lib/brand-store";
+import { getBrandAudiences, getBrandProjectWorkspace, getMarketingAssets } from "@/lib/brand-store";
 
 type AssetsPageProps = {
   params: Promise<{
@@ -18,6 +19,7 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
   }
 
   const { project, latestExtraction } = workspace;
+  const [audiences, assets] = await Promise.all([getBrandAudiences(project.id), getMarketingAssets(project.id)]);
 
   return (
     <main>
@@ -26,6 +28,9 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
           <Link href={`/projects/${project.id}`}>Brand kit</Link>
           <Link className="nav-action" href="/">
             New brand
+          </Link>
+          <Link className="nav-action" href="/login">
+            Log in
           </Link>
         </nav>
       </section>
@@ -43,11 +48,15 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
         </div>
       </section>
 
+      <AssetSelectionPanel initialAssets={assets} initialAudiences={audiences} projectId={project.id} />
+
+      <div id="content-drafts">
       <PostDraftPanel
         initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}
         projectId={project.id}
         initialDrafts={workspace.postDrafts}
       />
+      </div>
     </main>
   );
 }

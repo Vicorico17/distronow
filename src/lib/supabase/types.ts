@@ -170,6 +170,147 @@ export type Database = {
           }
         ];
       };
+      brand_audiences: {
+        Row: {
+          id: string;
+          project_id: string;
+          name: string;
+          summary: string;
+          pain_points: string[];
+          goals: string[];
+          buying_triggers: string[];
+          objections: string[];
+          channels: string[];
+          content_angles: string[];
+          is_primary: boolean;
+          source: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          name: string;
+          summary: string;
+          pain_points?: string[];
+          goals?: string[];
+          buying_triggers?: string[];
+          objections?: string[];
+          channels?: string[];
+          content_angles?: string[];
+          is_primary?: boolean;
+          source?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          name?: string;
+          summary?: string;
+          pain_points?: string[];
+          goals?: string[];
+          buying_triggers?: string[];
+          objections?: string[];
+          channels?: string[];
+          content_angles?: string[];
+          is_primary?: boolean;
+          source?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "brand_audiences_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      marketing_assets: {
+        Row: {
+          id: string;
+          project_id: string;
+          brand_extraction_id: string | null;
+          audience_id: string | null;
+          asset_type: string;
+          title: string;
+          brief: string | null;
+          prompt: string | null;
+          content: Json;
+          image_url: string | null;
+          storage_path: string | null;
+          provider: string;
+          model: string | null;
+          status: string;
+          settings: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          brand_extraction_id?: string | null;
+          audience_id?: string | null;
+          asset_type: string;
+          title: string;
+          brief?: string | null;
+          prompt?: string | null;
+          content?: Json;
+          image_url?: string | null;
+          storage_path?: string | null;
+          provider?: string;
+          model?: string | null;
+          status?: string;
+          settings?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          brand_extraction_id?: string | null;
+          audience_id?: string | null;
+          asset_type?: string;
+          title?: string;
+          brief?: string | null;
+          prompt?: string | null;
+          content?: Json;
+          image_url?: string | null;
+          storage_path?: string | null;
+          provider?: string;
+          model?: string | null;
+          status?: string;
+          settings?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "marketing_assets_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "marketing_assets_brand_extraction_id_fkey";
+            columns: ["brand_extraction_id"];
+            isOneToOne: false;
+            referencedRelation: "brand_extractions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "marketing_assets_audience_id_fkey";
+            columns: ["audience_id"];
+            isOneToOne: false;
+            referencedRelation: "brand_audiences";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

@@ -51,7 +51,9 @@ export default function Home() {
       <section className="intro">
         <nav>
           <strong>DistroNow</strong>
-          <span>Distribution workspace</span>
+          <a className="nav-action" href="/login">
+            Log in
+          </a>
         </nav>
 
         <div className="intro-grid">
