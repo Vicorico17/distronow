@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BrandExtraction } from "@/lib/brand";
 import { BrandProfile } from "@/components/brand-profile";
+import { LoadingIndicator } from "@/components/loading-indicator";
 import type { StoredBrandExtraction } from "@/lib/brand-store";
 
 type ScrapeState =
@@ -78,9 +79,14 @@ export default function Home() {
                 value={url}
               />
               <button disabled={state.status === "loading"} type="submit">
-                {state.status === "loading" ? "Extracting" : "Extract"}
+                {state.status === "loading" ? <LoadingIndicator compact label="Extracting" /> : "Extract"}
               </button>
             </div>
+            {state.status === "loading" ? (
+              <div className="loading-panel">
+                <LoadingIndicator label="Extracting brand identity, colors, typography, and page metadata" />
+              </div>
+            ) : null}
             {state.status === "error" ? <div className="error-box">{state.message}</div> : null}
           </form>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { LoadingIndicator } from "@/components/loading-indicator";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type LoginState =
@@ -50,7 +51,7 @@ export function LoginForm() {
           value={email}
         />
         <button disabled={state.status === "loading"} type="submit">
-          {state.status === "loading" ? "Sending" : "Send magic link"}
+          {state.status === "loading" ? <LoadingIndicator compact label="Sending" /> : "Send magic link"}
         </button>
       </div>
       {state.status === "success" ? <div className="success-box">{state.message}</div> : null}

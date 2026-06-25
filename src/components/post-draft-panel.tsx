@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LoadingIndicator } from "@/components/loading-indicator";
 import {
   CHANNELS,
   ContentChannel,
@@ -276,9 +277,14 @@ export function PostDraftPanel({
           <h2>Create marketing assets.</h2>
         </div>
         <button disabled={state.status === "loading"} onClick={generateDrafts} type="button">
-          {state.status === "loading" ? "Generating" : "Generate drafts"}
+          {state.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate drafts"}
         </button>
       </div>
+      {state.status === "loading" ? (
+        <div className="loading-panel">
+          <LoadingIndicator label="Generating and saving content drafts" />
+        </div>
+      ) : null}
 
       <div className="generator-controls">
         <label>
@@ -352,7 +358,7 @@ export function PostDraftPanel({
                 {isEditing ? (
                   <>
                     <button disabled={isBusy} onClick={() => saveDraft(draft.id)} type="button">
-                      {isBusy ? "Saving" : "Save"}
+                      {isBusy ? <LoadingIndicator compact label="Saving" /> : "Save"}
                     </button>
                     <button
                       disabled={isBusy}
@@ -482,7 +488,7 @@ export function PostDraftPanel({
               <p>Choose a channel and intent, then generate the first saved content ideas for this brand.</p>
             </div>
             <button disabled={state.status === "loading"} onClick={generateDrafts} type="button">
-              {state.status === "loading" ? "Generating" : "Generate drafts"}
+              {state.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate drafts"}
             </button>
           </div>
         )}

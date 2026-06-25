@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LoadingIndicator } from "@/components/loading-indicator";
 import { IMAGE_ASSET_TYPES, ImageAssetType } from "@/lib/asset-types";
 import type { SavedBrandAudience, SavedMarketingAsset } from "@/lib/brand-store";
 
@@ -223,9 +224,20 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
           <div className="panel-title">
             <h3>Recommended audiences</h3>
             <button disabled={busyAction === "audiences"} onClick={recommendAudiences} type="button">
-              {busyAction === "audiences" ? "Analyzing" : audiences.length ? "Add recommendations" : "Recommend audiences"}
+              {busyAction === "audiences" ? (
+                <LoadingIndicator compact label="Analyzing" />
+              ) : audiences.length ? (
+                "Add recommendations"
+              ) : (
+                "Recommend audiences"
+              )}
             </button>
           </div>
+          {busyAction === "audiences" ? (
+            <div className="loading-panel">
+              <LoadingIndicator label="Analyzing the brand and building best-customer personas" />
+            </div>
+          ) : null}
 
           <div className="audience-list">
             {audiences.length ? (
@@ -280,7 +292,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
           <div className="panel-title">
             <h3>{editingAudienceId === "new" ? "Add audience" : "Edit audience"}</h3>
             <button disabled={busyAction === "audience-save"} onClick={saveAudience} type="button">
-              {busyAction === "audience-save" ? "Saving" : "Save audience"}
+              {busyAction === "audience-save" ? <LoadingIndicator compact label="Saving" /> : "Save audience"}
             </button>
           </div>
           <div className="audience-form">
@@ -388,9 +400,14 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
             />
           </label>
           <button disabled={busyAction === "image"} onClick={generateImageAsset} type="button">
-            {busyAction === "image" ? "Generating image" : "Generate image asset"}
+            {busyAction === "image" ? <LoadingIndicator compact label="Generating" /> : "Generate image asset"}
           </button>
         </div>
+        {busyAction === "image" ? (
+          <div className="loading-panel">
+            <LoadingIndicator label="Generating image and saving it to Supabase Storage" />
+          </div>
+        ) : null}
 
         {assets.length ? (
           <div className="asset-output-grid">
