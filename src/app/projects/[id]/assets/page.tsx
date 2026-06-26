@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AssetSelectionPanel } from "@/components/asset-selection-panel";
-import { PostDraftPanel } from "@/components/post-draft-panel";
 import { getBrandAudiences, getBrandProjectWorkspace, getMarketingAssets } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
@@ -53,15 +52,13 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
         </div>
       </section>
 
-      <AssetSelectionPanel initialAssets={assets} initialAudiences={audiences} projectId={project.id} />
-
-      <div id="content-drafts">
-      <PostDraftPanel
+      <AssetSelectionPanel
+        initialAssets={assets}
+        initialAudiences={audiences}
+        initialDrafts={workspace.postDrafts}
         initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}
         projectId={project.id}
-        initialDrafts={workspace.postDrafts}
       />
-      </div>
     </main>
   );
 }

@@ -1,4 +1,5 @@
 import { BrandExtraction, detectBrandLanguage } from "@/lib/brand";
+import type { SavedBrandAudience } from "@/lib/brand-store";
 
 export const CHANNELS = ["LinkedIn", "X", "Instagram", "Facebook", "TikTok script"] as const;
 export const GENERATION_INTENTS = [
@@ -123,16 +124,22 @@ function templateDrafts({
   extraction,
   settings,
   resolvedLanguage,
-  resolvedTone
+  resolvedTone,
+  audience,
+  goal
 }: {
   extraction: BrandExtraction;
   settings: DraftGenerationSettings;
   resolvedLanguage: string;
   resolvedTone: string;
+  audience?: SavedBrandAudience | null;
+  goal?: string;
 }): GeneratedPostDraft[] {
   const brandName = cleanBrandName(extraction);
   const summary = summarizeBrand(extraction);
   const toneLine = `The voice should feel ${resolvedTone}.`;
+  const audienceLine = audience ? `Write for ${audience.name}: ${audience.summary}.` : "";
+  const goalLine = goal?.trim() ? `Goal: ${goal.trim()}.` : "";
 
   const templates: Record<ContentIntent, Array<{ headline: string; lines: string[]; cta: string }>> = {
     "Launch announcement": [
@@ -140,6 +147,8 @@ function templateDrafts({
         headline: `${brandName} is ready for more reach`,
         lines: [
           `${brandName} already has the raw ingredients for a recognizable presence.`,
+          audienceLine,
+          goalLine,
           summary,
           `${toneLine} This post introduces the brand without overexplaining it.`
         ],
@@ -386,12 +395,16 @@ async function generateWithOpenAI({
   extraction,
   settings,
   resolvedLanguage,
-  resolvedTone
+  resolvedTone,
+  audience,
+  goal
 }: {
   extraction: BrandExtraction;
   settings: DraftGenerationSettings;
   resolvedLanguage: string;
   resolvedTone: string;
+  audience?: SavedBrandAudience | null;
+  goal?: string;
 }) {
   const apiKey = process.env.OPENAI_API_KEY;
 
@@ -403,6 +416,9 @@ async function generateWithOpenAI({
   const brandName = cleanBrandName(extraction);
   const summary = summarizeBrand(extraction);
   const colors = extraction.branding.colors ? JSON.stringify(extraction.branding.colors) : "No color data";
+  const audienceLine = audience
+    ? `${audience.name}: ${audience.summary}. Goals: ${audience.goals.join(", ")}. Pain points: ${audience.painPoints.join(", ")}.`
+    : "";
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -427,11 +443,15 @@ async function generateWithOpenAI({
             `Brand colors: ${colors}`,
             `Channel: ${settings.channel}`,
             `Intent: ${settings.intent}`,
+            audienceLine ? `Audience: ${audienceLine}` : null,
+            goal?.trim() ? `Content goal: ${goal.trim()}` : null,
             `Language: ${resolvedLanguage}`,
             `Tone: ${resolvedTone}`,
             `Length: ${settings.length}. ${lengthInstruction(settings.length)}`,
             "Avoid generic marketing filler. Keep hashtags relevant and include no more than 5."
-          ].join("\n")
+          ]
+            .filter(Boolean)
+            .join("\n")
         }
       ],
       temperature: 0.7
@@ -468,16 +488,20 @@ async function generateWithOpenAI({
 
 export async function generatePostDrafts({
   extraction,
-  settings
+  settings,
+  audience,
+  goal
 }: {
   extraction: BrandExtraction;
   settings: DraftGenerationSettings;
+  audience?: SavedBrandAudience | null;
+  goal?: string;
 }) {
   const resolvedLanguage = resolveLanguage(extraction, settings.language);
   const resolvedTone = resolveTone(extraction, settings.tone);
 
   try {
-    const aiDrafts = await generateWithOpenAI({ extraction, settings, resolvedLanguage, resolvedTone });
+    const aiDrafts = await generateWithOpenAI({ extraction, settings, resolvedLanguage, resolvedTone, audience, goal });
 
     if (aiDrafts?.length) {
       return aiDrafts;
@@ -486,5 +510,5 @@ export async function generatePostDrafts({
     console.error(error);
   }
 
-  return templateDrafts({ extraction, settings, resolvedLanguage, resolvedTone });
+  return templateDrafts({ extraction, settings, resolvedLanguage, resolvedTone, audience, goal });
 }

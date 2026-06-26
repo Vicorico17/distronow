@@ -644,6 +644,12 @@ code {
   padding: 22px;
 }
 
+.embedded-content-workspace {
+  background: #fbfdfc;
+  margin: 14px 0 0;
+  max-width: none;
+}
+
 .asset-selection,
 .login-panel,
 .projects-dashboard {

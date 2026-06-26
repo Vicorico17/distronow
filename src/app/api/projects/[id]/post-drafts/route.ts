@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getBrandProjectWorkspace, savePostDrafts } from "@/lib/brand-store";
+import { getBrandAudiences, getBrandProjectWorkspace, savePostDrafts } from "@/lib/brand-store";
 import { CHANNELS, generatePostDrafts, INTENTS, LANGUAGES, LENGTHS, TONES } from "@/lib/post-generator";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
@@ -10,7 +10,9 @@ const requestSchema = z.object({
   intent: z.enum(INTENTS),
   language: z.enum(LANGUAGES).default("Auto"),
   tone: z.enum(TONES).default("Auto"),
-  length: z.enum(LENGTHS).default("Medium")
+  length: z.enum(LENGTHS).default("Medium"),
+  audienceId: z.string().uuid().nullable().optional(),
+  goal: z.string().max(1000).optional()
 });
 
 type RouteContext = {
@@ -47,9 +49,21 @@ export async function POST(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
+    const audiences = parsed.data.audienceId ? await getBrandAudiences(workspace.project.id) : [];
+    const audience = audiences.find((item) => item.id === parsed.data.audienceId) ?? null;
+    const { goal } = parsed.data;
+    const settings = {
+      channel: parsed.data.channel,
+      intent: parsed.data.intent,
+      language: parsed.data.language,
+      tone: parsed.data.tone,
+      length: parsed.data.length
+    };
     const generated = await generatePostDrafts({
       extraction: workspace.latestExtraction,
-      settings: parsed.data
+      settings,
+      audience,
+      goal
     });
     const drafts = await savePostDrafts({
       projectId: workspace.project.id,

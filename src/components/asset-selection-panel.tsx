@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { LoadingIndicator } from "@/components/loading-indicator";
+import { PostDraftPanel } from "@/components/post-draft-panel";
 import {
   CONTENT_ASSET_TYPES,
   ContentAssetType,
@@ -10,7 +11,7 @@ import {
   PLANNED_CONTENT_ASSET_TYPES
 } from "@/lib/asset-types";
 import type { Json } from "@/lib/supabase/types";
-import type { SavedBrandAudience, SavedMarketingAsset } from "@/lib/brand-store";
+import type { SavedBrandAudience, SavedMarketingAsset, SavedPostDraft } from "@/lib/brand-store";
 
 type AudienceDraft = {
   name: string;
@@ -28,6 +29,8 @@ type AssetSelectionPanelProps = {
   projectId: string;
   initialAudiences: SavedBrandAudience[];
   initialAssets: SavedMarketingAsset[];
+  initialDrafts: SavedPostDraft[];
+  initialLanguage?: string;
 };
 
 type AssetFlowStep = "audience" | "content" | "assets";
@@ -98,7 +101,28 @@ function imageNotesFromText(asset: SavedMarketingAsset | null, notes: string) {
     .join("\n\n");
 }
 
-export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets }: AssetSelectionPanelProps) {
+function imageNotesFromDraft(draft: SavedPostDraft | null, notes: string) {
+  return [
+    draft ? `Generated content type: Social content` : null,
+    draft?.channel ? `Channel: ${draft.channel}` : null,
+    draft?.intent ? `Intent: ${draft.intent}` : null,
+    draft?.headline ? `Headline: ${draft.headline}` : null,
+    draft?.body ? `Body:\n${draft.body}` : null,
+    draft?.cta ? `CTA: ${draft.cta}` : null,
+    draft?.hashtags.length ? `Hashtags: ${draft.hashtags.join(" ")}` : null,
+    notes ? `Extra image direction: ${notes}` : null
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+export function AssetSelectionPanel({
+  projectId,
+  initialAudiences,
+  initialAssets,
+  initialDrafts,
+  initialLanguage = "Auto"
+}: AssetSelectionPanelProps) {
   const [audiences, setAudiences] = useState(initialAudiences);
   const [assets, setAssets] = useState(initialAssets);
   const [selectedAudienceId, setSelectedAudienceId] = useState(initialAudiences[0]?.id ?? "");
@@ -108,6 +132,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
   const [selectedContentType, setSelectedContentType] = useState<ContentAssetType>("Social content");
   const [textNotes, setTextNotes] = useState("");
   const [generatedTextAsset, setGeneratedTextAsset] = useState<SavedMarketingAsset | null>(null);
+  const [sourceDraft, setSourceDraft] = useState<SavedPostDraft | null>(null);
   const [selectedImageType, setSelectedImageType] = useState<ImageAssetType>("Social post graphic");
   const [imageNotes, setImageNotes] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -120,6 +145,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
   const generatedText = getTextContent(generatedTextAsset);
   const generatedImageAssets = assets.filter((asset) => Boolean(asset.imageUrl));
   const plannedContent = PLANNED_CONTENT_ASSET_TYPES.includes(selectedContentType);
+  const hasGeneratedContent = Boolean(generatedTextAsset || sourceDraft);
 
   async function recommendAudiences() {
     setBusyAction("audiences");
@@ -145,6 +171,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
     setAudiences((current) => [...payload.audiences!, ...current]);
     setSelectedAudienceId(payload.audiences[0]?.id ?? "");
     setGeneratedTextAsset(null);
+    setSourceDraft(null);
     setCurrentStep("audience");
   }
 
@@ -206,6 +233,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
     );
     setSelectedAudienceId(savedAudience.id);
     setGeneratedTextAsset(null);
+    setSourceDraft(null);
     setCurrentStep("audience");
     setEditingAudienceId(null);
   }
@@ -240,12 +268,13 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
     }
 
     setGeneratedTextAsset(payload.asset);
+    setSourceDraft(null);
     setAssets((current) => [payload.asset!, ...current]);
     setCurrentStep("assets");
   }
 
   async function generateImageAsset() {
-    if (!generatedTextAsset) {
+    if (!hasGeneratedContent) {
       return;
     }
 
@@ -258,7 +287,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
       body: JSON.stringify({
         assetType: selectedImageType,
         audienceId: selectedAudience?.id ?? null,
-        notes: imageNotesFromText(generatedTextAsset, imageNotes)
+        notes: sourceDraft ? imageNotesFromDraft(sourceDraft, imageNotes) : imageNotesFromText(generatedTextAsset, imageNotes)
       })
     });
     const payload = (await response.json()) as {
@@ -314,9 +343,10 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
                     className={audience.id === selectedAudience?.id ? "audience-card selected" : "audience-card"}
                     key={audience.id}
                     onClick={() => {
-                      setSelectedAudienceId(audience.id);
-                      setGeneratedTextAsset(null);
-                    }}
+                  setSelectedAudienceId(audience.id);
+                  setGeneratedTextAsset(null);
+                  setSourceDraft(null);
+                }}
                     type="button"
                   >
                     <span>{audience.isPrimary ? "Best customer" : "Audience"}</span>
@@ -346,6 +376,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
               onClick={() => {
                 setCurrentStep("audience");
                 setGeneratedTextAsset(null);
+                setSourceDraft(null);
               }}
               type="button"
             >
@@ -445,6 +476,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
                 onChange={(event) => {
                   setSelectedContentType(event.target.value as ContentAssetType);
                   setGeneratedTextAsset(null);
+                  setSourceDraft(null);
                   setCurrentStep("content");
                 }}
                 value={selectedContentType}
@@ -465,14 +497,31 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
                 value={textNotes}
               />
             </label>
-            <button disabled={busyAction === "text" || plannedContent} onClick={generateTextAsset} type="button">
-              {busyAction === "text" ? <LoadingIndicator compact label="Generating" /> : "Generate content"}
-            </button>
+            {selectedContentType !== "Social content" ? (
+              <button disabled={busyAction === "text" || plannedContent} onClick={generateTextAsset} type="button">
+                {busyAction === "text" ? <LoadingIndicator compact label="Generating" /> : "Generate content"}
+              </button>
+            ) : null}
           </div>
           {busyAction === "text" ? (
             <div className="loading-panel">
               <LoadingIndicator label="Generating content" />
             </div>
+          ) : null}
+          {selectedContentType === "Social content" ? (
+            <PostDraftPanel
+              audienceId={selectedAudience.id}
+              embedded
+              generationGoal={textNotes}
+              initialDrafts={initialDrafts}
+              initialLanguage={initialLanguage}
+              onDraftsGenerated={(drafts) => {
+                setSourceDraft(drafts[0] ?? null);
+                setGeneratedTextAsset(null);
+                setCurrentStep("assets");
+              }}
+              projectId={projectId}
+            />
           ) : null}
           {generatedTextAsset ? (
             <article className="text-output-card">
@@ -485,7 +534,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
         </section>
       ) : null}
 
-      {currentStep === "assets" && generatedTextAsset ? (
+      {currentStep === "assets" && hasGeneratedContent ? (
         <section className="selection-panel image-generator-panel">
           <div className="panel-title">
             <h3>3. Assets</h3>

@@ -53,11 +53,19 @@ function normalizeInitialLanguage(value: string): ContentLanguage {
 export function PostDraftPanel({
   projectId,
   initialDrafts,
-  initialLanguage = "Auto"
+  initialLanguage = "Auto",
+  embedded = false,
+  audienceId,
+  generationGoal,
+  onDraftsGenerated
 }: {
   projectId: string;
   initialDrafts: SavedPostDraft[];
   initialLanguage?: string;
+  embedded?: boolean;
+  audienceId?: string | null;
+  generationGoal?: string;
+  onDraftsGenerated?: (drafts: SavedPostDraft[]) => void;
 }) {
   const [channel, setChannel] = useState<ContentChannel>("LinkedIn");
   const [intent, setIntent] = useState<ContentIntent>("Launch announcement");
@@ -76,7 +84,7 @@ export function PostDraftPanel({
     const response = await fetch(`/api/projects/${projectId}/post-drafts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ channel, intent, language, tone, length })
+      body: JSON.stringify({ channel, intent, language, tone, length, audienceId, goal: generationGoal })
     });
     const payload = (await response.json()) as {
       drafts?: SavedPostDraft[];
@@ -93,6 +101,7 @@ export function PostDraftPanel({
     }
 
     const generatedDrafts = payload.drafts;
+    onDraftsGenerated?.(generatedDrafts);
 
     setState((current) => ({
       status: "success",
@@ -270,7 +279,7 @@ export function PostDraftPanel({
   }
 
   return (
-    <section className="content-workspace">
+    <section className={embedded ? "content-workspace embedded-content-workspace" : "content-workspace"}>
       <div className="content-header">
         <div>
           <p className="eyebrow">Content generation</p>
