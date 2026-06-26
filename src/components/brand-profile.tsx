@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ColorEditor, FontEditor, IdentityEditor } from "@/components/brand-review-editor";
+import { LoadingIndicator } from "@/components/loading-indicator";
 import { BrandExtraction, getColorEntries } from "@/lib/brand";
 import type { BrandProjectWorkspace, StoredBrandExtraction } from "@/lib/brand-store";
 
@@ -56,6 +57,7 @@ export function BrandProfile({
   showRawData?: boolean;
 }) {
   const [editingSection, setEditingSection] = useState<"identity" | "colors" | "fonts" | null>(null);
+  const [loadingActionHref, setLoadingActionHref] = useState<string | null>(null);
   const branding = extraction.branding;
   const logo = branding.logo ?? branding.images?.logo ?? branding.images?.favicon;
   const fonts = [
@@ -165,8 +167,13 @@ export function BrandProfile({
             <p className="eyebrow">{action.eyebrow}</p>
             <h3>{action.title}</h3>
             <p>{action.description}</p>
-            <Link className="primary-action" href={action.href}>
-              {action.label}
+            <Link
+              aria-busy={loadingActionHref === action.href}
+              className="primary-action"
+              href={action.href}
+              onClick={() => setLoadingActionHref(action.href)}
+            >
+              {loadingActionHref === action.href ? <LoadingIndicator compact label="Loading" /> : action.label}
             </Link>
           </section>
         ) : null}
