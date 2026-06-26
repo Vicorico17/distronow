@@ -33,8 +33,6 @@ type CopiedSection = {
   section: "headline" | "body" | "cta" | "hashtags";
 } | null;
 
-const DRAFT_STATUSES = ["generated", "edited", "approved", "published"] as const;
-
 type EditableDraft = {
   headline: string;
   body: string;
@@ -63,7 +61,7 @@ export function PostDraftPanel({
   embedded = false,
   audienceId,
   generationGoal,
-  onDraftsGenerated
+  onDraftSelected
 }: {
   projectId: string;
   initialDrafts: SavedPostDraft[];
@@ -71,7 +69,7 @@ export function PostDraftPanel({
   embedded?: boolean;
   audienceId?: string | null;
   generationGoal?: string;
-  onDraftsGenerated?: (drafts: SavedPostDraft[]) => void;
+  onDraftSelected?: (draft: SavedPostDraft) => void;
 }) {
   const [channel, setChannel] = useState<ContentChannel>("LinkedIn");
   const [intent, setIntent] = useState<ContentIntent>("Launch announcement");
@@ -151,7 +149,6 @@ export function PostDraftPanel({
     }
 
     const generatedDrafts = payload.drafts;
-    onDraftsGenerated?.(generatedDrafts);
 
     setState((current) => ({
       status: "success",
@@ -456,7 +453,6 @@ export function PostDraftPanel({
                 {draft.language ? <span>{draft.language}</span> : null}
                 {draft.tone ? <span>{draft.tone}</span> : null}
                 {draft.length ? <span>{draft.length}</span> : null}
-                <span>{draft.status}</span>
                 <span>{draft.provider}</span>
                 <span>{formatDate(draft.createdAt)}</span>
               </div>
@@ -492,6 +488,11 @@ export function PostDraftPanel({
                     <button disabled={isBusy} onClick={() => deleteDraft(draft.id)} type="button">
                       Delete
                     </button>
+                    {embedded && onDraftSelected ? (
+                      <button disabled={isBusy} onClick={() => onDraftSelected(draft)} type="button">
+                        Continue
+                      </button>
+                    ) : null}
                   </>
                 )}
               </div>
@@ -566,25 +567,6 @@ export function PostDraftPanel({
                 )}
               </div>
 
-              <div className="draft-section draft-status-section">
-                <div className="draft-section-header">
-                  <span>Status</span>
-                </div>
-                {isEditing ? (
-                  <select
-                    onChange={(event) =>
-                      setEditDraft({ ...editDraft, status: event.target.value as SavedPostDraft["status"] })
-                    }
-                    value={editDraft.status}
-                  >
-                    {DRAFT_STATUSES.map((status) => (
-                      <option key={status}>{status}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <strong>{draft.status}</strong>
-                )}
-              </div>
             </article>
           );
           })}

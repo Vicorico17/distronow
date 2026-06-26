@@ -572,8 +572,8 @@ export function AssetSelectionPanel({
               generationGoal={goalText}
               initialDrafts={initialDrafts}
               initialLanguage={initialLanguage}
-              onDraftsGenerated={(drafts) => {
-                setSourceDraft(drafts[0] ?? null);
+              onDraftSelected={(draft) => {
+                setSourceDraft(draft);
                 setGeneratedTextAsset(null);
                 setCurrentStep("assets");
               }}

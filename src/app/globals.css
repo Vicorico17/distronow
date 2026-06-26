@@ -1331,10 +1331,6 @@ code {
   width: 100%;
 }
 
-.draft-status-section {
-  background: #f6faf8;
-}
-
 .draft-section-header {
   align-items: center;
   display: flex;
