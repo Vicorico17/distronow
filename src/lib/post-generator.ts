@@ -120,13 +120,50 @@ function lengthInstruction(length: ContentLength) {
   return "Use 2-4 focused sentences.";
 }
 
+function audiencePromptLine(audience?: SavedBrandAudience | null) {
+  return audience
+    ? `${audience.name}: ${audience.summary}. Goals: ${audience.goals.join(", ")}. Pain points: ${audience.painPoints.join(", ")}.`
+    : "";
+}
+
+function templateHook({
+  extraction,
+  settings,
+  audience,
+  goal
+}: {
+  extraction: BrandExtraction;
+  settings: DraftGenerationSettings;
+  audience?: SavedBrandAudience | null;
+  goal?: string;
+}) {
+  const brandName = cleanBrandName(extraction);
+  const audienceName = audience?.name ?? "the right audience";
+  const goalText = goal?.trim() || `make ${brandName} easier to understand`;
+
+  if (settings.channel === "TikTok script") {
+    return `Most ${audienceName} miss this before they choose ${brandName}.`;
+  }
+
+  if (settings.intent === "Customer proof") {
+    return `The proof gets clearer when ${audienceName} can see the change.`;
+  }
+
+  if (settings.intent === "Product benefit") {
+    return `${brandName} helps ${audienceName} ${goalText}.`;
+  }
+
+  return `${brandName} has a sharper way to help ${audienceName}.`;
+}
+
 function templateDrafts({
   extraction,
   settings,
   resolvedLanguage,
   resolvedTone,
   audience,
-  goal
+  goal,
+  hook
 }: {
   extraction: BrandExtraction;
   settings: DraftGenerationSettings;
@@ -134,6 +171,7 @@ function templateDrafts({
   resolvedTone: string;
   audience?: SavedBrandAudience | null;
   goal?: string;
+  hook?: string;
 }): GeneratedPostDraft[] {
   const brandName = cleanBrandName(extraction);
   const summary = summarizeBrand(extraction);
@@ -332,8 +370,8 @@ function templateDrafts({
     language: resolvedLanguage,
     tone: resolvedTone,
     length: settings.length,
-    headline: template.headline,
-    body: channelBody(settings.channel, template.lines),
+    headline: hook?.trim() || template.headline,
+    body: channelBody(settings.channel, hook?.trim() ? [hook.trim(), ...template.lines] : template.lines),
     cta: template.cta,
     hashtags: getHashtags(brandName, settings.intent),
     provider: "template",
@@ -397,7 +435,8 @@ async function generateWithOpenAI({
   resolvedLanguage,
   resolvedTone,
   audience,
-  goal
+  goal,
+  hook
 }: {
   extraction: BrandExtraction;
   settings: DraftGenerationSettings;
@@ -405,6 +444,7 @@ async function generateWithOpenAI({
   resolvedTone: string;
   audience?: SavedBrandAudience | null;
   goal?: string;
+  hook?: string;
 }) {
   const apiKey = process.env.OPENAI_API_KEY;
 
@@ -416,9 +456,7 @@ async function generateWithOpenAI({
   const brandName = cleanBrandName(extraction);
   const summary = summarizeBrand(extraction);
   const colors = extraction.branding.colors ? JSON.stringify(extraction.branding.colors) : "No color data";
-  const audienceLine = audience
-    ? `${audience.name}: ${audience.summary}. Goals: ${audience.goals.join(", ")}. Pain points: ${audience.painPoints.join(", ")}.`
-    : "";
+  const audienceLine = audiencePromptLine(audience);
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -445,9 +483,11 @@ async function generateWithOpenAI({
             `Intent: ${settings.intent}`,
             audienceLine ? `Audience: ${audienceLine}` : null,
             goal?.trim() ? `Content goal: ${goal.trim()}` : null,
+            hook?.trim() ? `Required hook: ${hook.trim()}` : null,
             `Language: ${resolvedLanguage}`,
             `Tone: ${resolvedTone}`,
             `Length: ${settings.length}. ${lengthInstruction(settings.length)}`,
+            hook?.trim() ? "Use the required hook as the headline and the opening line of the body." : null,
             "Avoid generic marketing filler. Keep hashtags relevant and include no more than 5."
           ]
             .filter(Boolean)
@@ -490,18 +530,28 @@ export async function generatePostDrafts({
   extraction,
   settings,
   audience,
-  goal
+  goal,
+  hook
 }: {
   extraction: BrandExtraction;
   settings: DraftGenerationSettings;
   audience?: SavedBrandAudience | null;
   goal?: string;
+  hook?: string;
 }) {
   const resolvedLanguage = resolveLanguage(extraction, settings.language);
   const resolvedTone = resolveTone(extraction, settings.tone);
 
   try {
-    const aiDrafts = await generateWithOpenAI({ extraction, settings, resolvedLanguage, resolvedTone, audience, goal });
+    const aiDrafts = await generateWithOpenAI({
+      extraction,
+      settings,
+      resolvedLanguage,
+      resolvedTone,
+      audience,
+      goal,
+      hook
+    });
 
     if (aiDrafts?.length) {
       return aiDrafts;
@@ -510,5 +560,77 @@ export async function generatePostDrafts({
     console.error(error);
   }
 
-  return templateDrafts({ extraction, settings, resolvedLanguage, resolvedTone, audience, goal });
+  return templateDrafts({ extraction, settings, resolvedLanguage, resolvedTone, audience, goal, hook });
+}
+
+export async function generatePostHook({
+  extraction,
+  settings,
+  audience,
+  goal
+}: {
+  extraction: BrandExtraction;
+  settings: DraftGenerationSettings;
+  audience?: SavedBrandAudience | null;
+  goal?: string;
+}) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  const resolvedLanguage = resolveLanguage(extraction, settings.language);
+  const resolvedTone = resolveTone(extraction, settings.tone);
+
+  if (!apiKey) {
+    return templateHook({ extraction, settings, audience, goal });
+  }
+
+  const model = process.env.OPENAI_MODEL ?? DEFAULT_MODEL;
+  const brandName = cleanBrandName(extraction);
+  const audienceLine = audiencePromptLine(audience);
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model,
+        input: [
+          {
+            role: "system",
+            content: "Generate one strong social post hook. Return only the hook text, no quotes and no explanation."
+          },
+          {
+            role: "user",
+            content: [
+              `Brand: ${brandName}`,
+              `Description: ${summarizeBrand(extraction)}`,
+              `Channel: ${settings.channel}`,
+              `Intent: ${settings.intent}`,
+              audienceLine ? `Audience: ${audienceLine}` : null,
+              goal?.trim() ? `Content goal: ${goal.trim()}` : null,
+              `Language: ${resolvedLanguage}`,
+              `Tone: ${resolvedTone}`,
+              "Keep it short, specific, and usable as the first line of the post or script."
+            ]
+              .filter(Boolean)
+              .join("\n")
+          }
+        ],
+        temperature: 0.8
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI returned HTTP ${response.status}.`);
+    }
+
+    const payload = (await response.json().catch(() => ({}))) as unknown;
+    const outputText = parseOutputText(payload)?.trim();
+
+    return outputText || templateHook({ extraction, settings, audience, goal });
+  } catch (error) {
+    console.error(error);
+    return templateHook({ extraction, settings, audience, goal });
+  }
 }

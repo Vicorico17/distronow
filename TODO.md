@@ -114,6 +114,12 @@
   - Store video outputs in Supabase Storage.
   - Add polling/webhook handling for async jobs.
 
+- Add compliant competitive inspiration workflows.
+  - Analyze competitor websites and ad libraries for positioning, hooks, formats, offers, and visual patterns.
+  - Generate original variants and briefs instead of copying protected creative.
+  - Store inspiration sources, notes, and generated original directions.
+  - Add review safeguards for trademark, copyright, and platform policy issues.
+
 - Add publishing integrations.
   - LinkedIn.
   - X.

@@ -22,6 +22,12 @@ type DraftState =
   | { status: "success"; drafts: SavedPostDraft[] }
   | { status: "error"; drafts: SavedPostDraft[]; message: string };
 
+type HookState =
+  | { status: "idle"; hook: string }
+  | { status: "loading"; hook: string }
+  | { status: "success"; hook: string }
+  | { status: "error"; hook: string; message: string };
+
 type CopiedSection = {
   draftId: string;
   section: "headline" | "body" | "cta" | "hashtags";
@@ -73,18 +79,62 @@ export function PostDraftPanel({
   const [tone, setTone] = useState<ContentTone>("Auto");
   const [length, setLength] = useState<ContentLength>("Medium");
   const [state, setState] = useState<DraftState>({ status: "idle", drafts: initialDrafts });
+  const [hookState, setHookState] = useState<HookState>({ status: "idle", hook: "" });
   const [copiedSection, setCopiedSection] = useState<CopiedSection>(null);
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<EditableDraft | null>(null);
   const [actionDraftId, setActionDraftId] = useState<string | null>(null);
 
+  function resetHook() {
+    setHookState({ status: "idle", hook: "" });
+  }
+
+  async function generateHook() {
+    setHookState((current) => ({ status: "loading", hook: current.hook }));
+
+    const response = await fetch(`/api/projects/${projectId}/post-hooks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ channel, intent, language, tone, length, audienceId, goal: generationGoal })
+    });
+    const payload = (await response.json()) as {
+      hook?: string;
+      error?: string;
+    };
+
+    if (!response.ok || !payload.hook) {
+      setHookState((current) => ({
+        status: "error",
+        hook: current.hook,
+        message: payload.error ?? "Could not generate hook."
+      }));
+      return;
+    }
+
+    setHookState({ status: "success", hook: payload.hook });
+  }
+
   async function generateDrafts() {
+    if (!hookState.hook.trim()) {
+      setHookState({ status: "error", hook: "", message: "Generate a hook first." });
+      return;
+    }
+
     setState((current) => ({ status: "loading", drafts: current.drafts }));
 
     const response = await fetch(`/api/projects/${projectId}/post-drafts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ channel, intent, language, tone, length, audienceId, goal: generationGoal })
+      body: JSON.stringify({
+        channel,
+        intent,
+        language,
+        tone,
+        length,
+        audienceId,
+        goal: generationGoal,
+        hook: hookState.hook
+      })
     });
     const payload = (await response.json()) as {
       drafts?: SavedPostDraft[];
@@ -283,11 +333,20 @@ export function PostDraftPanel({
       <div className="content-header">
         <div>
           <p className="eyebrow">Content generation</p>
-          <h2>Create marketing assets.</h2>
+          <h2>Create the hook, then the script.</h2>
         </div>
-        <button disabled={state.status === "loading"} onClick={generateDrafts} type="button">
-          {state.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate drafts"}
-        </button>
+        <div className="content-header-actions">
+          <button disabled={hookState.status === "loading" || state.status === "loading"} onClick={generateHook} type="button">
+            {hookState.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate hook"}
+          </button>
+          <button
+            disabled={!hookState.hook.trim() || hookState.status === "loading" || state.status === "loading"}
+            onClick={generateDrafts}
+            type="button"
+          >
+            {state.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate script"}
+          </button>
+        </div>
       </div>
       {state.status === "loading" ? (
         <div className="loading-panel">
@@ -298,7 +357,13 @@ export function PostDraftPanel({
       <div className="generator-controls">
         <label>
           <span>Channel</span>
-          <select onChange={(event) => setChannel(event.target.value as ContentChannel)} value={channel}>
+          <select
+            onChange={(event) => {
+              setChannel(event.target.value as ContentChannel);
+              resetHook();
+            }}
+            value={channel}
+          >
             {CHANNELS.map((option) => (
               <option key={option}>{option}</option>
             ))}
@@ -307,7 +372,13 @@ export function PostDraftPanel({
 
         <label>
           <span>Intent</span>
-          <select onChange={(event) => setIntent(event.target.value as ContentIntent)} value={intent}>
+          <select
+            onChange={(event) => {
+              setIntent(event.target.value as ContentIntent);
+              resetHook();
+            }}
+            value={intent}
+          >
             {GENERATION_INTENTS.map((option) => (
               <option key={option}>{option}</option>
             ))}
@@ -316,7 +387,13 @@ export function PostDraftPanel({
 
         <label>
           <span>Language</span>
-          <select onChange={(event) => setLanguage(event.target.value as ContentLanguage)} value={language}>
+          <select
+            onChange={(event) => {
+              setLanguage(event.target.value as ContentLanguage);
+              resetHook();
+            }}
+            value={language}
+          >
             {LANGUAGES.map((option) => (
               <option key={option}>{option}</option>
             ))}
@@ -325,7 +402,13 @@ export function PostDraftPanel({
 
         <label>
           <span>Tone</span>
-          <select onChange={(event) => setTone(event.target.value as ContentTone)} value={tone}>
+          <select
+            onChange={(event) => {
+              setTone(event.target.value as ContentTone);
+              resetHook();
+            }}
+            value={tone}
+          >
             {TONES.map((option) => (
               <option key={option}>{option}</option>
             ))}
@@ -334,7 +417,13 @@ export function PostDraftPanel({
 
         <label>
           <span>Length</span>
-          <select onChange={(event) => setLength(event.target.value as ContentLength)} value={length}>
+          <select
+            onChange={(event) => {
+              setLength(event.target.value as ContentLength);
+              resetHook();
+            }}
+            value={length}
+          >
             {LENGTHS.map((option) => (
               <option key={option}>{option}</option>
             ))}
@@ -342,6 +431,13 @@ export function PostDraftPanel({
         </label>
       </div>
 
+      {hookState.hook ? (
+        <article className="hook-output-card">
+          <span>Hook</span>
+          <strong>{hookState.hook}</strong>
+        </article>
+      ) : null}
+      {hookState.status === "error" ? <div className="error-box">{hookState.message}</div> : null}
       {state.status === "error" ? <div className="error-box">{state.message}</div> : null}
 
       <div className="draft-grid">
@@ -496,8 +592,8 @@ export function PostDraftPanel({
               <h3>No drafts yet</h3>
               <p>Choose a channel and intent, then generate the first saved content ideas for this brand.</p>
             </div>
-            <button disabled={state.status === "loading"} onClick={generateDrafts} type="button">
-              {state.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate drafts"}
+            <button disabled={hookState.status === "loading"} onClick={generateHook} type="button">
+              {hookState.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate hook"}
             </button>
           </div>
         )}

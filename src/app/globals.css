@@ -1148,6 +1148,13 @@ code {
   opacity: 0.72;
 }
 
+.content-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .generator-controls {
   display: grid;
   gap: 12px;
@@ -1181,6 +1188,28 @@ code {
   border-radius: var(--radius);
   min-width: 0;
   padding: 18px;
+}
+
+.hook-output-card {
+  background: #f2f7f5;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 7px;
+  margin-bottom: 16px;
+  padding: 14px;
+}
+
+.hook-output-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.hook-output-card strong {
+  color: var(--ink);
+  line-height: 1.35;
 }
 
 .draft-card h3 {

@@ -86,7 +86,8 @@ function templateTextAsset({
     "Slideshows and carousels": `Plan a concise 5-slide carousel for ${audienceName}, with each slide moving from problem to proof to action.`,
     "Image assets": `Create short copy for a branded image asset that makes ${name} immediately clear.`,
     "UGC workflows": `Draft a creator brief for ${audienceName} with hook, scene, and proof points.`,
-    "Seedance video": `Draft a short video concept for ${audienceName} that can become a text-to-video prompt.`
+    "Seedance video": `Draft a short video concept for ${audienceName} that can become a text-to-video prompt.`,
+    "Competitive inspiration": `Analyze competitor positioning patterns for ${audienceName} and turn them into original content directions.`
   };
 
   return {
