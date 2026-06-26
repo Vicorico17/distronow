@@ -821,7 +821,41 @@ code {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  justify-content: flex-end;
   margin-top: 12px;
+}
+
+.selected-audience-summary {
+  align-items: center;
+  background: #e8f3ef;
+  border: 1px solid var(--accent-strong);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 12px;
+}
+
+.selected-audience-summary div {
+  display: grid;
+  gap: 5px;
+}
+
+.selected-audience-summary span {
+  color: #4b6159;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.selected-audience-summary strong {
+  color: #12251f;
+  font-size: 15px;
+}
+
+.selected-audience-summary small {
+  color: #40544d;
+  line-height: 1.45;
 }
 
 .workflow-grid {
@@ -1296,6 +1330,7 @@ code {
   .selection-header,
   .selection-grid,
   .audience-list,
+  .selected-audience-summary,
   .workflow-grid,
   .audience-form,
   .asset-step-grid,

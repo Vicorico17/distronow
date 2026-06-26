@@ -30,6 +30,8 @@ type AssetSelectionPanelProps = {
   initialAssets: SavedMarketingAsset[];
 };
 
+type AssetFlowStep = "audience" | "content" | "assets";
+
 function joinList(values: string[]) {
   return values.join(", ");
 }
@@ -102,11 +104,10 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
   const [selectedAudienceId, setSelectedAudienceId] = useState(initialAudiences[0]?.id ?? "");
   const [editingAudienceId, setEditingAudienceId] = useState<string | "new" | null>(null);
   const [audienceDraft, setAudienceDraft] = useState<AudienceDraft>(draftFromAudience());
+  const [currentStep, setCurrentStep] = useState<AssetFlowStep>("audience");
   const [selectedContentType, setSelectedContentType] = useState<ContentAssetType>("Social content");
   const [textNotes, setTextNotes] = useState("");
-  const [generatedTextAsset, setGeneratedTextAsset] = useState<SavedMarketingAsset | null>(
-    initialAssets.find((asset) => !asset.imageUrl) ?? null
-  );
+  const [generatedTextAsset, setGeneratedTextAsset] = useState<SavedMarketingAsset | null>(null);
   const [selectedImageType, setSelectedImageType] = useState<ImageAssetType>("Social post graphic");
   const [imageNotes, setImageNotes] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -144,6 +145,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
     setAudiences((current) => [...payload.audiences!, ...current]);
     setSelectedAudienceId(payload.audiences[0]?.id ?? "");
     setGeneratedTextAsset(null);
+    setCurrentStep("audience");
   }
 
   function startEditing(audience?: SavedBrandAudience) {
@@ -204,6 +206,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
     );
     setSelectedAudienceId(savedAudience.id);
     setGeneratedTextAsset(null);
+    setCurrentStep("audience");
     setEditingAudienceId(null);
   }
 
@@ -238,6 +241,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
 
     setGeneratedTextAsset(payload.asset);
     setAssets((current) => [payload.asset!, ...current]);
+    setCurrentStep("assets");
   }
 
   async function generateImageAsset() {
@@ -301,32 +305,51 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
           </div>
         ) : null}
 
-        <div className="audience-list">
-          {audiences.length ? (
-            audiences.map((audience) => (
-              <button
-                className={audience.id === selectedAudience?.id ? "audience-card selected" : "audience-card"}
-                key={audience.id}
-                onClick={() => {
-                  setSelectedAudienceId(audience.id);
-                  setGeneratedTextAsset(null);
-                }}
-                type="button"
-              >
-                <span>{audience.isPrimary ? "Best customer" : "Audience"}</span>
-                <strong>{audience.name}</strong>
-                <small>{audience.summary}</small>
-              </button>
-            ))
-          ) : (
-            <div className="empty-copy">Recommend audiences or add one.</div>
-          )}
-        </div>
+        {currentStep === "audience" ? (
+          <>
+            <div className="audience-list">
+              {audiences.length ? (
+                audiences.map((audience) => (
+                  <button
+                    className={audience.id === selectedAudience?.id ? "audience-card selected" : "audience-card"}
+                    key={audience.id}
+                    onClick={() => {
+                      setSelectedAudienceId(audience.id);
+                      setGeneratedTextAsset(null);
+                    }}
+                    type="button"
+                  >
+                    <span>{audience.isPrimary ? "Best customer" : "Audience"}</span>
+                    <strong>{audience.name}</strong>
+                    <small>{audience.summary}</small>
+                  </button>
+                ))
+              ) : (
+                <div className="empty-copy">Recommend audiences or add one.</div>
+              )}
+            </div>
 
-        {selectedAudience ? (
-          <div className="audience-actions">
-            <button onClick={() => startEditing(selectedAudience)} type="button">
-              Edit selected
+            <div className="audience-actions">
+              <button disabled={!selectedAudience} onClick={() => setCurrentStep("content")} type="button">
+                Continue
+              </button>
+            </div>
+          </>
+        ) : selectedAudience ? (
+          <div className="selected-audience-summary">
+            <div>
+              <span>{selectedAudience.isPrimary ? "Best customer" : "Selected audience"}</span>
+              <strong>{selectedAudience.name}</strong>
+              <small>{selectedAudience.summary}</small>
+            </div>
+            <button
+              onClick={() => {
+                setCurrentStep("audience");
+                setGeneratedTextAsset(null);
+              }}
+              type="button"
+            >
+              Change
             </button>
           </div>
         ) : null}
@@ -409,10 +432,10 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
         </section>
       ) : null}
 
-      {selectedAudience ? (
+      {currentStep !== "audience" && selectedAudience ? (
         <section className="selection-panel asset-step-panel">
           <div className="panel-title">
-            <h3>2. Text</h3>
+            <h3>2. Content</h3>
             <span>{selectedAudience.name}</span>
           </div>
           <div className="asset-step-grid">
@@ -422,6 +445,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
                 onChange={(event) => {
                   setSelectedContentType(event.target.value as ContentAssetType);
                   setGeneratedTextAsset(null);
+                  setCurrentStep("content");
                 }}
                 value={selectedContentType}
               >
@@ -434,20 +458,20 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
               </select>
             </label>
             <label className="asset-notes">
-              <span>Direction</span>
+              <span>Goal</span>
               <textarea
                 onChange={(event) => setTextNotes(event.target.value)}
-                placeholder="Optional offer, angle, or platform."
+                placeholder="What should this content achieve?"
                 value={textNotes}
               />
             </label>
             <button disabled={busyAction === "text" || plannedContent} onClick={generateTextAsset} type="button">
-              {busyAction === "text" ? <LoadingIndicator compact label="Generating" /> : "Generate text"}
+              {busyAction === "text" ? <LoadingIndicator compact label="Generating" /> : "Generate content"}
             </button>
           </div>
           {busyAction === "text" ? (
             <div className="loading-panel">
-              <LoadingIndicator label="Generating text asset" />
+              <LoadingIndicator label="Generating content" />
             </div>
           ) : null}
           {generatedTextAsset ? (
@@ -461,15 +485,15 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
         </section>
       ) : null}
 
-      {generatedTextAsset ? (
+      {currentStep === "assets" && generatedTextAsset ? (
         <section className="selection-panel image-generator-panel">
           <div className="panel-title">
-            <h3>3. Image</h3>
+            <h3>3. Assets</h3>
             <span>GPT Image 2</span>
           </div>
           <div className="image-generator-grid">
             <label>
-              <span>Image type</span>
+              <span>Asset type</span>
               <select
                 onChange={(event) => setSelectedImageType(event.target.value as ImageAssetType)}
                 value={selectedImageType}
