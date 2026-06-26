@@ -47,6 +47,7 @@ export type BrandProjectListItem = {
   domain: string;
   websiteUrl: string;
   language: string | null;
+  brandColors: Json;
   updatedAt: string;
 };
 
@@ -236,6 +237,10 @@ function getDomain(sourceUrl: string) {
   return new URL(sourceUrl).hostname.replace(/^www\./, "");
 }
 
+function hasColorTokens(colors: BrandProfile["colors"] | undefined) {
+  return Object.values(colors ?? {}).some((value) => typeof value === "string" && value.trim().length > 0);
+}
+
 export async function saveBrandExtraction(
   extraction: BrandExtraction,
   userId?: string | null
@@ -249,7 +254,7 @@ export async function saveBrandExtraction(
   const domain = getDomain(extraction.sourceUrl);
   const { data: existingProject, error: existingProjectError } = await supabase
     .from("projects")
-    .select("id,user_id")
+    .select("id,user_id,brand_colors")
     .eq("domain", domain)
     .maybeSingle();
 
@@ -268,7 +273,9 @@ export async function saveBrandExtraction(
     language: extraction.language ?? null,
     brand_name: extraction.title ?? domain,
     brand_description: extraction.description ?? null,
-    brand_colors: (extraction.branding.colors ?? {}) as Json,
+    brand_colors: (
+      hasColorTokens(extraction.branding.colors) ? extraction.branding.colors : existingProject?.brand_colors ?? {}
+    ) as Json,
     brand_fonts: (extraction.branding.fonts ?? []) as Json,
     brand_logo: extraction.branding.logo ?? extraction.branding.images?.logo ?? extraction.branding.images?.favicon ?? null,
     updated_at: new Date().toISOString(),
@@ -418,7 +425,7 @@ export async function getBrandProjects(userId?: string | null): Promise<BrandPro
 
   let query = supabase
     .from("projects")
-    .select("id,name,domain,website_url,language,updated_at")
+    .select("id,name,domain,website_url,language,brand_colors,updated_at")
     .order("updated_at", { ascending: false })
     .limit(24);
 
@@ -440,6 +447,7 @@ export async function getBrandProjects(userId?: string | null): Promise<BrandPro
     domain: project.domain,
     websiteUrl: project.website_url,
     language: project.language,
+    brandColors: project.brand_colors,
     updatedAt: project.updated_at
   }));
 }

@@ -1102,6 +1102,19 @@ code {
   font-size: 20px;
 }
 
+.project-color-row {
+  display: flex;
+  gap: 6px;
+}
+
+.project-color-row i {
+  border: 1px solid rgba(22, 42, 35, 0.18);
+  border-radius: 999px;
+  display: block;
+  height: 18px;
+  width: 18px;
+}
+
 .content-header {
   align-items: start;
   display: grid;

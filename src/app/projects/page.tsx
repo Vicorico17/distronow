@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { getBrandProjects } from "@/lib/brand-store";
+import { getColorEntries } from "@/lib/brand";
+import type { BrandColors } from "@/lib/brand";
+import type { Json } from "@/lib/supabase/types";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
+
+function colorEntries(colors: Json) {
+  return getColorEntries(colors && typeof colors === "object" && !Array.isArray(colors) ? (colors as BrandColors) : {});
+}
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -38,16 +45,27 @@ export default async function ProjectsPage() {
 
         <div className="project-list">
           {projects.length ? (
-            projects.map((project) => (
-              <Link className="project-list-card" href={`/projects/${project.id}`} key={project.id}>
-                <span>{project.domain}</span>
-                <strong>{project.name ?? project.domain}</strong>
-                <small>
-                  {project.language ? `${project.language} · ` : null}
-                  Updated {formatDate(project.updatedAt)}
-                </small>
-              </Link>
-            ))
+            projects.map((project) => {
+              const colors = colorEntries(project.brandColors);
+
+              return (
+                <Link className="project-list-card" href={`/projects/${project.id}`} key={project.id}>
+                  <span>{project.domain}</span>
+                  <strong>{project.name ?? project.domain}</strong>
+                  {colors.length ? (
+                    <div className="project-color-row" aria-label="Saved brand colors">
+                      {colors.slice(0, 6).map(([name, value]) => (
+                        <i key={name} style={{ background: value }} title={`${name}: ${value}`} />
+                      ))}
+                    </div>
+                  ) : null}
+                  <small>
+                    {project.language ? `${project.language} · ` : null}
+                    Updated {formatDate(project.updatedAt)}
+                  </small>
+                </Link>
+              );
+            })
           ) : (
             <div className="draft-empty">
               <div>

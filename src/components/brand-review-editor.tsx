@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LoadingIndicator } from "@/components/loading-indicator";
 import type { BrandColors, BrandFont } from "@/lib/brand";
 import type { BrandProjectWorkspace } from "@/lib/brand-store";
@@ -18,6 +19,14 @@ function stringifyColors(colors: unknown) {
     .filter(([, color]) => typeof color === "string" && color.trim())
     .map(([name, color]) => `${name}: ${color}`)
     .join("\n");
+}
+
+function safeColors(colors: unknown) {
+  return colors && typeof colors === "object" && !Array.isArray(colors) ? colors : {};
+}
+
+function safeFonts(fonts: unknown) {
+  return Array.isArray(fonts) ? fonts : [];
 }
 
 function parseColors(value: string) {
@@ -57,11 +66,13 @@ function parseFonts(value: string) {
 async function saveBrandSection({
   projectId,
   payload,
-  setState
+  setState,
+  onSaved
 }: {
   projectId: string;
   payload: Record<string, unknown>;
   setState: (state: EditorState) => void;
+  onSaved: () => void;
 }) {
   setState({ status: "loading" });
 
@@ -78,6 +89,7 @@ async function saveBrandSection({
   }
 
   setState({ status: "success", message: "Saved. Refresh to see the updated preview." });
+  onSaved();
 }
 
 function EditorActions({
@@ -110,6 +122,7 @@ export function IdentityEditor({
   workspace: BrandProjectWorkspace;
   onCancel: () => void;
 }) {
+  const router = useRouter();
   const { project, latestExtraction } = workspace;
   const [brandName, setBrandName] = useState(project.brandName ?? latestExtraction.title ?? project.domain);
   const [brandDescription, setBrandDescription] = useState(
@@ -128,11 +141,15 @@ export function IdentityEditor({
         brandDescription,
         language,
         brandLogo,
-        brandColors: project.brandColors,
-        brandFonts: project.brandFonts,
+        brandColors: safeColors(project.brandColors),
+        brandFonts: safeFonts(project.brandFonts),
         brandFieldsStatus: project.brandFieldsStatus
       },
-      setState
+      setState,
+      onSaved: () => {
+        router.refresh();
+        onCancel();
+      }
     });
   }
 
@@ -168,6 +185,7 @@ export function ColorEditor({
   workspace: BrandProjectWorkspace;
   onCancel: () => void;
 }) {
+  const router = useRouter();
   const { project } = workspace;
   const [colors, setColors] = useState(stringifyColors(project.brandColors));
   const [state, setState] = useState<EditorState>({ status: "idle" });
@@ -182,10 +200,14 @@ export function ColorEditor({
         language: project.language ?? "",
         brandLogo: project.brandLogo ?? "",
         brandColors: parseColors(colors),
-        brandFonts: project.brandFonts,
+        brandFonts: safeFonts(project.brandFonts),
         brandFieldsStatus: project.brandFieldsStatus
       },
-      setState
+      setState,
+      onSaved: () => {
+        router.refresh();
+        onCancel();
+      }
     });
   }
 
@@ -207,6 +229,7 @@ export function FontEditor({
   workspace: BrandProjectWorkspace;
   onCancel: () => void;
 }) {
+  const router = useRouter();
   const { project } = workspace;
   const [fonts, setFonts] = useState(stringifyFonts(project.brandFonts));
   const [state, setState] = useState<EditorState>({ status: "idle" });
@@ -220,11 +243,15 @@ export function FontEditor({
         brandDescription: project.brandDescription ?? "",
         language: project.language ?? "",
         brandLogo: project.brandLogo ?? "",
-        brandColors: project.brandColors,
+        brandColors: safeColors(project.brandColors),
         brandFonts: parseFonts(fonts),
         brandFieldsStatus: project.brandFieldsStatus
       },
-      setState
+      setState,
+      onSaved: () => {
+        router.refresh();
+        onCancel();
+      }
     });
   }
 
