@@ -334,7 +334,13 @@ export function PostDraftPanel({
         </div>
         <div className="content-header-actions">
           <button disabled={hookState.status === "loading" || state.status === "loading"} onClick={generateHook} type="button">
-            {hookState.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate hook"}
+            {hookState.status === "loading" ? (
+              <LoadingIndicator compact label="Generating" />
+            ) : hookState.hook.trim() ? (
+              "Regenerate hook"
+            ) : (
+              "Generate hook"
+            )}
           </button>
           {hookState.hook.trim() ? (
             <button

@@ -393,7 +393,6 @@ export function AssetSelectionPanel({
             <div>
               <span>{selectedAudience.isPrimary ? "Best customer" : "Selected audience"}</span>
               <strong>{selectedAudience.name}</strong>
-              <small>{selectedAudience.summary}</small>
             </div>
             <button
               onClick={() => {

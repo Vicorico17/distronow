@@ -594,6 +594,16 @@ code {
   justify-self: start;
 }
 
+.asset-workspace-layout {
+  align-items: end;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(230px, 0.34fr) minmax(0, 1fr);
+  margin: 0 auto;
+  max-width: 1160px;
+  padding: 22px 24px 18px;
+}
+
 .asset-context {
   align-items: end;
   display: grid;
@@ -602,6 +612,35 @@ code {
   margin: 0 auto;
   max-width: 1160px;
   padding: 28px 24px 18px;
+}
+
+.asset-context-sidebar {
+  align-self: start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  position: sticky;
+  top: 16px;
+}
+
+.asset-context-sidebar .eyebrow {
+  margin-bottom: 0;
+}
+
+.asset-context-sidebar h1 {
+  font-size: 22px;
+  line-height: 1.12;
+  margin-bottom: 0;
+}
+
+.asset-context-sidebar p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 0;
 }
 
 .asset-context h1 {
@@ -622,7 +661,7 @@ code {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .asset-context-meta span {
@@ -656,6 +695,12 @@ code {
   margin: 0 auto 18px;
   max-width: 1160px;
   padding: 0 24px 18px;
+}
+
+.asset-workspace-layout .asset-selection {
+  margin: 0;
+  max-width: none;
+  padding: 0;
 }
 
 .login-panel {
@@ -839,7 +884,7 @@ code {
   display: grid;
   gap: 12px;
   grid-template-columns: minmax(0, 1fr) auto;
-  padding: 12px;
+  padding: 9px 10px;
 }
 
 .selected-audience-summary div {
@@ -856,7 +901,7 @@ code {
 
 .selected-audience-summary strong {
   color: #12251f;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .selected-audience-summary small {
@@ -1395,6 +1440,7 @@ code {
   .empty-state,
   .workspace,
   .asset-selection,
+  .asset-workspace-layout,
   .login-panel,
   .projects-dashboard {
     padding-left: 18px;
@@ -1404,6 +1450,7 @@ code {
   .intro-grid,
   .empty-state,
   .panel-grid,
+  .asset-workspace-layout,
   .asset-context,
   .login-panel,
   .selection-header,
@@ -1437,6 +1484,10 @@ code {
 
   .asset-context-meta {
     justify-content: flex-start;
+  }
+
+  .asset-context-sidebar {
+    position: static;
   }
 
   .draft-empty {
