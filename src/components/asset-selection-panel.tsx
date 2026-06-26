@@ -2,7 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { LoadingIndicator } from "@/components/loading-indicator";
-import { IMAGE_ASSET_TYPES, ImageAssetType } from "@/lib/asset-types";
+import {
+  CONTENT_ASSET_TYPES,
+  ContentAssetType,
+  IMAGE_ASSET_TYPES,
+  ImageAssetType,
+  PLANNED_CONTENT_ASSET_TYPES
+} from "@/lib/asset-types";
+import type { Json } from "@/lib/supabase/types";
 import type { SavedBrandAudience, SavedMarketingAsset } from "@/lib/brand-store";
 
 type AudienceDraft = {
@@ -22,34 +29,6 @@ type AssetSelectionPanelProps = {
   initialAudiences: SavedBrandAudience[];
   initialAssets: SavedMarketingAsset[];
 };
-
-const workflowCards = [
-  {
-    title: "Social content",
-    status: "Ready",
-    body: "Generate Instagram, TikTok, LinkedIn, Facebook, and X content drafts from the selected audience."
-  },
-  {
-    title: "Slideshows and carousels",
-    status: "Ready",
-    body: "Plan vertical slideshow posts for Instagram/TikTok and infographic-style LinkedIn carousel ideas."
-  },
-  {
-    title: "Image assets",
-    status: "Ready",
-    body: "Generate social graphics, carousel slides, ad creatives, product-style visuals, and branded templates."
-  },
-  {
-    title: "UGC workflows",
-    status: "Planned",
-    body: "Creator briefs, hooks, shot lists, and model-specific workflows will be added after we settle the UGC stack."
-  },
-  {
-    title: "Seedance video",
-    status: "Planned",
-    body: "Text/image-to-video generation will plug in once the Seedance API details are available."
-  }
-];
 
 function joinList(values: string[]) {
   return values.join(", ");
@@ -76,12 +55,58 @@ function draftFromAudience(audience?: SavedBrandAudience): AudienceDraft {
   };
 }
 
+function isObjectJson(value: Json): value is Record<string, Json> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function readString(value: Json | undefined) {
+  return typeof value === "string" ? value : "";
+}
+
+function getTextContent(asset: SavedMarketingAsset | null) {
+  if (!asset || !isObjectJson(asset.content)) {
+    return {
+      body: "",
+      cta: "",
+      caption: "",
+      visualDirection: asset?.prompt ?? ""
+    };
+  }
+
+  return {
+    body: readString(asset.content.body),
+    cta: readString(asset.content.cta),
+    caption: readString(asset.content.caption),
+    visualDirection: readString(asset.content.visualDirection) || asset.prompt || ""
+  };
+}
+
+function imageNotesFromText(asset: SavedMarketingAsset | null, notes: string) {
+  const content = getTextContent(asset);
+
+  return [
+    asset ? `Generated content type: ${asset.assetType}` : null,
+    asset?.title ? `Title: ${asset.title}` : null,
+    content.body ? `Text:\n${content.body}` : null,
+    content.cta ? `CTA: ${content.cta}` : null,
+    content.visualDirection ? `Visual direction: ${content.visualDirection}` : null,
+    notes ? `Extra image direction: ${notes}` : null
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets }: AssetSelectionPanelProps) {
   const [audiences, setAudiences] = useState(initialAudiences);
   const [assets, setAssets] = useState(initialAssets);
   const [selectedAudienceId, setSelectedAudienceId] = useState(initialAudiences[0]?.id ?? "");
   const [editingAudienceId, setEditingAudienceId] = useState<string | "new" | null>(null);
   const [audienceDraft, setAudienceDraft] = useState<AudienceDraft>(draftFromAudience());
+  const [selectedContentType, setSelectedContentType] = useState<ContentAssetType>("Social content");
+  const [textNotes, setTextNotes] = useState("");
+  const [generatedTextAsset, setGeneratedTextAsset] = useState<SavedMarketingAsset | null>(
+    initialAssets.find((asset) => !asset.imageUrl) ?? null
+  );
   const [selectedImageType, setSelectedImageType] = useState<ImageAssetType>("Social post graphic");
   const [imageNotes, setImageNotes] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -91,6 +116,9 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
     () => audiences.find((audience) => audience.id === selectedAudienceId) ?? audiences[0] ?? null,
     [audiences, selectedAudienceId]
   );
+  const generatedText = getTextContent(generatedTextAsset);
+  const generatedImageAssets = assets.filter((asset) => Boolean(asset.imageUrl));
+  const plannedContent = PLANNED_CONTENT_ASSET_TYPES.includes(selectedContentType);
 
   async function recommendAudiences() {
     setBusyAction("audiences");
@@ -115,6 +143,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
 
     setAudiences((current) => [...payload.audiences!, ...current]);
     setSelectedAudienceId(payload.audiences[0]?.id ?? "");
+    setGeneratedTextAsset(null);
   }
 
   function startEditing(audience?: SavedBrandAudience) {
@@ -174,10 +203,48 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
         : current.map((audience) => (audience.id === savedAudience.id ? savedAudience : audience))
     );
     setSelectedAudienceId(savedAudience.id);
+    setGeneratedTextAsset(null);
     setEditingAudienceId(null);
   }
 
+  async function generateTextAsset() {
+    if (!selectedAudience || plannedContent) {
+      return;
+    }
+
+    setBusyAction("text");
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/text-assets`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        assetType: selectedContentType,
+        audienceId: selectedAudience.id,
+        notes: textNotes
+      })
+    });
+    const payload = (await response.json()) as {
+      asset?: SavedMarketingAsset;
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok || !payload.asset) {
+      setMessage(payload.error ?? "Could not generate text.");
+      return;
+    }
+
+    setGeneratedTextAsset(payload.asset);
+    setAssets((current) => [payload.asset!, ...current]);
+  }
+
   async function generateImageAsset() {
+    if (!generatedTextAsset) {
+      return;
+    }
+
     setBusyAction("image");
     setMessage(null);
 
@@ -187,7 +254,7 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
       body: JSON.stringify({
         assetType: selectedImageType,
         audienceId: selectedAudience?.id ?? null,
-        notes: imageNotes
+        notes: imageNotesFromText(generatedTextAsset, imageNotes)
       })
     });
     const payload = (await response.json()) as {
@@ -209,83 +276,61 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
     <section className="asset-selection">
       <div className="selection-header">
         <div>
-          <p className="eyebrow">Selection screen</p>
-          <h2>Choose the audience and asset workflow.</h2>
+          <p className="eyebrow">Generate assets</p>
+          <h2>Build assets step by step.</h2>
         </div>
-        <a className="secondary-action" href="#content-drafts">
-          Generate content drafts
-        </a>
       </div>
 
       {message ? <div className="error-box">{message}</div> : null}
 
-      <div className="selection-grid">
-        <section className="selection-panel audience-panel">
-          <div className="panel-title">
-            <h3>Recommended audiences</h3>
+      <section className="selection-panel audience-panel">
+        <div className="panel-title">
+          <h3>1. Audience</h3>
+          <div className="audience-primary-actions">
             <button disabled={busyAction === "audiences"} onClick={recommendAudiences} type="button">
-              {busyAction === "audiences" ? (
-                <LoadingIndicator compact label="Analyzing" />
-              ) : audiences.length ? (
-                "Add recommendations"
-              ) : (
-                "Recommend audiences"
-              )}
-            </button>
-          </div>
-          {busyAction === "audiences" ? (
-            <div className="loading-panel">
-              <LoadingIndicator label="Analyzing the brand and building best-customer personas" />
-            </div>
-          ) : null}
-
-          <div className="audience-list">
-            {audiences.length ? (
-              audiences.map((audience) => (
-                <button
-                  className={audience.id === selectedAudience?.id ? "audience-card selected" : "audience-card"}
-                  key={audience.id}
-                  onClick={() => setSelectedAudienceId(audience.id)}
-                  type="button"
-                >
-                  <span>{audience.isPrimary ? "Best customer" : "Audience"}</span>
-                  <strong>{audience.name}</strong>
-                  <small>{audience.summary}</small>
-                </button>
-              ))
-            ) : (
-              <div className="empty-copy">
-                No personas yet. Generate recommended audiences from the brand, or add one manually.
-              </div>
-            )}
-          </div>
-
-          <div className="audience-actions">
-            <button disabled={!selectedAudience} onClick={() => selectedAudience && startEditing(selectedAudience)} type="button">
-              Edit selected
+              {busyAction === "audiences" ? <LoadingIndicator compact label="Analyzing" /> : "Recommend audiences"}
             </button>
             <button onClick={() => startEditing()} type="button">
-              Add audience
+              Add audiences
             </button>
           </div>
-        </section>
+        </div>
+        {busyAction === "audiences" ? (
+          <div className="loading-panel">
+            <LoadingIndicator label="Analyzing the brand and building audiences" />
+          </div>
+        ) : null}
 
-        <section className="selection-panel">
-          <div className="panel-title">
-            <h3>Asset workflows</h3>
-            <span>Templates first</span>
+        <div className="audience-list">
+          {audiences.length ? (
+            audiences.map((audience) => (
+              <button
+                className={audience.id === selectedAudience?.id ? "audience-card selected" : "audience-card"}
+                key={audience.id}
+                onClick={() => {
+                  setSelectedAudienceId(audience.id);
+                  setGeneratedTextAsset(null);
+                }}
+                type="button"
+              >
+                <span>{audience.isPrimary ? "Best customer" : "Audience"}</span>
+                <strong>{audience.name}</strong>
+                <small>{audience.summary}</small>
+              </button>
+            ))
+          ) : (
+            <div className="empty-copy">Recommend audiences or add one.</div>
+          )}
+        </div>
+
+        {selectedAudience ? (
+          <div className="audience-actions">
+            <button onClick={() => startEditing(selectedAudience)} type="button">
+              Edit selected
+            </button>
           </div>
-          <div className="workflow-grid">
-            {workflowCards.map((card) => (
-              <article className={card.status === "Planned" ? "workflow-card muted" : "workflow-card"} key={card.title}>
-                <span>{card.status}</span>
-                <h4>{card.title}</h4>
-                <p>{card.body}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-      </div>
+        ) : null}
+      </section>
 
       {editingAudienceId ? (
         <section className="selection-panel audience-editor">
@@ -364,66 +409,110 @@ export function AssetSelectionPanel({ projectId, initialAudiences, initialAssets
         </section>
       ) : null}
 
-      <section className="selection-panel image-generator-panel">
-        <div className="panel-title">
-          <h3>Image generation</h3>
-          <span>GPT Image 2</span>
-        </div>
-        <div className="image-generator-grid">
-          <label>
-            <span>Image type</span>
-            <select
-              onChange={(event) => setSelectedImageType(event.target.value as ImageAssetType)}
-              value={selectedImageType}
-            >
-              {IMAGE_ASSET_TYPES.map((type) => (
-                <option key={type}>{type}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>Audience</span>
-            <select onChange={(event) => setSelectedAudienceId(event.target.value)} value={selectedAudience?.id ?? ""}>
-              {audiences.map((audience) => (
-                <option key={audience.id} value={audience.id}>
-                  {audience.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="image-notes">
-            <span>Direction</span>
-            <textarea
-              onChange={(event) => setImageNotes(event.target.value)}
-              placeholder="Optional: offer, product angle, visual style, platform, or scene."
-              value={imageNotes}
-            />
-          </label>
-          <button disabled={busyAction === "image"} onClick={generateImageAsset} type="button">
-            {busyAction === "image" ? <LoadingIndicator compact label="Generating" /> : "Generate image asset"}
-          </button>
-        </div>
-        {busyAction === "image" ? (
-          <div className="loading-panel">
-            <LoadingIndicator label="Generating image and saving it to Supabase Storage" />
+      {selectedAudience ? (
+        <section className="selection-panel asset-step-panel">
+          <div className="panel-title">
+            <h3>2. Text</h3>
+            <span>{selectedAudience.name}</span>
           </div>
-        ) : null}
+          <div className="asset-step-grid">
+            <label>
+              <span>Content type</span>
+              <select
+                onChange={(event) => {
+                  setSelectedContentType(event.target.value as ContentAssetType);
+                  setGeneratedTextAsset(null);
+                }}
+                value={selectedContentType}
+              >
+                {CONTENT_ASSET_TYPES.map((type) => (
+                  <option disabled={PLANNED_CONTENT_ASSET_TYPES.includes(type)} key={type} value={type}>
+                    {type}
+                    {PLANNED_CONTENT_ASSET_TYPES.includes(type) ? " (planned)" : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="asset-notes">
+              <span>Direction</span>
+              <textarea
+                onChange={(event) => setTextNotes(event.target.value)}
+                placeholder="Optional offer, angle, or platform."
+                value={textNotes}
+              />
+            </label>
+            <button disabled={busyAction === "text" || plannedContent} onClick={generateTextAsset} type="button">
+              {busyAction === "text" ? <LoadingIndicator compact label="Generating" /> : "Generate text"}
+            </button>
+          </div>
+          {busyAction === "text" ? (
+            <div className="loading-panel">
+              <LoadingIndicator label="Generating text asset" />
+            </div>
+          ) : null}
+          {generatedTextAsset ? (
+            <article className="text-output-card">
+              <span>{generatedTextAsset.assetType}</span>
+              <strong>{generatedTextAsset.title}</strong>
+              {generatedText.body ? <p>{generatedText.body}</p> : null}
+              {generatedText.cta ? <small>{generatedText.cta}</small> : null}
+            </article>
+          ) : null}
+        </section>
+      ) : null}
 
-        {assets.length ? (
-          <div className="asset-output-grid">
-            {assets.map((asset) => (
-              <article className="asset-output-card" key={asset.id}>
-                {asset.imageUrl ? <img alt="" src={asset.imageUrl} /> : null}
-                <div>
-                  <span>{asset.assetType}</span>
-                  <strong>{asset.title}</strong>
-                  {asset.prompt ? <p>{asset.prompt}</p> : null}
-                </div>
-              </article>
-            ))}
+      {generatedTextAsset ? (
+        <section className="selection-panel image-generator-panel">
+          <div className="panel-title">
+            <h3>3. Image</h3>
+            <span>GPT Image 2</span>
           </div>
-        ) : null}
-      </section>
+          <div className="image-generator-grid">
+            <label>
+              <span>Image type</span>
+              <select
+                onChange={(event) => setSelectedImageType(event.target.value as ImageAssetType)}
+                value={selectedImageType}
+              >
+                {IMAGE_ASSET_TYPES.map((type) => (
+                  <option key={type}>{type}</option>
+                ))}
+              </select>
+            </label>
+            <label className="image-notes">
+              <span>Image direction</span>
+              <textarea
+                onChange={(event) => setImageNotes(event.target.value)}
+                placeholder="Optional visual detail."
+                value={imageNotes}
+              />
+            </label>
+            <button disabled={busyAction === "image"} onClick={generateImageAsset} type="button">
+              {busyAction === "image" ? <LoadingIndicator compact label="Generating" /> : "Generate image"}
+            </button>
+          </div>
+          {busyAction === "image" ? (
+            <div className="loading-panel">
+              <LoadingIndicator label="Generating image and saving it" />
+            </div>
+          ) : null}
+
+          {generatedImageAssets.length ? (
+            <div className="asset-output-grid">
+              {generatedImageAssets.map((asset) => (
+                <article className="asset-output-card" key={asset.id}>
+                  {asset.imageUrl ? <img alt="" src={asset.imageUrl} /> : null}
+                  <div>
+                    <span>{asset.assetType}</span>
+                    <strong>{asset.title}</strong>
+                    {asset.prompt ? <p>{asset.prompt}</p> : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : null}
+        </section>
+      ) : null}
     </section>
   );
 }

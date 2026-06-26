@@ -750,6 +750,13 @@ code {
   padding: 7px 9px;
 }
 
+.audience-primary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .audience-list,
 .workflow-grid,
 .asset-output-grid {
@@ -757,11 +764,15 @@ code {
   gap: 10px;
 }
 
+.audience-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .audience-card {
-  background: #fbfdfc;
-  border: 1px solid var(--line);
+  background: #ffffff;
+  border: 1px solid #b8c9c2;
   border-radius: var(--radius);
-  color: var(--ink);
+  color: #12251f;
   display: grid;
   gap: 7px;
   padding: 12px;
@@ -769,30 +780,40 @@ code {
   width: 100%;
 }
 
-.audience-card.selected {
+.audience-card:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.12);
+}
+
+.audience-card.selected {
+  background: #e8f3ef;
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.18);
 }
 
 .audience-card span,
 .workflow-card span,
 .asset-output-card span,
 .audience-form span,
-.image-generator-grid span {
-  color: var(--muted);
+.image-generator-grid span,
+.asset-step-grid span,
+.text-output-card span {
+  color: #4b6159;
   font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
 }
 
 .audience-card strong {
+  color: #12251f;
   font-size: 15px;
 }
 
 .audience-card small,
 .workflow-card p,
-.asset-output-card p {
-  color: var(--muted);
+.asset-output-card p,
+.text-output-card p,
+.text-output-card small {
+  color: #40544d;
   line-height: 1.45;
 }
 
@@ -825,11 +846,13 @@ code {
 }
 
 .audience-editor,
+.asset-step-panel,
 .image-generator-panel {
   margin-top: 16px;
 }
 
 .audience-form,
+.asset-step-grid,
 .image-generator-grid {
   display: grid;
   gap: 12px;
@@ -837,12 +860,14 @@ code {
 }
 
 .audience-form label,
+.asset-step-grid label,
 .image-generator-grid label {
   display: grid;
   gap: 7px;
 }
 
 .audience-form label:nth-child(2),
+.asset-notes,
 .image-notes {
   grid-column: 1 / -1;
 }
@@ -859,6 +884,25 @@ code {
 
 .image-generator-grid button {
   align-self: end;
+}
+
+.asset-step-grid button {
+  align-self: end;
+}
+
+.text-output-card {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 14px;
+}
+
+.text-output-card strong {
+  color: var(--ink);
+  font-size: 16px;
 }
 
 .asset-output-grid {
@@ -1251,8 +1295,10 @@ code {
   .login-panel,
   .selection-header,
   .selection-grid,
+  .audience-list,
   .workflow-grid,
   .audience-form,
+  .asset-step-grid,
   .image-generator-grid,
   .asset-output-grid,
   .brand-editor-grid,
