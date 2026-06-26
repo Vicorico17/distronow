@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { InlineBrandReviewEditor } from "@/components/brand-review-editor";
+import { ColorEditor, FontEditor, IdentityEditor } from "@/components/brand-review-editor";
 import { BrandExtraction, getColorEntries } from "@/lib/brand";
 import type { BrandProjectWorkspace, StoredBrandExtraction } from "@/lib/brand-store";
 
@@ -55,7 +55,7 @@ export function BrandProfile({
   workspace?: BrandProjectWorkspace;
   showRawData?: boolean;
 }) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingSection, setEditingSection] = useState<"identity" | "colors" | "fonts" | null>(null);
   const branding = extraction.branding;
   const logo = branding.logo ?? branding.images?.logo ?? branding.images?.favicon;
   const fonts = [
@@ -81,9 +81,9 @@ export function BrandProfile({
 
           {workspace ? (
             <button
-              aria-label="Edit brand profile"
+              aria-label="Edit brand identity"
               className="icon-action"
-              onClick={() => setIsEditing((current) => !current)}
+              onClick={() => setEditingSection((current) => (current === "identity" ? null : "identity"))}
               type="button"
             >
               ✎
@@ -97,8 +97,8 @@ export function BrandProfile({
           {stored && !workspace ? <span>Saved</span> : null}
         </div>
 
-        {isEditing && workspace ? (
-          <InlineBrandReviewEditor workspace={workspace} onCancel={() => setIsEditing(false)} />
+        {editingSection === "identity" && workspace ? (
+          <IdentityEditor workspace={workspace} onCancel={() => setEditingSection(null)} />
         ) : null}
       </div>
 
@@ -106,15 +106,42 @@ export function BrandProfile({
         <section className="panel">
           <div className="panel-title">
             <h3>Colors</h3>
-            <span>{getColorEntries(branding.colors).length} tokens</span>
+            <div className="panel-title-actions">
+              <span>{getColorEntries(branding.colors).length} tokens</span>
+              {workspace ? (
+                <button
+                  aria-label="Edit colors"
+                  className="icon-action icon-action-small"
+                  onClick={() => setEditingSection((current) => (current === "colors" ? null : "colors"))}
+                  type="button"
+                >
+                  ✎
+                </button>
+              ) : null}
+            </div>
           </div>
           <ColorGrid extraction={extraction} />
+          {editingSection === "colors" && workspace ? (
+            <ColorEditor workspace={workspace} onCancel={() => setEditingSection(null)} />
+          ) : null}
         </section>
 
         <section className="panel">
           <div className="panel-title">
             <h3>Type</h3>
-            <span>{fonts.length || 0} families</span>
+            <div className="panel-title-actions">
+              <span>{fonts.length || 0} families</span>
+              {workspace ? (
+                <button
+                  aria-label="Edit fonts"
+                  className="icon-action icon-action-small"
+                  onClick={() => setEditingSection((current) => (current === "fonts" ? null : "fonts"))}
+                  type="button"
+                >
+                  ✎
+                </button>
+              ) : null}
+            </div>
           </div>
           <div className="type-stack">
             {fonts.length ? (
@@ -128,6 +155,9 @@ export function BrandProfile({
               <p className="empty-copy">No font data was returned.</p>
             )}
           </div>
+          {editingSection === "fonts" && workspace ? (
+            <FontEditor workspace={workspace} onCancel={() => setEditingSection(null)} />
+          ) : null}
         </section>
 
         {action ? (

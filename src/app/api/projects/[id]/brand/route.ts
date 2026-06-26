@@ -5,8 +5,8 @@ import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 const requestSchema = z.object({
   brandName: z.string().min(1),
-  brandDescription: z.string().optional(),
-  language: z.string().optional(),
+  brandDescription: z.string().optional().default(""),
+  language: z.string().optional().default(""),
   tone: z.string().optional(),
   audience: z.string().optional(),
   brandLogo: z.string().url().optional().or(z.literal("")),

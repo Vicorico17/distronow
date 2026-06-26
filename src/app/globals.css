@@ -364,6 +364,12 @@ li {
   width: 38px;
 }
 
+.icon-action-small {
+  font-size: 14px;
+  height: 28px;
+  width: 28px;
+}
+
 .icon-action:hover {
   border-color: var(--accent);
 }
@@ -424,6 +430,12 @@ li {
   display: flex;
   justify-content: space-between;
   margin-bottom: 16px;
+}
+
+.panel-title-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
 }
 
 .panel-title span {
@@ -905,8 +917,23 @@ code {
   padding-top: 18px;
 }
 
-.brand-editor-grid,
-.field-status-grid {
+.panel .inline-brand-editor {
+  margin-top: 14px;
+}
+
+.inline-brand-editor > label {
+  display: grid;
+  gap: 7px;
+}
+
+.inline-brand-editor > label span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.brand-editor-grid {
   display: grid;
   gap: 12px;
 }
@@ -915,18 +942,12 @@ code {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.field-status-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.brand-editor-grid label,
-.field-status-grid label {
+.brand-editor-grid label {
   display: grid;
   gap: 7px;
 }
 
-.brand-editor-grid span,
-.field-status-grid span {
+.brand-editor-grid span {
   color: var(--muted);
   font-size: 11px;
   font-weight: 900;
@@ -1235,7 +1256,6 @@ code {
   .image-generator-grid,
   .asset-output-grid,
   .brand-editor-grid,
-  .field-status-grid,
   .content-header,
   .generator-controls,
   .draft-grid {
