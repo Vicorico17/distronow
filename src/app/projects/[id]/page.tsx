@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BrandReviewEditor } from "@/components/brand-review-editor";
 import { BrandProfile } from "@/components/brand-profile";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
@@ -51,9 +50,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         projectLabel="Workspace brand kit"
         showRawData={false}
         stored={{ projectId: project.id, extractionId: latestExtraction.id }}
+        workspace={workspace}
       />
-
-      <BrandReviewEditor workspace={workspace} />
     </main>
   );
 }

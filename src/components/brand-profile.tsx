@@ -1,15 +1,10 @@
-import Link from "next/link";
-import { BrandExtraction, getColorEntries } from "@/lib/brand";
-import type { StoredBrandExtraction } from "@/lib/brand-store";
+"use client";
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(new Date(value));
-}
+import Link from "next/link";
+import { useState } from "react";
+import { InlineBrandReviewEditor } from "@/components/brand-review-editor";
+import { BrandExtraction, getColorEntries } from "@/lib/brand";
+import type { BrandProjectWorkspace, StoredBrandExtraction } from "@/lib/brand-store";
 
 function JsonPreview({ extraction }: { extraction: BrandExtraction }) {
   const value = JSON.stringify(extraction, null, 2);
@@ -44,6 +39,7 @@ export function BrandProfile({
   stored,
   projectLabel,
   action,
+  workspace,
   showRawData = true
 }: {
   extraction: BrandExtraction;
@@ -56,8 +52,10 @@ export function BrandProfile({
     href: string;
     label: string;
   };
+  workspace?: BrandProjectWorkspace;
   showRawData?: boolean;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
   const branding = extraction.branding;
   const logo = branding.logo ?? branding.images?.logo ?? branding.images?.favicon;
   const fonts = [
@@ -69,23 +67,39 @@ export function BrandProfile({
   return (
     <section className="workspace" aria-label="Extracted brand profile">
       <div className="brand-summary">
-        <div className="brand-heading">
-          <div className="logo-box">
-            {logo ? <img src={logo} alt="" /> : <span>{extraction.title?.slice(0, 1) ?? "D"}</span>}
+        <div className="brand-summary-top">
+          <div className="brand-heading">
+            <div className="logo-box">
+              {logo ? <img src={logo} alt="" /> : <span>{extraction.title?.slice(0, 1) ?? "D"}</span>}
+            </div>
+            <div>
+              <p className="eyebrow">{projectLabel ?? "Brand profile"}</p>
+              <h2>{extraction.title ?? extraction.sourceUrl}</h2>
+              <p>{extraction.description ?? "A reusable identity kit is ready for the next distribution workflow."}</p>
+            </div>
           </div>
-          <div>
-            <p className="eyebrow">{projectLabel ?? "Brand profile"}</p>
-            <h2>{extraction.title ?? extraction.sourceUrl}</h2>
-            <p>{extraction.description ?? "A reusable identity kit is ready for the next distribution workflow."}</p>
-          </div>
+
+          {workspace ? (
+            <button
+              aria-label="Edit brand profile"
+              className="icon-action"
+              onClick={() => setIsEditing((current) => !current)}
+              type="button"
+            >
+              ✎
+            </button>
+          ) : null}
         </div>
 
         <div className="meta-row">
           <span>{new URL(extraction.sourceUrl).hostname}</span>
           {extraction.language ? <span>Language {extraction.language}</span> : null}
-          <span>Captured {formatDate(extraction.capturedAt)}</span>
-          {stored ? <span>Saved project {stored.projectId.slice(0, 8)}</span> : null}
+          {stored && !workspace ? <span>Saved</span> : null}
         </div>
+
+        {isEditing && workspace ? (
+          <InlineBrandReviewEditor workspace={workspace} onCancel={() => setIsEditing(false)} />
+        ) : null}
       </div>
 
       <div className="panel-grid">
