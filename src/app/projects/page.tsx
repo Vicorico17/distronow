@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProjectDeleteButton } from "@/components/project-delete-button";
 import { getBrandProjects } from "@/lib/brand-store";
 import { getColorEntries } from "@/lib/brand";
 import type { BrandColors } from "@/lib/brand";
@@ -49,21 +50,24 @@ export default async function ProjectsPage() {
               const colors = colorEntries(project.brandColors);
 
               return (
-                <Link className="project-list-card" href={`/projects/${project.id}`} key={project.id}>
-                  <span>{project.domain}</span>
-                  <strong>{project.name ?? project.domain}</strong>
-                  {colors.length ? (
-                    <div className="project-color-row" aria-label="Saved brand colors">
-                      {colors.slice(0, 6).map(([name, value]) => (
-                        <i key={name} style={{ background: value }} title={`${name}: ${value}`} />
-                      ))}
-                    </div>
-                  ) : null}
-                  <small>
-                    {project.language ? `${project.language} · ` : null}
-                    Updated {formatDate(project.updatedAt)}
-                  </small>
-                </Link>
+                <article className="project-list-card" key={project.id}>
+                  <Link className="project-card-link" href={`/projects/${project.id}`}>
+                    <span>{project.domain}</span>
+                    <strong>{project.name ?? project.domain}</strong>
+                    {colors.length ? (
+                      <div className="project-color-row" aria-label="Saved brand colors">
+                        {colors.slice(0, 6).map(([name, value]) => (
+                          <i key={name} style={{ background: value }} title={`${name}: ${value}`} />
+                        ))}
+                      </div>
+                    ) : null}
+                    <small>
+                      {project.language ? `${project.language} · ` : null}
+                      Updated {formatDate(project.updatedAt)}
+                    </small>
+                  </Link>
+                  <ProjectDeleteButton projectId={project.id} projectName={project.name ?? project.domain} />
+                </article>
               );
             })
           ) : (

@@ -510,6 +510,26 @@ export async function updateBrandProject({
   return data;
 }
 
+export async function deleteBrandProject({ projectId, userId }: { projectId: string; userId?: string | null }) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const workspace = await getBrandProjectWorkspace(projectId, userId);
+
+  if (!workspace) {
+    throw new Error("Project not found.");
+  }
+
+  const { error } = await supabase.from("projects").delete().eq("id", projectId);
+
+  if (error) {
+    throw new Error(`Could not delete project: ${error.message}`);
+  }
+}
+
 export async function getPostDrafts(projectId: string): Promise<SavedPostDraft[]> {
   const supabase = createSupabaseAdminClient();
 

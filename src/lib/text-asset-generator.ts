@@ -83,8 +83,13 @@ function templateTextAsset({
 
   const typeLines: Record<ContentAssetType, string> = {
     "Social content": `Write one direct social post for ${audienceName} about why ${name} matters now.`,
+    "Short-form video script": `Write a hook-first TikTok/Reels script for ${audienceName}, with scene beats and simple voiceover.`,
     "Slideshows and carousels": `Plan a concise 5-slide carousel for ${audienceName}, with each slide moving from problem to proof to action.`,
-    "Image assets": `Create short copy for a branded image asset that makes ${name} immediately clear.`,
+    "LinkedIn infographic": `Plan a LinkedIn infographic carousel for ${audienceName}, with a clear thesis and useful supporting points.`,
+    "Ad creative copy": `Write performance ad copy for ${audienceName}, with hook, proof, offer, and CTA.`,
+    "Image asset brief": `Create short copy and visual direction for a branded image asset that makes ${name} immediately clear.`,
+    "Email campaign": `Write a concise email campaign draft for ${audienceName}, with subject line, body, and CTA.`,
+    "Landing page section": `Write a landing page section for ${audienceName}, with headline, proof, benefit bullets, and CTA.`,
     "UGC workflows": `Draft a creator brief for ${audienceName} with hook, scene, and proof points.`,
     "Seedance video": `Draft a short video concept for ${audienceName} that can become a text-to-video prompt.`,
     "Competitive inspiration": `Analyze competitor positioning patterns for ${audienceName} and turn them into original content directions.`

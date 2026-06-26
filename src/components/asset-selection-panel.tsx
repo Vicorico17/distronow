@@ -35,6 +35,19 @@ type AssetSelectionPanelProps = {
 
 type AssetFlowStep = "audience" | "content" | "assets";
 
+const GOAL_OPTIONS = [
+  "Launch or announce",
+  "Explain a product benefit",
+  "Drive leads or signups",
+  "Build trust with proof",
+  "Educate the audience",
+  "Promote an offer",
+  "Grow community engagement",
+  "Custom"
+] as const;
+
+type GoalOption = (typeof GOAL_OPTIONS)[number];
+
 function joinList(values: string[]) {
   return values.join(", ");
 }
@@ -130,7 +143,9 @@ export function AssetSelectionPanel({
   const [audienceDraft, setAudienceDraft] = useState<AudienceDraft>(draftFromAudience());
   const [currentStep, setCurrentStep] = useState<AssetFlowStep>("audience");
   const [selectedContentType, setSelectedContentType] = useState<ContentAssetType>("Social content");
-  const [textNotes, setTextNotes] = useState("");
+  const [selectedGoal, setSelectedGoal] = useState<GoalOption>("Launch or announce");
+  const [customGoal, setCustomGoal] = useState("");
+  const [contentSetupComplete, setContentSetupComplete] = useState(false);
   const [generatedTextAsset, setGeneratedTextAsset] = useState<SavedMarketingAsset | null>(null);
   const [sourceDraft, setSourceDraft] = useState<SavedPostDraft | null>(null);
   const [selectedImageType, setSelectedImageType] = useState<ImageAssetType>("Social post graphic");
@@ -146,8 +161,14 @@ export function AssetSelectionPanel({
   const generatedImageAssets = assets.filter((asset) => Boolean(asset.imageUrl));
   const plannedContent = PLANNED_CONTENT_ASSET_TYPES.includes(selectedContentType);
   const hasGeneratedContent = Boolean(generatedTextAsset || sourceDraft);
+  const goalText = selectedGoal === "Custom" ? customGoal.trim() : selectedGoal;
+  const recommendAudienceLabel = audiences.length ? "Recommend other audiences" : "Recommend audiences";
 
   async function recommendAudiences() {
+    if (busyAction === "audiences") {
+      return;
+    }
+
     setBusyAction("audiences");
     setMessage(null);
 
@@ -172,6 +193,7 @@ export function AssetSelectionPanel({
     setSelectedAudienceId(payload.audiences[0]?.id ?? "");
     setGeneratedTextAsset(null);
     setSourceDraft(null);
+    setContentSetupComplete(false);
     setCurrentStep("audience");
   }
 
@@ -234,6 +256,7 @@ export function AssetSelectionPanel({
     setSelectedAudienceId(savedAudience.id);
     setGeneratedTextAsset(null);
     setSourceDraft(null);
+    setContentSetupComplete(false);
     setCurrentStep("audience");
     setEditingAudienceId(null);
   }
@@ -252,7 +275,7 @@ export function AssetSelectionPanel({
       body: JSON.stringify({
         assetType: selectedContentType,
         audienceId: selectedAudience.id,
-        notes: textNotes
+        notes: goalText
       })
     });
     const payload = (await response.json()) as {
@@ -321,7 +344,7 @@ export function AssetSelectionPanel({
           <h3>1. Audience</h3>
           <div className="audience-primary-actions">
             <button disabled={busyAction === "audiences"} onClick={recommendAudiences} type="button">
-              {busyAction === "audiences" ? <LoadingIndicator compact label="Analyzing" /> : "Recommend audiences"}
+              {busyAction === "audiences" ? <LoadingIndicator compact label="Analyzing" /> : recommendAudienceLabel}
             </button>
             <button onClick={() => startEditing()} type="button">
               Add audiences
@@ -477,6 +500,7 @@ export function AssetSelectionPanel({
                   setSelectedContentType(event.target.value as ContentAssetType);
                   setGeneratedTextAsset(null);
                   setSourceDraft(null);
+                  setContentSetupComplete(false);
                   setCurrentStep("content");
                 }}
                 value={selectedContentType}
@@ -489,15 +513,48 @@ export function AssetSelectionPanel({
                 ))}
               </select>
             </label>
-            <label className="asset-notes">
+            <label>
               <span>Goal</span>
-              <textarea
-                onChange={(event) => setTextNotes(event.target.value)}
-                placeholder="What should this content achieve?"
-                value={textNotes}
-              />
+              <select
+                onChange={(event) => {
+                  setSelectedGoal(event.target.value as GoalOption);
+                  setGeneratedTextAsset(null);
+                  setSourceDraft(null);
+                  setContentSetupComplete(false);
+                  setCurrentStep("content");
+                }}
+                value={selectedGoal}
+              >
+                {GOAL_OPTIONS.map((goal) => (
+                  <option key={goal}>{goal}</option>
+                ))}
+              </select>
             </label>
-            {selectedContentType !== "Social content" ? (
+            {selectedGoal === "Custom" ? (
+              <label className="asset-notes">
+                <span>Custom goal</span>
+                <textarea
+                  onChange={(event) => {
+                    setCustomGoal(event.target.value);
+                    setGeneratedTextAsset(null);
+                    setSourceDraft(null);
+                    setContentSetupComplete(false);
+                    setCurrentStep("content");
+                  }}
+                  placeholder="What should this content achieve?"
+                  value={customGoal}
+                />
+              </label>
+            ) : null}
+            {!contentSetupComplete ? (
+              <button
+                disabled={plannedContent || !goalText}
+                onClick={() => setContentSetupComplete(true)}
+                type="button"
+              >
+                Continue to generation
+              </button>
+            ) : selectedContentType !== "Social content" ? (
               <button disabled={busyAction === "text" || plannedContent} onClick={generateTextAsset} type="button">
                 {busyAction === "text" ? <LoadingIndicator compact label="Generating" /> : "Generate content"}
               </button>
@@ -508,11 +565,11 @@ export function AssetSelectionPanel({
               <LoadingIndicator label="Generating content" />
             </div>
           ) : null}
-          {selectedContentType === "Social content" ? (
+          {selectedContentType === "Social content" && contentSetupComplete ? (
             <PostDraftPanel
               audienceId={selectedAudience.id}
               embedded
-              generationGoal={textNotes}
+              generationGoal={goalText}
               initialDrafts={initialDrafts}
               initialLanguage={initialLanguage}
               onDraftsGenerated={(drafts) => {

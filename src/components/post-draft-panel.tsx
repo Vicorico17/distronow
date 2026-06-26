@@ -339,13 +339,15 @@ export function PostDraftPanel({
           <button disabled={hookState.status === "loading" || state.status === "loading"} onClick={generateHook} type="button">
             {hookState.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate hook"}
           </button>
-          <button
-            disabled={!hookState.hook.trim() || hookState.status === "loading" || state.status === "loading"}
-            onClick={generateDrafts}
-            type="button"
-          >
-            {state.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate script"}
-          </button>
+          {hookState.hook.trim() ? (
+            <button
+              disabled={hookState.status === "loading" || state.status === "loading"}
+              onClick={generateDrafts}
+              type="button"
+            >
+              {state.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate script"}
+            </button>
+          ) : null}
         </div>
       </div>
       {state.status === "loading" ? (
@@ -440,9 +442,9 @@ export function PostDraftPanel({
       {hookState.status === "error" ? <div className="error-box">{hookState.message}</div> : null}
       {state.status === "error" ? <div className="error-box">{state.message}</div> : null}
 
-      <div className="draft-grid">
-        {state.drafts.length ? (
-          state.drafts.map((draft) => {
+      {state.drafts.length ? (
+        <div className="draft-grid">
+          {state.drafts.map((draft) => {
             const isEditing = editingDraftId === draft.id && editDraft;
             const isBusy = actionDraftId === draft.id;
 
@@ -585,19 +587,9 @@ export function PostDraftPanel({
               </div>
             </article>
           );
-          })
-        ) : (
-          <div className="draft-empty">
-            <div>
-              <h3>No drafts yet</h3>
-              <p>Choose a channel and intent, then generate the first saved content ideas for this brand.</p>
-            </div>
-            <button disabled={hookState.status === "loading"} onClick={generateHook} type="button">
-              {hookState.status === "loading" ? <LoadingIndicator compact label="Generating" /> : "Generate hook"}
-            </button>
-          </div>
-        )}
-      </div>
+          })}
+        </div>
+      ) : null}
     </section>
   );
 }

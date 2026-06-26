@@ -10,8 +10,13 @@ export type ImageAssetType = (typeof IMAGE_ASSET_TYPES)[number];
 
 export const CONTENT_ASSET_TYPES = [
   "Social content",
+  "Short-form video script",
   "Slideshows and carousels",
-  "Image assets",
+  "LinkedIn infographic",
+  "Ad creative copy",
+  "Image asset brief",
+  "Email campaign",
+  "Landing page section",
   "UGC workflows",
   "Seedance video",
   "Competitive inspiration"

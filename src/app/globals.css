@@ -1079,33 +1079,68 @@ code {
 }
 
 .project-list-card {
+  align-items: center;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   color: var(--ink);
   display: grid;
-  gap: 8px;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
   padding: 16px;
-  text-decoration: none;
 }
 
 .project-list-card:hover {
   border-color: var(--accent);
 }
 
-.project-list-card span,
-.project-list-card small {
+.project-card-link {
+  color: var(--ink);
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.project-card-link span,
+.project-card-link small {
   color: var(--muted);
 }
 
-.project-list-card span {
+.project-card-link span {
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
 }
 
-.project-list-card strong {
+.project-card-link strong {
   font-size: 20px;
+}
+
+.project-delete-area {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.project-delete-area button {
+  background: #fff7f7;
+  border: 1px solid #efb4b4;
+  border-radius: var(--radius);
+  color: var(--danger);
+  font-weight: 900;
+  padding: 9px 11px;
+}
+
+.project-delete-area button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.project-delete-area small {
+  color: var(--danger);
+  max-width: 220px;
+  text-align: right;
 }
 
 .project-color-row {
