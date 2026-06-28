@@ -69,11 +69,7 @@ export default function Home() {
         <div className="intro-grid">
           <div>
             <p className="eyebrow">Start with any website</p>
-            <h1>Start creating content instantly for your website and your business from only the website link.</h1>
-            <p className="lede">
-              Capture logo, colors, typography, and source metadata first. The content engine can build social posts,
-              launch updates, and reusable templates from this profile next.
-            </p>
+            <h1>Start creating content instantly for your business from only the website link.</h1>
           </div>
 
           <form onSubmit={handleSubmit} className="scrape-form">
