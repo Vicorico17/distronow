@@ -66,8 +66,8 @@
   - [x] Supabase Auth or Clerk.
   - [x] Associate projects with users.
   - [x] Lock projects and drafts behind row-level security.
-  - Add logout and account settings.
-  - Backfill or claim anonymous projects.
+  - [x] Add logout and account settings.
+  - [x] Backfill or claim anonymous projects.
 
 - Update database schema.
   - Add `language`, `tone`, and `audience` fields to projects or brand profiles.
@@ -104,7 +104,7 @@
 
 - Add campaign structure.
   - Group drafts into campaigns.
-  - Add campaigns table.
+  - [x] Add campaigns table.
   - Generate a 7-day or 30-day content calendar.
   - Support multiple posts per channel.
   - Add campaign objective and audience.

@@ -30,6 +30,9 @@ export default async function ProjectsPage() {
           <Link className="nav-action" href="/">
             New brand
           </Link>
+          <Link className="nav-action" href="/account">
+            Account
+          </Link>
         </nav>
       </section>
 

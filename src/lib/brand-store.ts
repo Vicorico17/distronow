@@ -699,6 +699,42 @@ export async function deleteBrandProject({ projectId, userId }: { projectId: str
   }
 }
 
+export async function claimAnonymousProjects(userId: string) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data: projects, error: loadError } = await supabase.from("projects").select("id").is("user_id", null);
+
+  if (loadError) {
+    throw new Error(`Could not load anonymous projects: ${loadError.message}`);
+  }
+
+  const projectIds = projects.map((project) => project.id);
+
+  if (!projectIds.length) {
+    return { projects: 0 };
+  }
+
+  const tables = ["projects", "brand_extractions", "post_drafts", "brand_audiences", "marketing_assets", "campaigns"] as const;
+
+  for (const table of tables) {
+    const query =
+      table === "projects"
+        ? supabase.from(table).update({ user_id: userId }).in("id", projectIds).is("user_id", null)
+        : supabase.from(table).update({ user_id: userId }).in("project_id", projectIds).is("user_id", null);
+    const { error } = await query;
+
+    if (error) {
+      throw new Error(`Could not claim ${table}: ${error.message}`);
+    }
+  }
+
+  return { projects: projectIds.length };
+}
+
 export async function getPostDrafts(projectId: string): Promise<SavedPostDraft[]> {
   const supabase = createSupabaseAdminClient();
 

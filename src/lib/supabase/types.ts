@@ -119,6 +119,63 @@ export type Database = {
           }
         ];
       };
+      campaigns: {
+        Row: {
+          id: string;
+          project_id: string;
+          user_id: string | null;
+          audience_id: string | null;
+          name: string;
+          objective: string | null;
+          duration_days: number;
+          channels: string[];
+          settings: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          user_id?: string | null;
+          audience_id?: string | null;
+          name: string;
+          objective?: string | null;
+          duration_days?: number;
+          channels?: string[];
+          settings?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          user_id?: string | null;
+          audience_id?: string | null;
+          name?: string;
+          objective?: string | null;
+          duration_days?: number;
+          channels?: string[];
+          settings?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "campaigns_audience_id_fkey";
+            columns: ["audience_id"];
+            isOneToOne: false;
+            referencedRelation: "brand_audiences";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       post_drafts: {
         Row: {
           id: string;

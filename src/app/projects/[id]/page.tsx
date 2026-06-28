@@ -32,8 +32,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <Link className="nav-action" href="/projects">
             Projects
           </Link>
-          <Link className="nav-action" href="/login">
-            Log in
+          <Link className="nav-action" href="/account">
+            Account
           </Link>
         </nav>
       </section>

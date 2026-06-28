@@ -782,6 +782,7 @@ code {
 
 .asset-selection,
 .login-panel,
+.account-panel,
 .projects-dashboard {
   margin: 0 auto 18px;
   max-width: 1160px;
@@ -1279,6 +1280,57 @@ code {
   text-align: right;
 }
 
+.account-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-detail-list {
+  display: grid;
+  gap: 8px;
+}
+
+.account-detail-list span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.account-detail-list code {
+  overflow-wrap: anywhere;
+}
+
+.account-action-row {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  margin-top: 12px;
+}
+
+.account-action-row button {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: #ffffff;
+  font-weight: 900;
+  padding: 11px 13px;
+}
+
+.account-action-row button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.success-text {
+  color: #245638;
+}
+
+.danger-text {
+  color: var(--danger);
+}
+
 .project-color-row {
   display: flex;
   gap: 6px;
@@ -1544,6 +1596,7 @@ code {
   .asset-workspace-layout,
   .asset-context,
   .login-panel,
+  .account-grid,
   .selection-header,
   .selection-grid,
   .audience-list,

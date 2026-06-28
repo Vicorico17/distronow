@@ -33,8 +33,8 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
           <Link className="nav-action" href="/projects">
             Projects
           </Link>
-          <Link className="nav-action" href="/login">
-            Log in
+          <Link className="nav-action" href="/account">
+            Account
           </Link>
         </nav>
       </section>
