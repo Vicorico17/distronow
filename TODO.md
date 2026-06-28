@@ -66,11 +66,6 @@
   - [x] Add Supabase Storage or Vercel Blob for copied assets.
   - [x] Generate platform-ready image sizes later.
 
-- Add provider fallback chain.
-  - Primary: Firecrawl branding.
-  - Fallback: Brandfetch or Logo.dev.
-  - Last resort: metadata scraper plus screenshot/color extraction.
-
 ## Accounts And Data
 
 - Add authentication.
