@@ -18,6 +18,8 @@ export type Database = {
           brand_colors: Json;
           brand_fonts: Json;
           brand_logo: string | null;
+          brand_assets: Json;
+          brand_confidence: Json;
           brand_fields_status: Json;
           created_at: string;
           updated_at: string;
@@ -36,6 +38,8 @@ export type Database = {
           brand_colors?: Json;
           brand_fonts?: Json;
           brand_logo?: string | null;
+          brand_assets?: Json;
+          brand_confidence?: Json;
           brand_fields_status?: Json;
           created_at?: string;
           updated_at?: string;
@@ -54,6 +58,8 @@ export type Database = {
           brand_colors?: Json;
           brand_fonts?: Json;
           brand_logo?: string | null;
+          brand_assets?: Json;
+          brand_confidence?: Json;
           brand_fields_status?: Json;
           created_at?: string;
           updated_at?: string;

@@ -1,6 +1,8 @@
 export const IMAGE_ASSET_TYPES = [
   "Social post graphic",
+  "Slideshow frame",
   "Carousel slide",
+  "Infographic carousel slide",
   "Ad creative",
   "Product-style visual",
   "Brand background/template"
@@ -11,7 +13,8 @@ export type ImageAssetType = (typeof IMAGE_ASSET_TYPES)[number];
 export const CONTENT_ASSET_TYPES = [
   "Social content",
   "Short-form video script",
-  "Slideshows and carousels",
+  "Instagram/TikTok slideshow",
+  "Carousel post",
   "LinkedIn infographic",
   "Ad creative copy",
   "Image asset brief",

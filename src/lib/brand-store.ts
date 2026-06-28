@@ -30,6 +30,8 @@ export type BrandProjectWorkspace = {
     brandColors: Json;
     brandFonts: Json;
     brandLogo: string | null;
+    brandAssets: Json;
+    brandConfidence: Json;
     brandFieldsStatus: Json;
     createdAt: string;
     updatedAt: string;
@@ -241,6 +243,157 @@ function hasColorTokens(colors: BrandProfile["colors"] | undefined) {
   return Object.values(colors ?? {}).some((value) => typeof value === "string" && value.trim().length > 0);
 }
 
+const BRAND_ASSET_BUCKET = "brand-assets";
+
+const PLATFORM_IMAGE_SIZES = [
+  { platform: "Instagram", label: "Square post", size: "1080x1080", status: "planned" },
+  { platform: "Instagram", label: "Story/Reel", size: "1080x1920", status: "planned" },
+  { platform: "TikTok", label: "Vertical video cover", size: "1080x1920", status: "planned" },
+  { platform: "LinkedIn", label: "Carousel slide", size: "1080x1350", status: "planned" },
+  { platform: "X", label: "Feed image", size: "1600x900", status: "planned" }
+];
+
+type BrandAssetRef = {
+  kind: "logo" | "favicon" | "ogImage";
+  sourceUrl: string;
+  storagePath?: string;
+  publicUrl?: string;
+  copiedAt?: string;
+  status: "referenced" | "copied" | "copy_failed";
+};
+
+function readImageUrl(extraction: BrandExtraction, kind: BrandAssetRef["kind"]) {
+  if (kind === "logo") return extraction.branding.logo ?? extraction.branding.images?.logo;
+  if (kind === "favicon") return extraction.branding.images?.favicon;
+  return extraction.branding.images?.ogImage;
+}
+
+function buildBrandAssets(extraction: BrandExtraction) {
+  const assets: Partial<Record<BrandAssetRef["kind"], BrandAssetRef>> = {};
+
+  (["logo", "favicon", "ogImage"] as const).forEach((kind) => {
+    const sourceUrl = readImageUrl(extraction, kind);
+
+    if (sourceUrl) {
+      assets[kind] = {
+        kind,
+        sourceUrl,
+        status: "referenced"
+      };
+    }
+  });
+
+  return {
+    ...assets,
+    platformSizes: PLATFORM_IMAGE_SIZES
+  };
+}
+
+function confidenceLevel(score: number) {
+  if (score >= 0.75) return "high";
+  if (score >= 0.45) return "medium";
+  return "low";
+}
+
+function buildBrandConfidence(extraction: BrandExtraction) {
+  const colorCount = Object.values(extraction.branding.colors ?? {}).filter(
+    (value) => typeof value === "string" && value.trim()
+  ).length;
+  const fontCount = extraction.branding.fonts?.filter((font) => font.family?.trim()).length ?? 0;
+  const hasLogo = Boolean(extraction.branding.logo ?? extraction.branding.images?.logo ?? extraction.branding.images?.favicon);
+  const hasOgImage = Boolean(extraction.branding.images?.ogImage);
+  const values = {
+    identity: extraction.title ? 0.85 : 0.25,
+    description: extraction.description ? 0.8 : 0.25,
+    language: extraction.language ? 0.75 : 0.35,
+    colors: Math.min(0.25 + colorCount * 0.16, 0.95),
+    fonts: Math.min(0.3 + fontCount * 0.2, 0.9),
+    logo: hasLogo ? 0.8 : 0.2,
+    ogImage: hasOgImage ? 0.75 : 0.2
+  };
+  const overall = Object.values(values).reduce((total, score) => total + score, 0) / Object.values(values).length;
+
+  return {
+    overall: { score: Number(overall.toFixed(2)), level: confidenceLevel(overall) },
+    fields: Object.fromEntries(
+      Object.entries(values).map(([field, score]) => [field, { score: Number(score.toFixed(2)), level: confidenceLevel(score) }])
+    )
+  };
+}
+
+function assetExtension(contentType: string | null, url: string) {
+  if (contentType?.includes("svg")) return "svg";
+  if (contentType?.includes("png")) return "png";
+  if (contentType?.includes("webp")) return "webp";
+  if (contentType?.includes("gif")) return "gif";
+
+  const pathname = new URL(url).pathname;
+  const extension = pathname.match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase();
+
+  return extension && ["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(extension) ? extension : "jpg";
+}
+
+async function copyBrandAssetsToStorage(projectId: string, assets: ReturnType<typeof buildBrandAssets>) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    return assets;
+  }
+
+  const nextAssets = { ...assets };
+
+  for (const kind of ["logo", "favicon", "ogImage"] as const) {
+    const asset = nextAssets[kind];
+
+    if (!asset?.sourceUrl) {
+      continue;
+    }
+
+    try {
+      const response = await fetch(asset.sourceUrl, { signal: AbortSignal.timeout(8000) });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type") ?? "image/jpeg";
+
+      if (!contentType.startsWith("image/")) {
+        throw new Error(`Unexpected content type ${contentType}`);
+      }
+
+      const bytes = Buffer.from(await response.arrayBuffer());
+      const extension = assetExtension(contentType, asset.sourceUrl);
+      const storagePath = `${projectId}/${kind}.${extension}`;
+      const { error } = await supabase.storage
+        .from(BRAND_ASSET_BUCKET)
+        .upload(storagePath, bytes, { contentType, upsert: true });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const { data } = supabase.storage.from(BRAND_ASSET_BUCKET).getPublicUrl(storagePath);
+
+      nextAssets[kind] = {
+        ...asset,
+        storagePath,
+        publicUrl: data.publicUrl,
+        copiedAt: new Date().toISOString(),
+        status: "copied"
+      };
+    } catch (error) {
+      console.error(error);
+      nextAssets[kind] = {
+        ...asset,
+        status: "copy_failed"
+      };
+    }
+  }
+
+  return nextAssets;
+}
+
 export async function saveBrandExtraction(
   extraction: BrandExtraction,
   userId?: string | null
@@ -266,6 +419,8 @@ export async function saveBrandExtraction(
     throw new Error("This brand is already owned by another account.");
   }
 
+  const brandAssets = buildBrandAssets(extraction);
+  const brandConfidence = buildBrandConfidence(extraction);
   const projectPayload = {
     website_url: extraction.sourceUrl,
     domain,
@@ -278,6 +433,8 @@ export async function saveBrandExtraction(
     ) as Json,
     brand_fonts: (extraction.branding.fonts ?? []) as Json,
     brand_logo: extraction.branding.logo ?? extraction.branding.images?.logo ?? extraction.branding.images?.favicon ?? null,
+    brand_assets: brandAssets as unknown as Json,
+    brand_confidence: brandConfidence as unknown as Json,
     updated_at: new Date().toISOString(),
     user_id: userId ?? existingProject?.user_id ?? null
   };
@@ -300,6 +457,16 @@ export async function saveBrandExtraction(
 
   if (projectError) {
     throw new Error(`Could not save project: ${projectError.message}`);
+  }
+
+  const copiedBrandAssets = await copyBrandAssetsToStorage(project.id, brandAssets);
+  const { error: assetUpdateError } = await supabase
+    .from("projects")
+    .update({ brand_assets: copiedBrandAssets as unknown as Json })
+    .eq("id", project.id);
+
+  if (assetUpdateError) {
+    console.error(assetUpdateError);
   }
 
   const { data: savedExtraction, error: extractionError } = await supabase
@@ -342,7 +509,7 @@ export async function getBrandProjectWorkspace(
   const { data: project, error: projectError } = await supabase
     .from("projects")
     .select(
-      "id,user_id,name,website_url,domain,language,tone,audience,brand_name,brand_description,brand_colors,brand_fonts,brand_logo,brand_fields_status,created_at,updated_at"
+      "id,user_id,name,website_url,domain,language,tone,audience,brand_name,brand_description,brand_colors,brand_fonts,brand_logo,brand_assets,brand_confidence,brand_fields_status,created_at,updated_at"
     )
     .eq("id", projectId)
     .single();
@@ -397,6 +564,8 @@ export async function getBrandProjectWorkspace(
       brandColors: project.brand_colors,
       brandFonts: project.brand_fonts,
       brandLogo: project.brand_logo,
+      brandAssets: project.brand_assets,
+      brandConfidence: project.brand_confidence,
       brandFieldsStatus: project.brand_fields_status,
       createdAt: project.created_at,
       updatedAt: project.updated_at

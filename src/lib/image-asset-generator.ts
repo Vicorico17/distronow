@@ -11,7 +11,14 @@ function brandName(extraction: BrandExtraction) {
 
 function sizeForAsset(type: ImageAssetType) {
   if (type === "Ad creative") return "1536x1024";
-  if (type === "Brand background/template" || type === "Carousel slide") return "1024x1536";
+  if (
+    type === "Brand background/template" ||
+    type === "Carousel slide" ||
+    type === "Slideshow frame" ||
+    type === "Infographic carousel slide"
+  ) {
+    return "1024x1536";
+  }
   return "1024x1024";
 }
 
@@ -44,6 +51,12 @@ function buildImagePrompt({
     `Style: clear, conversion-oriented, premium but practical, ready for Instagram/TikTok usage.`,
     assetType === "Carousel slide"
       ? "Design it as a clean vertical carousel slide with a strong visual hierarchy and space for short text."
+      : null,
+    assetType === "Slideshow frame"
+      ? "Design it as a vertical 9:16 social slideshow frame with one strong idea, large readable type, and room for a sequence number."
+      : null,
+    assetType === "Infographic carousel slide"
+      ? "Design it as a clean LinkedIn infographic carousel slide with structured hierarchy, concise labels, and a professional editorial feel."
       : null,
     assetType === "Ad creative" ? "Make it feel like a performance ad creative with a clear focal point." : null,
     assetType === "Product-style visual"

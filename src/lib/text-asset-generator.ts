@@ -84,7 +84,8 @@ function templateTextAsset({
   const typeLines: Record<ContentAssetType, string> = {
     "Social content": `Write one direct social post for ${audienceName} about why ${name} matters now.`,
     "Short-form video script": `Write a hook-first TikTok/Reels script for ${audienceName}, with scene beats and simple voiceover.`,
-    "Slideshows and carousels": `Plan a concise 5-slide carousel for ${audienceName}, with each slide moving from problem to proof to action.`,
+    "Instagram/TikTok slideshow": `Plan a vertical 5-frame Instagram/TikTok slideshow for ${audienceName}, with hook, frame text, and visual direction per frame.`,
+    "Carousel post": `Plan a concise 5-slide carousel for ${audienceName}, with each slide moving from problem to proof to action.`,
     "LinkedIn infographic": `Plan a LinkedIn infographic carousel for ${audienceName}, with a clear thesis and useful supporting points.`,
     "Ad creative copy": `Write performance ad copy for ${audienceName}, with hook, proof, offer, and CTA.`,
     "Image asset brief": `Create short copy and visual direction for a branded image asset that makes ${name} immediately clear.`,
@@ -101,7 +102,14 @@ function templateTextAsset({
       .filter(Boolean)
       .join("\n"),
     cta: "Take the next step.",
-    visualDirection: `Use ${name}'s brand colors, a clear focal point, and minimal text. Make it native to Instagram, TikTok, and LinkedIn.`,
+    visualDirection:
+      assetType === "Instagram/TikTok slideshow"
+        ? `Create vertical 9:16 slideshow frames using ${name}'s brand colors, large readable text, and one idea per frame.`
+        : assetType === "LinkedIn infographic"
+          ? `Create clean LinkedIn carousel/infographic slides using ${name}'s brand colors, structured hierarchy, and useful visual callouts.`
+          : assetType === "Carousel post"
+            ? `Create carousel slides using ${name}'s brand colors, a clear focal point, and minimal text per slide.`
+            : `Use ${name}'s brand colors, a clear focal point, and minimal text. Make it native to Instagram, TikTok, and LinkedIn.`,
     caption: `${name} turns the brand profile into content built for ${audienceName}.`,
     provider: "template",
     model: null,

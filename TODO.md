@@ -49,22 +49,22 @@
   - [x] Show workflow cards for social content, slideshows/carousels, image assets, UGC, and video.
   - [x] Keep UGC and Seedance workflows visible as planned items.
 
-- Add slideshow and carousel generation.
-  - Generate Instagram/TikTok slideshow outlines.
-  - Generate LinkedIn infographic carousel outlines.
-  - Turn selected outlines into image prompts.
+- [x] Add slideshow and carousel generation.
+  - [x] Generate Instagram/TikTok slideshow outlines.
+  - [x] Generate LinkedIn infographic carousel outlines.
+  - [x] Turn selected outlines into image prompts.
 
 ## Brand Profile
 
-- Improve brand extraction review.
+- [x] Improve brand extraction review.
   - [x] Let users edit brand name, description, language, colors, fonts, and tone.
   - [x] Mark extracted values as confirmed or ignored.
-  - Add a confidence indicator for extracted fields.
+  - [x] Add a confidence indicator for extracted fields.
 
-- Add brand assets.
-  - Save logo and OG image references.
-  - Add Supabase Storage or Vercel Blob for copied assets.
-  - Generate platform-ready image sizes later.
+- [x] Add brand assets.
+  - [x] Save logo and OG image references.
+  - [x] Add Supabase Storage or Vercel Blob for copied assets.
+  - [x] Generate platform-ready image sizes later.
 
 - Add provider fallback chain.
   - Primary: Firecrawl branding.
@@ -89,11 +89,11 @@
 
 ## Deployment And Operations
 
-- Finish Vercel production setup.
-  - Confirm all environment variables are set.
-  - Add production Supabase URL/key configuration.
-  - Confirm Firecrawl works from Vercel.
-  - Confirm draft generation works from Vercel.
+- [x] Finish Vercel production setup.
+  - [x] Confirm all environment variables are set.
+  - [x] Add production Supabase URL/key configuration.
+  - [x] Confirm Firecrawl works from Vercel.
+  - [x] Confirm draft generation works from Vercel.
 
 - [x] Add observability.
   - [x] Log scrape failures.
