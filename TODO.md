@@ -37,12 +37,6 @@
   - [x] Regenerate one draft.
   - [x] Save edited draft back to Supabase.
 
-- Add campaign structure.
-  - Group drafts into campaigns.
-  - Generate a 7-day or 30-day content calendar.
-  - Support multiple posts per channel.
-  - Add campaign objective and audience.
-
 - [x] Add asset selection screen.
   - [x] Show recommended audiences after brand extraction.
   - [x] Let users edit and add audiences.
@@ -79,7 +73,6 @@
   - Add `language`, `tone`, and `audience` fields to projects or brand profiles.
   - Add `provider`, `model`, `prompt_version`, and `settings` to post drafts.
   - [x] Add audience/persona and marketing asset tables.
-  - Add campaigns table.
   - [x] Add user ownership columns.
 
 ## Deployment And Operations
@@ -108,6 +101,13 @@
   - Generate text-to-video and image-to-video assets.
   - Store video outputs in Supabase Storage.
   - Add polling/webhook handling for async jobs.
+
+- Add campaign structure.
+  - Group drafts into campaigns.
+  - Add campaigns table.
+  - Generate a 7-day or 30-day content calendar.
+  - Support multiple posts per channel.
+  - Add campaign objective and audience.
 
 - Add compliant competitive inspiration workflows.
   - Analyze competitor websites and ad libraries for positioning, hooks, formats, offers, and visual patterns.
