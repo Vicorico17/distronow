@@ -507,95 +507,37 @@ code {
   overflow-wrap: anywhere;
 }
 
-.confidence-stack,
-.brand-assets-stack {
-  display: grid;
-  gap: 10px;
-}
-
-.confidence-overall {
-  align-items: center;
-  background: #f2f7f5;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  display: grid;
-  gap: 5px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  padding: 10px;
-}
-
-.confidence-overall span,
-.confidence-overall small,
-.confidence-row span,
-.brand-asset-row span {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.confidence-overall small {
-  grid-column: 1 / -1;
-}
-
-.confidence-row {
-  align-items: center;
-  display: grid;
-  gap: 8px;
-  grid-template-columns: 90px minmax(0, 1fr) 42px;
-}
-
-.confidence-row div {
-  background: #e8f0ed;
-  border-radius: 999px;
-  height: 8px;
-  overflow: hidden;
-}
-
-.confidence-row i {
-  background: var(--accent);
-  display: block;
-  height: 100%;
-}
-
-.confidence-row strong {
-  font-size: 12px;
-  text-align: right;
-}
-
-.brand-asset-row {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  display: grid;
-  gap: 5px;
-  padding: 10px;
-}
-
-.brand-asset-row strong {
-  font-size: 14px;
-}
-
-.brand-asset-row a {
-  color: var(--accent-strong);
-  font-size: 13px;
-  font-weight: 900;
-  text-decoration: none;
-}
-
-.platform-size-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.platform-size-list span {
+.confidence-badge {
   background: #e8f0ed;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: #33413d;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 900;
   padding: 5px 8px;
+}
+
+.confidence-badge.high {
+  background: #e5f5ec;
+  color: #245638;
+}
+
+.confidence-badge.low {
+  background: #fff7f7;
+  color: var(--danger);
+}
+
+.subsection-title {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.subsection-title h4 {
+  font-size: 16px;
 }
 
 .prompt-grid button {

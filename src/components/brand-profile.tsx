@@ -44,92 +44,20 @@ function readString(value: Json | undefined) {
   return typeof value === "string" ? value : "";
 }
 
-function readAsset(value: Json | undefined) {
-  if (!isJsonObject(value)) {
+function ConfidenceBadge({ value }: { value: Json | undefined }) {
+  const confidence = isJsonObject(value) ? value : {};
+  const overall = isJsonObject(confidence.overall) ? confidence.overall : {};
+  const score = typeof overall.score === "number" ? overall.score : 0;
+  const level = readString(overall.level) || "unknown";
+
+  if (!score) {
     return null;
   }
 
-  return {
-    sourceUrl: readString(value.sourceUrl),
-    publicUrl: readString(value.publicUrl),
-    storagePath: readString(value.storagePath),
-    status: readString(value.status)
-  };
-}
-
-function ConfidencePanel({ value }: { value: Json | undefined }) {
-  const confidence = isJsonObject(value) ? value : {};
-  const overall = isJsonObject(confidence.overall) ? confidence.overall : {};
-  const fields = isJsonObject(confidence.fields) ? confidence.fields : {};
-  const score = typeof overall.score === "number" ? overall.score : 0;
-  const level = readString(overall.level) || "unknown";
-  const entries = Object.entries(fields).filter(([, field]) => isJsonObject(field));
-
-  if (!entries.length) {
-    return <p className="empty-copy">Confidence will appear after the next brand extraction.</p>;
-  }
-
   return (
-    <div className="confidence-stack">
-      <div className="confidence-overall">
-        <span>Overall</span>
-        <strong>{Math.round(score * 100)}%</strong>
-        <small>{level}</small>
-      </div>
-      {entries.map(([name, field]) => {
-        const fieldValue = field as Record<string, Json>;
-        const fieldScore = typeof fieldValue.score === "number" ? fieldValue.score : 0;
-
-        return (
-          <div className="confidence-row" key={name}>
-            <span>{name}</span>
-            <div>
-              <i style={{ width: `${Math.round(fieldScore * 100)}%` }} />
-            </div>
-            <strong>{Math.round(fieldScore * 100)}%</strong>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function BrandAssetsPanel({ value }: { value: Json | undefined }) {
-  const assets = isJsonObject(value) ? value : {};
-  const rows = (["logo", "favicon", "ogImage"] as const)
-    .map((kind) => ({ kind, asset: readAsset(assets[kind]) }))
-    .filter((row): row is { kind: "logo" | "favicon" | "ogImage"; asset: NonNullable<ReturnType<typeof readAsset>> } =>
-      Boolean(row.asset?.sourceUrl)
-    );
-  const platformSizes = Array.isArray(assets.platformSizes) ? assets.platformSizes : [];
-
-  if (!rows.length) {
-    return <p className="empty-copy">No logo or OG image references were saved yet.</p>;
-  }
-
-  return (
-    <div className="brand-assets-stack">
-      {rows.map(({ kind, asset }) => (
-        <article className="brand-asset-row" key={kind}>
-          <span>{kind}</span>
-          <strong>{asset.status === "copied" ? "Copied to Supabase" : "Reference saved"}</strong>
-          <a href={asset.publicUrl || asset.sourceUrl} rel="noreferrer" target="_blank">
-            Open asset
-          </a>
-        </article>
-      ))}
-      {platformSizes.length ? (
-        <div className="platform-size-list">
-          {platformSizes.slice(0, 5).map((item, index) =>
-            isJsonObject(item) ? (
-              <span key={`${readString(item.platform)}-${index}`}>
-                {readString(item.platform)} {readString(item.size)}
-              </span>
-            ) : null
-          )}
-        </div>
-      ) : null}
-    </div>
+    <span className={`confidence-badge ${level}`}>
+      Confidence {Math.round(score * 100)}%
+    </span>
   );
 }
 
@@ -194,6 +122,7 @@ export function BrandProfile({
         <div className="meta-row">
           <span>{new URL(extraction.sourceUrl).hostname}</span>
           {extraction.language ? <span>Language {extraction.language}</span> : null}
+          <ConfidenceBadge value={workspace?.project.brandConfidence} />
           {stored && !workspace ? <span>Saved</span> : null}
         </div>
 
@@ -224,11 +153,9 @@ export function BrandProfile({
           {editingSection === "colors" && workspace ? (
             <ColorEditor workspace={workspace} onCancel={() => setEditingSection(null)} />
           ) : null}
-        </section>
 
-        <section className="panel">
-          <div className="panel-title">
-            <h3>Type</h3>
+          <div className="subsection-title">
+            <h4>Fonts</h4>
             <div className="panel-title-actions">
               <span>{fonts.length || 0} families</span>
               {workspace ? (
@@ -258,22 +185,6 @@ export function BrandProfile({
           {editingSection === "fonts" && workspace ? (
             <FontEditor workspace={workspace} onCancel={() => setEditingSection(null)} />
           ) : null}
-        </section>
-
-        <section className="panel">
-          <div className="panel-title">
-            <h3>Confidence</h3>
-            <span>Extracted fields</span>
-          </div>
-          <ConfidencePanel value={workspace?.project.brandConfidence} />
-        </section>
-
-        <section className="panel">
-          <div className="panel-title">
-            <h3>Brand Assets</h3>
-            <span>Saved references</span>
-          </div>
-          <BrandAssetsPanel value={workspace?.project.brandAssets} />
         </section>
 
         {action ? (
