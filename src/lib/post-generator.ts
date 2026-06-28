@@ -156,6 +156,29 @@ function templateHook({
   return `${brandName} has a sharper way to help ${audienceName}.`;
 }
 
+function templateHooks({
+  extraction,
+  settings,
+  audience,
+  goal
+}: {
+  extraction: BrandExtraction;
+  settings: DraftGenerationSettings;
+  audience?: SavedBrandAudience | null;
+  goal?: string;
+}) {
+  const brandName = cleanBrandName(extraction);
+  const audienceName = audience?.name ?? "the right audience";
+  const goalText = goal?.trim() || `understand ${brandName} faster`;
+  const baseHook = templateHook({ extraction, settings, audience, goal });
+
+  return [
+    baseHook,
+    `If ${audienceName} only knew one thing about ${brandName}, it should be this.`,
+    `The fastest way for ${audienceName} to ${goalText} starts before the first click.`
+  ];
+}
+
 function templateDrafts({
   extraction,
   settings,
@@ -429,6 +452,22 @@ function parseDraftsJson(text: string) {
   });
 }
 
+function parseHooksJson(text: string) {
+  const trimmed = text.trim();
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i)?.[1];
+  const json = JSON.parse(fenced ?? trimmed) as unknown;
+
+  if (!Array.isArray(json)) {
+    throw new Error("AI generation did not return a hook array.");
+  }
+
+  return json
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 4);
+}
+
 async function generateWithOpenAI({
   extraction,
   settings,
@@ -574,12 +613,28 @@ export async function generatePostHook({
   audience?: SavedBrandAudience | null;
   goal?: string;
 }) {
+  const hooks = await generatePostHooks({ extraction, settings, audience, goal });
+
+  return hooks[0] ?? templateHook({ extraction, settings, audience, goal });
+}
+
+export async function generatePostHooks({
+  extraction,
+  settings,
+  audience,
+  goal
+}: {
+  extraction: BrandExtraction;
+  settings: DraftGenerationSettings;
+  audience?: SavedBrandAudience | null;
+  goal?: string;
+}) {
   const apiKey = process.env.OPENAI_API_KEY;
   const resolvedLanguage = resolveLanguage(extraction, settings.language);
   const resolvedTone = resolveTone(extraction, settings.tone);
 
   if (!apiKey) {
-    return templateHook({ extraction, settings, audience, goal });
+    return templateHooks({ extraction, settings, audience, goal });
   }
 
   const model = process.env.OPENAI_MODEL ?? DEFAULT_MODEL;
@@ -598,7 +653,8 @@ export async function generatePostHook({
         input: [
           {
             role: "system",
-            content: "Generate one strong social post hook. Return only the hook text, no quotes and no explanation."
+            content:
+              "Generate 3 strong social post hooks. Return only valid JSON: an array of 3 short strings. No explanations."
           },
           {
             role: "user",
@@ -611,7 +667,7 @@ export async function generatePostHook({
               goal?.trim() ? `Content goal: ${goal.trim()}` : null,
               `Language: ${resolvedLanguage}`,
               `Tone: ${resolvedTone}`,
-              "Keep it short, specific, and usable as the first line of the post or script."
+              "Each hook should be short, specific, and usable as the first line of the post or script."
             ]
               .filter(Boolean)
               .join("\n")
@@ -626,11 +682,17 @@ export async function generatePostHook({
     }
 
     const payload = (await response.json().catch(() => ({}))) as unknown;
-    const outputText = parseOutputText(payload)?.trim();
+    const outputText = parseOutputText(payload);
 
-    return outputText || templateHook({ extraction, settings, audience, goal });
+    if (!outputText) {
+      return templateHooks({ extraction, settings, audience, goal });
+    }
+
+    const hooks = parseHooksJson(outputText);
+
+    return hooks.length ? hooks : templateHooks({ extraction, settings, audience, goal });
   } catch (error) {
     console.error(error);
-    return templateHook({ extraction, settings, audience, goal });
+    return templateHooks({ extraction, settings, audience, goal });
   }
 }

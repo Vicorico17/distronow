@@ -39,26 +39,17 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
         </nav>
       </section>
 
-      <section className="asset-workspace-layout">
-        <aside className="asset-context-sidebar">
-          <p className="eyebrow">Content workspace</p>
-          <h1>{latestExtraction.title ?? project.name ?? project.domain}</h1>
-          <p>{latestExtraction.description ?? "Generate and manage content drafts from the saved brand profile."}</p>
-          <div className="asset-context-meta">
-            <span>{new URL(latestExtraction.sourceUrl).hostname}</span>
-            {latestExtraction.language ? <span>{latestExtraction.language}</span> : null}
-            <span>{workspace.postDrafts.length} drafts</span>
-          </div>
-        </aside>
-
-        <AssetSelectionPanel
-          initialAssets={assets}
-          initialAudiences={audiences}
-          initialDrafts={workspace.postDrafts}
-          initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}
-          projectId={project.id}
-        />
-      </section>
+      <AssetSelectionPanel
+        draftCount={workspace.postDrafts.length}
+        initialAssets={assets}
+        initialAudiences={audiences}
+        initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}
+        projectDescription={latestExtraction.description ?? "Generate and manage content drafts from the saved brand profile."}
+        projectDomain={new URL(latestExtraction.sourceUrl).hostname}
+        projectId={project.id}
+        projectLanguage={latestExtraction.language}
+        projectTitle={latestExtraction.title ?? project.name ?? project.domain}
+      />
     </main>
   );
 }

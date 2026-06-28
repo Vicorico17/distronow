@@ -707,6 +707,52 @@ code {
   padding: 5px 8px;
 }
 
+.workflow-summary {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.summary-item {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+}
+
+.summary-item span {
+  color: #4b6159;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.summary-item strong {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.summary-item small {
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.summary-item button {
+  background: #f2f7f5;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--accent-strong);
+  font-size: 11px;
+  font-weight: 900;
+  justify-self: start;
+  padding: 5px 8px;
+}
+
 .content-workspace {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -1022,6 +1068,64 @@ code {
 .text-output-card strong {
   color: var(--ink);
   font-size: 16px;
+}
+
+.hook-choice-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.hook-choice-card {
+  background: #ffffff !important;
+  border: 1px solid #b8c9c2 !important;
+  border-radius: var(--radius) !important;
+  color: #12251f !important;
+  display: grid;
+  gap: 7px;
+  padding: 12px !important;
+  text-align: left;
+  width: 100%;
+}
+
+.hook-choice-card:hover,
+.hook-choice-card.selected {
+  border-color: var(--accent-strong) !important;
+  box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.14);
+}
+
+.hook-choice-card span {
+  color: #4b6159;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.hook-choice-card strong {
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.script-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.script-actions button:nth-child(2) {
+  background: #f2f7f5;
+  border-color: var(--line);
+  color: var(--accent-strong);
+}
+
+.compact-draft-grid {
+  margin-top: 14px;
+}
+
+.draft-card.selected {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.14);
 }
 
 .asset-output-grid {
@@ -1544,6 +1648,7 @@ code {
   .audience-list,
   .selected-audience-summary,
   .workflow-grid,
+  .hook-choice-grid,
   .audience-form,
   .asset-step-grid,
   .image-generator-grid,

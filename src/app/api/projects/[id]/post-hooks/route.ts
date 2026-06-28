@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getBrandAudiences, getBrandProjectWorkspace } from "@/lib/brand-store";
-import { CHANNELS, generatePostHook, INTENTS, LANGUAGES, LENGTHS, TONES } from "@/lib/post-generator";
+import { CHANNELS, generatePostHooks, INTENTS, LANGUAGES, LENGTHS, TONES } from "@/lib/post-generator";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
@@ -51,7 +51,7 @@ export async function POST(request: Request, context: RouteContext) {
 
     const audiences = parsed.data.audienceId ? await getBrandAudiences(workspace.project.id) : [];
     const audience = audiences.find((item) => item.id === parsed.data.audienceId) ?? null;
-    const hook = await generatePostHook({
+    const hooks = await generatePostHooks({
       extraction: workspace.latestExtraction,
       settings: {
         channel: parsed.data.channel,
@@ -64,7 +64,7 @@ export async function POST(request: Request, context: RouteContext) {
       goal: parsed.data.goal
     });
 
-    return NextResponse.json({ hook });
+    return NextResponse.json({ hooks, hook: hooks[0] ?? "" });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not generate hook.";
     console.error(error);
