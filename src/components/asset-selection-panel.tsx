@@ -923,7 +923,7 @@ export function AssetSelectionPanel({
               </button>
             ) : null}
           </div>
-          {currentStep !== "audience" ? (
+          {currentStep !== "audience" && currentStep !== "content" ? (
             <div className="summary-item">
               <span>Content</span>
               <strong>{selectedContentType}</strong>
