@@ -69,7 +69,7 @@ export default function Home() {
         <div className="intro-grid">
           <div>
             <p className="eyebrow">Start with any website</p>
-            <h1>Turn a brand into distribution assets without rebuilding the basics.</h1>
+            <h1>Start creating ads instantly for your website only from the website link.</h1>
             <p className="lede">
               Capture logo, colors, typography, and source metadata first. The content engine can build social posts,
               launch updates, and reusable templates from this profile next.
