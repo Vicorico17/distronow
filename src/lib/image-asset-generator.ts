@@ -37,6 +37,7 @@ function buildImagePrompt({
     .slice(0, 6)
     .map(([name, value]) => `${name}: ${value}`)
     .join(", ");
+  const logo = extraction.branding.logo ?? extraction.branding.images?.logo ?? extraction.branding.images?.favicon;
   const name = brandName(extraction);
   const audienceLine = audience
     ? `Target audience: ${audience.name}. ${audience.summary}. Motivations: ${audience.goals.join(", ")}.`
@@ -47,6 +48,7 @@ function buildImagePrompt({
     `Use this as a marketing content asset, not a generic stock image.`,
     audienceLine,
     extraction.description ? `Brand description: ${extraction.description}` : null,
+    logo ? `Use the saved brand logo as a visual reference when appropriate: ${logo}. Keep it clean and do not invent a different logo.` : null,
     colors ? `Use or harmonize with these brand colors: ${colors}.` : null,
     `Style: clear, conversion-oriented, premium but practical, ready for Instagram/TikTok usage.`,
     assetType === "Carousel slide"

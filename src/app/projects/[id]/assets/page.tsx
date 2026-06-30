@@ -43,11 +43,14 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
         draftCount={workspace.postDrafts.length}
         initialAssets={assets}
         initialAudiences={audiences}
+        initialDrafts={workspace.postDrafts}
         initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}
+        projectColors={workspace.project.brandColors}
         projectDescription={latestExtraction.description ?? "Generate and manage content drafts from the saved brand profile."}
         projectDomain={new URL(latestExtraction.sourceUrl).hostname}
         projectId={project.id}
         projectLanguage={latestExtraction.language}
+        projectLogo={workspace.project.brandLogo}
         projectTitle={latestExtraction.title ?? project.name ?? project.domain}
       />
     </main>

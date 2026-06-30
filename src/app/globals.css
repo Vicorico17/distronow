@@ -753,6 +753,10 @@ code {
   padding: 5px 8px;
 }
 
+.saved-folder-summary strong {
+  overflow-wrap: anywhere;
+}
+
 .content-workspace {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -1070,6 +1074,50 @@ code {
   font-size: 16px;
 }
 
+.generation-inputs {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.generation-inputs > span {
+  color: #4b6159;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.generation-inputs dl {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.generation-inputs div {
+  min-width: 0;
+}
+
+.generation-inputs dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+
+.generation-inputs dd {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .hook-choice-grid {
   display: grid;
   gap: 10px;
@@ -1126,6 +1174,52 @@ code {
 .draft-card.selected {
   border-color: var(--accent-strong);
   box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.14);
+}
+
+.saved-folder-panel {
+  margin-top: 16px;
+}
+
+.saved-folder-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.saved-folder-card {
+  background: #fbfdfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px;
+}
+
+.saved-folder-card img {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.saved-folder-card span {
+  color: #4b6159;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.saved-folder-card strong {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.saved-folder-card small {
+  color: var(--muted);
+  line-height: 1.35;
 }
 
 .asset-output-grid {
@@ -1649,6 +1743,7 @@ code {
   .selected-audience-summary,
   .workflow-grid,
   .hook-choice-grid,
+  .generation-inputs dl,
   .audience-form,
   .asset-step-grid,
   .image-generator-grid,
@@ -1658,6 +1753,10 @@ code {
   .generator-controls,
   .draft-grid {
     grid-template-columns: 1fr;
+  }
+
+  .saved-folder-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .intro-grid {

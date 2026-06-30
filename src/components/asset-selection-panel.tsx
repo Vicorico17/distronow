@@ -42,9 +42,12 @@ type AssetSelectionPanelProps = {
   projectDescription: string;
   projectDomain: string;
   projectLanguage?: string | null;
+  projectLogo?: string | null;
+  projectColors?: Json;
   draftCount: number;
   initialAudiences: SavedBrandAudience[];
   initialAssets: SavedMarketingAsset[];
+  initialDrafts: SavedPostDraft[];
   initialLanguage?: string;
 };
 
@@ -94,6 +97,18 @@ function isObjectJson(value: Json): value is Record<string, Json> {
 
 function readString(value: Json | undefined) {
   return typeof value === "string" ? value : "";
+}
+
+function colorEntriesFromJson(value: Json | undefined) {
+  const colors = value ?? null;
+
+  if (!isObjectJson(colors)) {
+    return [];
+  }
+
+  return Object.entries(colors)
+    .filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0)
+    .slice(0, 6);
 }
 
 function getTextContent(asset: SavedMarketingAsset | null) {
@@ -150,9 +165,12 @@ export function AssetSelectionPanel({
   projectDescription,
   projectDomain,
   projectLanguage,
+  projectLogo,
+  projectColors,
   draftCount,
   initialAudiences,
   initialAssets,
+  initialDrafts,
   initialLanguage = "Auto"
 }: AssetSelectionPanelProps) {
   const [audiences, setAudiences] = useState(initialAudiences);
@@ -176,6 +194,7 @@ export function AssetSelectionPanel({
   const [hooks, setHooks] = useState<string[]>([]);
   const [selectedHook, setSelectedHook] = useState("");
   const [drafts, setDrafts] = useState<SavedPostDraft[]>([]);
+  const [savedDrafts, setSavedDrafts] = useState(initialDrafts);
   const [selectedImageType, setSelectedImageType] = useState<ImageAssetType>("Social post graphic");
   const [imageNotes, setImageNotes] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -187,11 +206,36 @@ export function AssetSelectionPanel({
   );
   const generatedText = getTextContent(generatedTextAsset);
   const generatedImageAssets = assets.filter((asset) => Boolean(asset.imageUrl));
+  const savedFolderAssets = assets.filter((asset) => Boolean(asset.imageUrl || asset.content));
   const plannedContent = PLANNED_CONTENT_ASSET_TYPES.includes(selectedContentType);
   const hasGeneratedContent = Boolean(generatedTextAsset || sourceDraft);
   const goalText = selectedGoal === "Custom" ? customGoal.trim() : selectedGoal;
   const recommendAudienceLabel = audiences.length ? "Recommend other audiences" : "Recommend audiences";
-  const currentDraftCount = draftCount + drafts.length;
+  const currentDraftCount = savedDrafts.length || draftCount + drafts.length;
+  const brandColorEntries = colorEntriesFromJson(projectColors);
+  const hookGenerationInputs: Array<[string, string]> = [
+    ["Brand", projectTitle],
+    ["Audience", selectedAudience?.name ?? "Not selected"],
+    ["Goal", goalText],
+    ["Channel", channel],
+    ["Intent", intent],
+    ["Language", language],
+    ["Tone", tone],
+    ["Length", length]
+  ];
+  const scriptGenerationInputs: Array<[string, string]> = [
+    ...hookGenerationInputs,
+    ["Selected hook", selectedHook || "Choose a hook first"]
+  ];
+  const imageGenerationInputs: Array<[string, string]> = [
+    ["Brand", projectTitle],
+    ["Audience", selectedAudience?.name ?? "Not selected"],
+    ["Asset type", selectedImageType],
+    ["Logo", projectLogo ? "Included from brand scrape" : "No logo saved"],
+    ["Colors", brandColorEntries.length ? brandColorEntries.map(([name, value]) => `${name}: ${value}`).join(", ") : "No colors saved"],
+    ["Source content", sourceDraft?.headline ?? generatedTextAsset?.title ?? "Choose or generate content first"],
+    ["Extra direction", imageNotes || "None"]
+  ];
 
   function resetGeneratedContent() {
     setGeneratedTextAsset(null);
@@ -351,8 +395,10 @@ export function AssetSelectionPanel({
     setSourceDraft(null);
   }
 
-  async function generateScript() {
-    if (!selectedAudience || !selectedHook.trim()) {
+  async function generateScript(hookOverride?: string) {
+    const hook = hookOverride ?? selectedHook;
+
+    if (!selectedAudience || !hook.trim()) {
       return;
     }
 
@@ -370,7 +416,7 @@ export function AssetSelectionPanel({
         length,
         audienceId: selectedAudience.id,
         goal: goalText,
-        hook: selectedHook
+        hook
       })
     });
     const payload = (await response.json()) as {
@@ -386,6 +432,7 @@ export function AssetSelectionPanel({
     }
 
     setDrafts(payload.drafts);
+    setSavedDrafts((current) => [...payload.drafts!, ...current]);
     setSourceDraft(null);
   }
 
@@ -649,6 +696,22 @@ export function AssetSelectionPanel({
     );
   }
 
+  function renderGenerationInputs(title: string, items: Array<[string, string]>) {
+    return (
+      <div className="generation-inputs">
+        <span>{title}</span>
+        <dl>
+          {items.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+  }
+
   function renderHookStep() {
     return (
       <section className="selection-panel asset-step-panel">
@@ -700,6 +763,7 @@ export function AssetSelectionPanel({
             {busyAction === "hooks" ? <LoadingIndicator compact label="Generating" /> : hooks.length ? "Regenerate hooks" : "Generate hooks"}
           </button>
         </div>
+        {renderGenerationInputs("Hook generation inputs", hookGenerationInputs)}
         {busyAction === "hooks" ? (
           <div className="loading-panel">
             <LoadingIndicator label="Generating hook options" />
@@ -716,6 +780,7 @@ export function AssetSelectionPanel({
                   setDrafts([]);
                   setSourceDraft(null);
                   setCurrentStep("script");
+                  void generateScript(hook);
                 }}
                 type="button"
               >
@@ -767,13 +832,14 @@ export function AssetSelectionPanel({
           <h3>4. Script</h3>
         </div>
         <div className="script-actions">
-          <button disabled={busyAction === "script" || !selectedHook} onClick={generateScript} type="button">
+          <button disabled={busyAction === "script" || !selectedHook} onClick={() => generateScript()} type="button">
             {busyAction === "script" ? <LoadingIndicator compact label="Generating" /> : drafts.length ? "Regenerate script" : "Generate script"}
           </button>
           <button onClick={() => setCurrentStep("hook")} type="button">
             Change hook
           </button>
         </div>
+        {renderGenerationInputs("Script generation inputs", scriptGenerationInputs)}
         {busyAction === "script" ? (
           <div className="loading-panel">
             <LoadingIndicator label="Writing the full post from the selected hook" />
@@ -848,6 +914,7 @@ export function AssetSelectionPanel({
             {busyAction === "image" ? <LoadingIndicator compact label="Generating" /> : "Generate image"}
           </button>
         </div>
+        {renderGenerationInputs("Image generation inputs", imageGenerationInputs)}
         {busyAction === "image" ? (
           <div className="loading-panel">
             <LoadingIndicator label="Generating image and saving it" />
@@ -946,6 +1013,11 @@ export function AssetSelectionPanel({
               <small>{sourceDraft.channel}</small>
             </div>
           ) : null}
+          <div className="summary-item saved-folder-summary">
+            <span>Saved folder</span>
+            <strong>{projectId}</strong>
+            <small>{savedDrafts.length} posts · {savedFolderAssets.length} assets</small>
+          </div>
         </div>
       </aside>
 
@@ -959,6 +1031,33 @@ export function AssetSelectionPanel({
 
         {message ? <div className="error-box">{message}</div> : null}
         {renderCurrentStep()}
+        <section className="selection-panel saved-folder-panel">
+          <div className="panel-title">
+            <h3>Saved in this project</h3>
+            <span>{projectId}</span>
+          </div>
+          {savedDrafts.length || savedFolderAssets.length ? (
+            <div className="saved-folder-grid">
+              {savedDrafts.slice(0, 4).map((draft) => (
+                <article className="saved-folder-card" key={draft.id}>
+                  <span>Post</span>
+                  <strong>{draft.headline}</strong>
+                  <small>{draft.channel} · {draft.intent}</small>
+                </article>
+              ))}
+              {savedFolderAssets.slice(0, 4).map((asset) => (
+                <article className="saved-folder-card" key={asset.id}>
+                  {asset.imageUrl ? <img alt="" src={asset.imageUrl} /> : null}
+                  <span>{asset.imageUrl ? "Image" : "Asset"}</span>
+                  <strong>{asset.title}</strong>
+                  <small>{asset.assetType}</small>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-copy">Generated posts and image assets for this project will appear here.</div>
+          )}
+        </section>
       </section>
     </section>
   );
