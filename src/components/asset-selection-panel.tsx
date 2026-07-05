@@ -10,7 +10,7 @@ import {
   PLANNED_CONTENT_ASSET_TYPES
 } from "@/lib/asset-types";
 import type { Json } from "@/lib/supabase/types";
-import type { SavedBrandAudience, SavedMarketingAsset, SavedPostDraft } from "@/lib/brand-store";
+import type { SavedBrandAudience, SavedCampaign, SavedMarketingAsset, SavedPostDraft } from "@/lib/brand-store";
 import {
   CHANNELS,
   ContentChannel,
@@ -47,6 +47,7 @@ type AssetSelectionPanelProps = {
   draftCount: number;
   initialAudiences: SavedBrandAudience[];
   initialAssets: SavedMarketingAsset[];
+  initialCampaigns: SavedCampaign[];
   initialDrafts: SavedPostDraft[];
   initialLanguage?: string;
 };
@@ -65,6 +66,25 @@ const GOAL_OPTIONS = [
 ] as const;
 
 type GoalOption = (typeof GOAL_OPTIONS)[number];
+
+type CampaignCalendarItem = {
+  day: number;
+  channel: string;
+  assetType: string;
+  topic: string;
+  hook: string;
+  cta: string;
+};
+
+type LibraryFilter = "All" | "Posts" | "Assets" | "Images" | "Campaigns" | "Approved" | "Published";
+
+type DetailSelection =
+  | { type: "draft"; item: SavedPostDraft }
+  | { type: "asset"; item: SavedMarketingAsset }
+  | { type: "campaign"; item: SavedCampaign }
+  | null;
+
+const LIBRARY_FILTERS: LibraryFilter[] = ["All", "Posts", "Assets", "Images", "Campaigns", "Approved", "Published"];
 
 function joinList(values: string[]) {
   return values.join(", ");
@@ -159,6 +179,190 @@ function imageNotesFromDraft(draft: SavedPostDraft | null, notes: string) {
     .join("\n\n");
 }
 
+function sanitizeFilename(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "export";
+}
+
+function downloadText(filename: string, text: string) {
+  const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function draftMarkdown(draft: SavedPostDraft) {
+  return [
+    `# ${draft.headline}`,
+    "",
+    `Channel: ${draft.channel}`,
+    `Intent: ${draft.intent}`,
+    draft.language ? `Language: ${draft.language}` : null,
+    "",
+    draft.body,
+    "",
+    draft.cta ? `CTA: ${draft.cta}` : null,
+    draft.hashtags.length ? `Hashtags: ${draft.hashtags.join(" ")}` : null
+  ]
+    .filter((line): line is string => line !== null)
+    .join("\n");
+}
+
+function assetMarkdown(asset: SavedMarketingAsset) {
+  const content = getTextContent(asset);
+
+  return [
+    `# ${asset.title}`,
+    "",
+    `Asset type: ${asset.assetType}`,
+    `Provider: ${asset.provider}`,
+    asset.imageUrl ? `Image: ${asset.imageUrl}` : null,
+    "",
+    content.body || asset.brief || "",
+    "",
+    content.cta ? `CTA: ${content.cta}` : null,
+    content.caption ? `Caption: ${content.caption}` : null,
+    content.visualDirection ? `Visual direction:\n${content.visualDirection}` : null,
+    asset.prompt ? `Prompt:\n${asset.prompt}` : null
+  ]
+    .filter((line): line is string => line !== null && line.length > 0)
+    .join("\n");
+}
+
+function campaignCalendar(campaign: SavedCampaign) {
+  if (!isObjectJson(campaign.settings) || !Array.isArray(campaign.settings.calendar)) {
+    return [];
+  }
+
+  return campaign.settings.calendar
+    .map((entry, index): CampaignCalendarItem | null => {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+        return null;
+      }
+
+      const row = entry as Record<string, Json | undefined>;
+
+      return {
+        day: typeof row.day === "number" ? row.day : index + 1,
+        channel: readString(row.channel),
+        assetType: readString(row.assetType),
+        topic: readString(row.topic),
+        hook: readString(row.hook),
+        cta: readString(row.cta)
+      };
+    })
+    .filter((entry): entry is CampaignCalendarItem => Boolean(entry));
+}
+
+function campaignMarkdown(campaign: SavedCampaign) {
+  const rows = campaignCalendar(campaign);
+
+  return [
+    `# ${campaign.name}`,
+    "",
+    campaign.objective ? `Objective: ${campaign.objective}` : null,
+    `Duration: ${campaign.durationDays} days`,
+    `Channels: ${campaign.channels.join(", ")}`,
+    "",
+    ...rows.flatMap((item) => [
+      `## Day ${item.day}: ${item.channel}`,
+      `Type: ${item.assetType}`,
+      `Topic: ${item.topic}`,
+      `Hook: ${item.hook}`,
+      `CTA: ${item.cta}`,
+      ""
+    ])
+  ]
+    .filter((line): line is string => line !== null)
+    .join("\n");
+}
+
+function publishingPackageMarkdown({
+  drafts,
+  assets,
+  campaigns
+}: {
+  drafts: SavedPostDraft[];
+  assets: SavedMarketingAsset[];
+  campaigns: SavedCampaign[];
+}) {
+  return [
+    "# Publishing Package",
+    "",
+    "## Posts",
+    drafts.length ? drafts.map(draftMarkdown).join("\n\n---\n\n") : "No posts selected.",
+    "",
+    "## Assets",
+    assets.length ? assets.map(assetMarkdown).join("\n\n---\n\n") : "No assets selected.",
+    "",
+    "## Campaigns",
+    campaigns.length ? campaigns.map(campaignMarkdown).join("\n\n---\n\n") : "No campaigns selected."
+  ].join("\n");
+}
+
+function csvCell(value: string | null | undefined) {
+  return `"${(value ?? "").replace(/"/g, '""')}"`;
+}
+
+function publishingPackageCsv({
+  drafts,
+  assets,
+  campaigns
+}: {
+  drafts: SavedPostDraft[];
+  assets: SavedMarketingAsset[];
+  campaigns: SavedCampaign[];
+}) {
+  const rows = [
+    ["type", "title", "channel", "status", "provider", "body", "cta", "url"],
+    ...drafts.map((draft) => [
+      "post",
+      draft.headline,
+      draft.channel,
+      draft.status,
+      draft.provider,
+      draft.body,
+      draft.cta,
+      ""
+    ]),
+    ...assets.map((asset) => {
+      const content = getTextContent(asset);
+
+      return [
+        asset.imageUrl ? "image" : "asset",
+        asset.title,
+        "",
+        asset.status,
+        asset.provider,
+        content.body || asset.brief || "",
+        content.cta,
+        asset.imageUrl ?? ""
+      ];
+    }),
+    ...campaigns.flatMap((campaign) =>
+      campaignCalendar(campaign).map((item) => [
+        "campaign",
+        `${campaign.name} - Day ${item.day}`,
+        item.channel,
+        "",
+        "",
+        `${item.assetType}: ${item.topic}. ${item.hook}`,
+        item.cta,
+        ""
+      ])
+    )
+  ];
+
+  return rows.map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
+function isPublishableStatus(status: string) {
+  return status === "approved" || status === "published";
+}
+
 export function AssetSelectionPanel({
   projectId,
   projectTitle,
@@ -170,11 +374,13 @@ export function AssetSelectionPanel({
   draftCount,
   initialAudiences,
   initialAssets,
+  initialCampaigns,
   initialDrafts,
   initialLanguage = "Auto"
 }: AssetSelectionPanelProps) {
   const [audiences, setAudiences] = useState(initialAudiences);
   const [assets, setAssets] = useState(initialAssets);
+  const [campaigns, setCampaigns] = useState(initialCampaigns);
   const [selectedAudienceId, setSelectedAudienceId] = useState(initialAudiences[0]?.id ?? "");
   const [editingAudienceId, setEditingAudienceId] = useState<string | "new" | null>(null);
   const [audienceDraft, setAudienceDraft] = useState<AudienceDraft>(draftFromAudience());
@@ -197,6 +403,11 @@ export function AssetSelectionPanel({
   const [savedDrafts, setSavedDrafts] = useState(initialDrafts);
   const [selectedImageType, setSelectedImageType] = useState<ImageAssetType>("Social post graphic");
   const [imageNotes, setImageNotes] = useState("");
+  const [campaignObjective, setCampaignObjective] = useState("Build a 7-day content plan from this brand profile.");
+  const [campaignDuration, setCampaignDuration] = useState<7 | 30>(7);
+  const [campaignChannels, setCampaignChannels] = useState<ContentChannel[]>(["LinkedIn", "Instagram", "TikTok script"]);
+  const [libraryFilter, setLibraryFilter] = useState<LibraryFilter>("All");
+  const [detailSelection, setDetailSelection] = useState<DetailSelection>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
 
@@ -207,6 +418,20 @@ export function AssetSelectionPanel({
   const generatedText = getTextContent(generatedTextAsset);
   const generatedImageAssets = assets.filter((asset) => Boolean(asset.imageUrl));
   const savedFolderAssets = assets.filter((asset) => Boolean(asset.imageUrl || asset.content));
+  const filteredDrafts = savedDrafts.filter((draft) => {
+    if (libraryFilter === "Posts" || libraryFilter === "All") return true;
+    if (libraryFilter === "Approved") return draft.status === "approved";
+    if (libraryFilter === "Published") return draft.status === "published";
+    return false;
+  });
+  const filteredAssets = savedFolderAssets.filter((asset) => {
+    if (libraryFilter === "Assets" || libraryFilter === "All") return true;
+    if (libraryFilter === "Images") return Boolean(asset.imageUrl);
+    if (libraryFilter === "Approved") return asset.status === "approved";
+    if (libraryFilter === "Published") return asset.status === "published";
+    return false;
+  });
+  const filteredCampaigns = libraryFilter === "Campaigns" || libraryFilter === "All" ? campaigns : [];
   const plannedContent = PLANNED_CONTENT_ASSET_TYPES.includes(selectedContentType);
   const hasGeneratedContent = Boolean(generatedTextAsset || sourceDraft);
   const goalText = selectedGoal === "Custom" ? customGoal.trim() : selectedGoal;
@@ -236,6 +461,16 @@ export function AssetSelectionPanel({
     ["Source content", sourceDraft?.headline ?? generatedTextAsset?.title ?? "Choose or generate content first"],
     ["Extra direction", imageNotes || "None"]
   ];
+  const campaignInputs: Array<[string, string]> = [
+    ["Audience", selectedAudience?.name ?? "Not selected"],
+    ["Objective", campaignObjective],
+    ["Duration", `${campaignDuration} days`],
+    ["Channels", campaignChannels.join(", ")]
+  ];
+
+  function campaignName(campaignId: string | null) {
+    return campaigns.find((campaign) => campaign.id === campaignId)?.name ?? null;
+  }
 
   function resetGeneratedContent() {
     setGeneratedTextAsset(null);
@@ -537,6 +772,222 @@ export function AssetSelectionPanel({
     }
 
     setAssets((current) => [payload.asset!, ...current]);
+  }
+
+  function toggleCampaignChannel(option: ContentChannel) {
+    setCampaignChannels((current) => {
+      if (current.includes(option)) {
+        return current.length === 1 ? current : current.filter((item) => item !== option);
+      }
+
+      return [...current, option];
+    });
+  }
+
+  async function generateCampaignPlan() {
+    if (!selectedAudience || !campaignObjective.trim()) {
+      return;
+    }
+
+    setBusyAction("campaign");
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/campaigns`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        objective: campaignObjective,
+        durationDays: campaignDuration,
+        channels: campaignChannels,
+        audienceId: selectedAudience.id
+      })
+    });
+    const payload = (await response.json()) as {
+      campaign?: SavedCampaign;
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok || !payload.campaign) {
+      setMessage(payload.error ?? "Could not generate campaign.");
+      return;
+    }
+
+    setCampaigns((current) => [payload.campaign!, ...current]);
+  }
+
+  async function generateCampaignAssets(campaign: SavedCampaign) {
+    setBusyAction(`campaign-assets-${campaign.id}`);
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/campaigns/${campaign.id}/assets`, {
+      method: "POST"
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      drafts?: SavedPostDraft[];
+      assets?: SavedMarketingAsset[];
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok || !payload.drafts || !payload.assets) {
+      setMessage(payload.error ?? "Could not generate campaign assets.");
+      return;
+    }
+
+    setSavedDrafts((current) => [...payload.drafts!, ...current]);
+    setAssets((current) => [...payload.assets!, ...current]);
+  }
+
+  async function updateDraftStatus(draft: SavedPostDraft, status: SavedPostDraft["status"]) {
+    setBusyAction(`draft-${draft.id}`);
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/post-drafts/${draft.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      draft?: SavedPostDraft;
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok || !payload.draft) {
+      setMessage(payload.error ?? "Could not update draft status.");
+      return;
+    }
+
+    setSavedDrafts((current) => current.map((item) => (item.id === draft.id ? payload.draft! : item)));
+    setDetailSelection((current) =>
+      current?.type === "draft" && current.item.id === draft.id ? { type: "draft", item: payload.draft! } : current
+    );
+  }
+
+  async function updateAssetStatus(asset: SavedMarketingAsset, status: string) {
+    setBusyAction(`asset-${asset.id}`);
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/marketing-assets/${asset.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      asset?: SavedMarketingAsset;
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok || !payload.asset) {
+      setMessage(payload.error ?? "Could not update asset status.");
+      return;
+    }
+
+    setAssets((current) => current.map((item) => (item.id === asset.id ? payload.asset! : item)));
+    setDetailSelection((current) =>
+      current?.type === "asset" && current.item.id === asset.id ? { type: "asset", item: payload.asset! } : current
+    );
+  }
+
+  async function renameAsset(asset: SavedMarketingAsset) {
+    const title = window.prompt("Asset name", asset.title)?.trim();
+
+    if (!title || title === asset.title) {
+      return;
+    }
+
+    setBusyAction(`asset-${asset.id}`);
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/marketing-assets/${asset.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title })
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      asset?: SavedMarketingAsset;
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok || !payload.asset) {
+      setMessage(payload.error ?? "Could not rename asset.");
+      return;
+    }
+
+    setAssets((current) => current.map((item) => (item.id === payload.asset!.id ? payload.asset! : item)));
+    if (generatedTextAsset?.id === payload.asset.id) {
+      setGeneratedTextAsset(payload.asset);
+    }
+    setDetailSelection((current) =>
+      current?.type === "asset" && current.item.id === payload.asset!.id ? { type: "asset", item: payload.asset! } : current
+    );
+  }
+
+  async function deleteAsset(asset: SavedMarketingAsset) {
+    const confirmed = window.confirm(`Delete ${asset.title}? This removes the saved asset${asset.imageUrl ? " and image file" : ""}.`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setBusyAction(`asset-${asset.id}`);
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/marketing-assets/${asset.id}`, {
+      method: "DELETE"
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok) {
+      setMessage(payload.error ?? "Could not delete asset.");
+      return;
+    }
+
+    setAssets((current) => current.filter((item) => item.id !== asset.id));
+    if (generatedTextAsset?.id === asset.id) {
+      setGeneratedTextAsset(null);
+    }
+    setDetailSelection((current) => (current?.type === "asset" && current.item.id === asset.id ? null : current));
+  }
+
+  async function deleteCampaignPlan(campaign: SavedCampaign) {
+    const confirmed = window.confirm(`Delete ${campaign.name}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setBusyAction(`campaign-${campaign.id}`);
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/campaigns/${campaign.id}`, {
+      method: "DELETE"
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok) {
+      setMessage(payload.error ?? "Could not delete campaign.");
+      return;
+    }
+
+    setCampaigns((current) => current.filter((item) => item.id !== campaign.id));
+    setDetailSelection((current) => (current?.type === "campaign" && current.item.id === campaign.id ? null : current));
   }
 
   function renderAudienceStep() {
@@ -972,11 +1423,256 @@ export function AssetSelectionPanel({
                   <span>{asset.assetType}</span>
                   <strong>{asset.title}</strong>
                   {asset.prompt ? <p>{asset.prompt}</p> : null}
+                  <div className="asset-card-actions">
+                    <button onClick={() => downloadText(`${sanitizeFilename(asset.title)}.md`, assetMarkdown(asset))} type="button">
+                      Export
+                    </button>
+                    {asset.imageUrl ? (
+                      <a href={asset.imageUrl} download rel="noreferrer" target="_blank">
+                        Image
+                      </a>
+                    ) : null}
+                    <button disabled={busyAction === `asset-${asset.id}`} onClick={() => renameAsset(asset)} type="button">
+                      Rename
+                    </button>
+                    <button disabled={busyAction === `asset-${asset.id}`} onClick={() => deleteAsset(asset)} type="button">
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
           </div>
         ) : null}
+      </section>
+    );
+  }
+
+  function renderCampaignPanel() {
+    return (
+      <section className="selection-panel campaign-panel">
+        <div className="panel-title">
+          <h3>Campaign calendar</h3>
+          <span>{campaigns.length} saved</span>
+        </div>
+        <div className="campaign-form-grid">
+          <label className="campaign-objective">
+            <span>Objective</span>
+            <textarea
+              onChange={(event) => setCampaignObjective(event.target.value)}
+              value={campaignObjective}
+            />
+          </label>
+          <label>
+            <span>Duration</span>
+            <select onChange={(event) => setCampaignDuration(Number(event.target.value) as 7 | 30)} value={campaignDuration}>
+              <option value={7}>7 days</option>
+              <option value={30}>30 days</option>
+            </select>
+          </label>
+          <div className="campaign-channel-grid">
+            <span>Channels</span>
+            <div>
+              {CHANNELS.map((option) => (
+                <label className="checkbox-row" key={option}>
+                  <input
+                    checked={campaignChannels.includes(option)}
+                    onChange={() => toggleCampaignChannel(option)}
+                    type="checkbox"
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <button disabled={!selectedAudience || busyAction === "campaign"} onClick={generateCampaignPlan} type="button">
+            {busyAction === "campaign" ? <LoadingIndicator compact label="Generating" /> : "Generate campaign"}
+          </button>
+        </div>
+        {renderGenerationInputs("Campaign inputs", campaignInputs)}
+        {campaigns.length ? (
+          <div className="campaign-grid">
+            {campaigns.slice(0, 3).map((campaign) => {
+              const calendar = campaignCalendar(campaign);
+
+              return (
+                <article className="campaign-card" key={campaign.id}>
+                  <div>
+                    <span>{campaign.durationDays} days</span>
+                    <strong>{campaign.name}</strong>
+                    <small>{campaign.channels.join(", ")}</small>
+                  </div>
+                  <ol>
+                    {calendar.slice(0, 5).map((item) => (
+                      <li key={`${campaign.id}-${item.day}`}>
+                        <span>Day {item.day}</span>
+                        <strong>{item.topic}</strong>
+                        <small>{item.channel} · {item.assetType}</small>
+                      </li>
+                    ))}
+                  </ol>
+                  <div className="asset-card-actions">
+                    <button onClick={() => setDetailSelection({ type: "campaign", item: campaign })} type="button">
+                      Open
+                    </button>
+                    <button onClick={() => downloadText(`${sanitizeFilename(campaign.name)}.md`, campaignMarkdown(campaign))} type="button">
+                      Export
+                    </button>
+                    <button
+                      disabled={busyAction === `campaign-assets-${campaign.id}`}
+                      onClick={() => generateCampaignAssets(campaign)}
+                      type="button"
+                    >
+                      {busyAction === `campaign-assets-${campaign.id}` ? <LoadingIndicator compact label="Generating" /> : "Generate assets"}
+                    </button>
+                    <button disabled={busyAction === `campaign-${campaign.id}`} onClick={() => deleteCampaignPlan(campaign)} type="button">
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : null}
+      </section>
+    );
+  }
+
+  function renderDetailPanel() {
+    if (!detailSelection) {
+      return null;
+    }
+
+    if (detailSelection.type === "draft") {
+      const draft = detailSelection.item;
+
+      return (
+        <section className="selection-panel detail-panel">
+          <div className="panel-title">
+            <h3>{draft.headline}</h3>
+            <button onClick={() => setDetailSelection(null)} type="button">
+              Close
+            </button>
+          </div>
+          <div className="detail-meta">
+            <span>{draft.channel}</span>
+            <span>{draft.intent}</span>
+            <span>{draft.status}</span>
+            <span>{draft.provider}</span>
+            {campaignName(draft.campaignId) ? <span>{campaignName(draft.campaignId)}</span> : null}
+          </div>
+          <div className="detail-body">
+            <p>{draft.body}</p>
+            {draft.cta ? <strong>{draft.cta}</strong> : null}
+            {draft.hashtags.length ? <small>{draft.hashtags.join(" ")}</small> : null}
+          </div>
+          <div className="asset-card-actions">
+            <button onClick={() => downloadText(`${sanitizeFilename(draft.headline)}.md`, draftMarkdown(draft))} type="button">
+              Export
+            </button>
+            <button disabled={busyAction === `draft-${draft.id}`} onClick={() => updateDraftStatus(draft, "approved")} type="button">
+              Approve
+            </button>
+            <button disabled={busyAction === `draft-${draft.id}`} onClick={() => updateDraftStatus(draft, "published")} type="button">
+              Mark published
+            </button>
+          </div>
+        </section>
+      );
+    }
+
+    if (detailSelection.type === "asset") {
+      const asset = detailSelection.item;
+      const content = getTextContent(asset);
+
+      return (
+        <section className="selection-panel detail-panel">
+          <div className="panel-title">
+            <h3>{asset.title}</h3>
+            <button onClick={() => setDetailSelection(null)} type="button">
+              Close
+            </button>
+          </div>
+          <div className="detail-meta">
+            <span>{asset.assetType}</span>
+            <span>{asset.status}</span>
+            <span>{asset.provider}</span>
+            {asset.model ? <span>{asset.model}</span> : null}
+            {campaignName(asset.campaignId) ? <span>{campaignName(asset.campaignId)}</span> : null}
+          </div>
+          {asset.imageUrl ? <img alt="" className="detail-image" src={asset.imageUrl} /> : null}
+          <div className="detail-body">
+            {content.body ? <p>{content.body}</p> : null}
+            {content.cta ? <strong>{content.cta}</strong> : null}
+            {content.caption ? <small>{content.caption}</small> : null}
+            {content.visualDirection ? <pre>{content.visualDirection}</pre> : null}
+          </div>
+          <div className="asset-card-actions">
+            <button onClick={() => downloadText(`${sanitizeFilename(asset.title)}.md`, assetMarkdown(asset))} type="button">
+              Export
+            </button>
+            {asset.imageUrl ? (
+              <a href={asset.imageUrl} download rel="noreferrer" target="_blank">
+                Image
+              </a>
+            ) : null}
+            <button disabled={busyAction === `asset-${asset.id}`} onClick={() => updateAssetStatus(asset, "approved")} type="button">
+              Approve
+            </button>
+            <button disabled={busyAction === `asset-${asset.id}`} onClick={() => updateAssetStatus(asset, "published")} type="button">
+              Mark published
+            </button>
+            <button disabled={busyAction === `asset-${asset.id}`} onClick={() => renameAsset(asset)} type="button">
+              Rename
+            </button>
+            <button disabled={busyAction === `asset-${asset.id}`} onClick={() => deleteAsset(asset)} type="button">
+              Delete
+            </button>
+          </div>
+        </section>
+      );
+    }
+
+    const campaign = detailSelection.item;
+    const calendar = campaignCalendar(campaign);
+
+    return (
+      <section className="selection-panel detail-panel">
+        <div className="panel-title">
+          <h3>{campaign.name}</h3>
+          <button onClick={() => setDetailSelection(null)} type="button">
+            Close
+          </button>
+        </div>
+        <div className="detail-meta">
+          <span>{campaign.durationDays} days</span>
+          <span>{campaign.channels.join(", ")}</span>
+        </div>
+        <div className="campaign-detail-list">
+          {calendar.map((item) => (
+            <article key={`${campaign.id}-detail-${item.day}`}>
+              <span>Day {item.day} · {item.channel}</span>
+              <strong>{item.topic}</strong>
+              <p>{item.hook}</p>
+              <small>{item.assetType} · {item.cta}</small>
+            </article>
+          ))}
+        </div>
+        <div className="asset-card-actions">
+          <button onClick={() => downloadText(`${sanitizeFilename(campaign.name)}.md`, campaignMarkdown(campaign))} type="button">
+            Export
+          </button>
+          <button
+            disabled={busyAction === `campaign-assets-${campaign.id}`}
+            onClick={() => generateCampaignAssets(campaign)}
+            type="button"
+          >
+            {busyAction === `campaign-assets-${campaign.id}` ? <LoadingIndicator compact label="Generating" /> : "Generate assets"}
+          </button>
+          <button disabled={busyAction === `campaign-${campaign.id}`} onClick={() => deleteCampaignPlan(campaign)} type="button">
+            Delete
+          </button>
+        </div>
       </section>
     );
   }
@@ -1058,7 +1754,7 @@ export function AssetSelectionPanel({
           <div className="summary-item saved-folder-summary">
             <span>Saved folder</span>
             <strong>{projectId}</strong>
-            <small>{savedDrafts.length} posts · {savedFolderAssets.length} assets</small>
+            <small>{savedDrafts.length} posts · {savedFolderAssets.length} assets · {campaigns.length} campaigns</small>
           </div>
         </div>
       </aside>
@@ -1073,31 +1769,158 @@ export function AssetSelectionPanel({
 
         {message ? <div className="error-box">{message}</div> : null}
         {renderCurrentStep()}
+        {renderCampaignPanel()}
+        {renderDetailPanel()}
         <section className="selection-panel saved-folder-panel">
           <div className="panel-title">
             <h3>Saved in this project</h3>
-            <span>{projectId}</span>
+            <div className="panel-title-actions">
+              <button
+                onClick={() =>
+                  downloadText(
+                    `${sanitizeFilename(projectTitle)}-publishing-package.md`,
+                    publishingPackageMarkdown({
+                      drafts: filteredDrafts,
+                      assets: filteredAssets,
+                      campaigns: filteredCampaigns
+                    })
+                  )
+                }
+                type="button"
+              >
+                Export package
+              </button>
+              <button
+                onClick={() =>
+                  downloadText(
+                    `${sanitizeFilename(projectTitle)}-publishing-package.csv`,
+                    publishingPackageCsv({
+                      drafts: filteredDrafts,
+                      assets: filteredAssets,
+                      campaigns: filteredCampaigns
+                    })
+                  )
+                }
+                type="button"
+              >
+                Export CSV
+              </button>
+            </div>
           </div>
-          {savedDrafts.length || savedFolderAssets.length ? (
+          <div className="library-filters">
+            {LIBRARY_FILTERS.map((filter) => (
+              <button
+                className={libraryFilter === filter ? "selected" : ""}
+                key={filter}
+                onClick={() => setLibraryFilter(filter)}
+                type="button"
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+          {filteredDrafts.length || filteredAssets.length || filteredCampaigns.length ? (
             <div className="saved-folder-grid">
-              {savedDrafts.slice(0, 4).map((draft) => (
+              {filteredDrafts.slice(0, 8).map((draft) => (
                 <article className="saved-folder-card" key={draft.id}>
                   <span>Post</span>
                   <strong>{draft.headline}</strong>
-                  <small>{draft.channel} · {draft.intent}</small>
+                  <small>
+                    {draft.channel} · {draft.intent} · {draft.status} · {draft.provider}
+                    {campaignName(draft.campaignId) ? ` · ${campaignName(draft.campaignId)}` : ""}
+                  </small>
+                  <div className="asset-card-actions">
+                    <button onClick={() => setDetailSelection({ type: "draft", item: draft })} type="button">
+                      Open
+                    </button>
+                    <button onClick={() => downloadText(`${sanitizeFilename(draft.headline)}.md`, draftMarkdown(draft))} type="button">
+                      Export
+                    </button>
+                    <button
+                      disabled={busyAction === `draft-${draft.id}` || isPublishableStatus(draft.status)}
+                      onClick={() => updateDraftStatus(draft, "approved")}
+                      type="button"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSourceDraft(draft);
+                        setGeneratedTextAsset(null);
+                        setCurrentStep("assets");
+                      }}
+                      type="button"
+                    >
+                      Use
+                    </button>
+                  </div>
                 </article>
               ))}
-              {savedFolderAssets.slice(0, 4).map((asset) => (
+              {filteredAssets.slice(0, 8).map((asset) => (
                 <article className="saved-folder-card" key={asset.id}>
                   {asset.imageUrl ? <img alt="" src={asset.imageUrl} /> : null}
                   <span>{asset.imageUrl ? "Image" : "Asset"}</span>
                   <strong>{asset.title}</strong>
-                  <small>{asset.assetType}</small>
+                  <small>
+                    {asset.assetType} · {asset.status} · {asset.provider}
+                    {campaignName(asset.campaignId) ? ` · ${campaignName(asset.campaignId)}` : ""}
+                  </small>
+                  <div className="asset-card-actions">
+                    <button onClick={() => setDetailSelection({ type: "asset", item: asset })} type="button">
+                      Open
+                    </button>
+                    <button onClick={() => downloadText(`${sanitizeFilename(asset.title)}.md`, assetMarkdown(asset))} type="button">
+                      Export
+                    </button>
+                    {asset.imageUrl ? (
+                      <a href={asset.imageUrl} download rel="noreferrer" target="_blank">
+                        Image
+                      </a>
+                    ) : null}
+                    <button
+                      disabled={busyAction === `asset-${asset.id}` || isPublishableStatus(asset.status)}
+                      onClick={() => updateAssetStatus(asset, "approved")}
+                      type="button"
+                    >
+                      Approve
+                    </button>
+                    <button disabled={busyAction === `asset-${asset.id}`} onClick={() => renameAsset(asset)} type="button">
+                      Rename
+                    </button>
+                    <button disabled={busyAction === `asset-${asset.id}`} onClick={() => deleteAsset(asset)} type="button">
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+              {filteredCampaigns.slice(0, 8).map((campaign) => (
+                <article className="saved-folder-card" key={campaign.id}>
+                  <span>Campaign</span>
+                  <strong>{campaign.name}</strong>
+                  <small>{campaign.durationDays} days · {campaign.channels.join(", ")}</small>
+                  <div className="asset-card-actions">
+                    <button onClick={() => setDetailSelection({ type: "campaign", item: campaign })} type="button">
+                      Open
+                    </button>
+                    <button onClick={() => downloadText(`${sanitizeFilename(campaign.name)}.md`, campaignMarkdown(campaign))} type="button">
+                      Export
+                    </button>
+                    <button
+                      disabled={busyAction === `campaign-assets-${campaign.id}`}
+                      onClick={() => generateCampaignAssets(campaign)}
+                      type="button"
+                    >
+                      Generate assets
+                    </button>
+                    <button disabled={busyAction === `campaign-${campaign.id}`} onClick={() => deleteCampaignPlan(campaign)} type="button">
+                      Delete
+                    </button>
+                  </div>
                 </article>
               ))}
             </div>
           ) : (
-            <div className="empty-copy">Generated posts and image assets for this project will appear here.</div>
+            <div className="empty-copy">Generated posts, assets, and campaign calendars for this project will appear here.</div>
           )}
         </section>
       </section>

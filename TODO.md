@@ -94,7 +94,9 @@
 - [x] Add image post generation.
   - [x] Generate branded post images from saved colors, logo, and tone.
   - [x] Store image outputs.
-  - Export platform-specific sizes.
+  - [x] Add rename, delete, and manual export actions for saved assets.
+  - [x] Add image download links.
+  - Export generated platform-specific size variants.
 
 - Add Seedance video generation.
   - Add Seedance provider configuration.
@@ -103,20 +105,30 @@
   - Add polling/webhook handling for async jobs.
 
 - Add campaign structure.
-  - Group drafts into campaigns.
+  - [x] Group drafts and assets into saved project work.
+  - [x] Link generated drafts and assets to campaigns.
   - [x] Add campaigns table.
-  - Generate a 7-day or 30-day content calendar.
-  - Support multiple posts per channel.
-  - Add campaign objective and audience.
+  - [x] Generate a 7-day or 30-day content calendar.
+  - [x] Generate campaign draft/asset briefs from a calendar.
+  - [x] Support multiple posts per channel.
+  - [x] Add campaign objective and audience.
+  - [x] Export campaign calendars and publishing packages for manual publishing.
 
-- Add compliant competitive inspiration workflows.
-  - Analyze competitor websites and ad libraries for positioning, hooks, formats, offers, and visual patterns.
-  - Generate original variants and briefs instead of copying protected creative.
-  - Store inspiration sources, notes, and generated original directions.
+- [x] Add compliant competitive inspiration workflows.
+  - [x] Analyze competitor websites and ad libraries for positioning, hooks, formats, offers, and visual patterns.
+  - [x] Generate original variants and briefs instead of copying protected creative.
+  - [x] Store inspiration sources, notes, and generated original directions.
   - Add review safeguards for trademark, copyright, and platform policy issues.
 
 - Add publishing integrations.
   - LinkedIn.
   - X.
   - Instagram/Facebook via Meta.
-  - Manual export before direct publishing.
+  - [x] Manual Markdown export before direct publishing.
+  - [x] Manual CSV package export before direct publishing.
+
+- [x] Add saved library management.
+  - [x] Filter saved work by posts, assets, images, campaigns, approved, and published.
+  - [x] Open full detail views for saved posts, assets, and campaigns.
+  - [x] Approve and mark posts/assets as published.
+  - [x] Show provider/status metadata for saved work.

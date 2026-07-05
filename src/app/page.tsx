@@ -8,6 +8,17 @@ import { BrandProfile } from "@/components/brand-profile";
 import { LoadingIndicator } from "@/components/loading-indicator";
 import type { StoredBrandExtraction } from "@/lib/brand-store";
 
+const AGENTS = [
+  { name: "Brand kit", detail: "Identity, colors, logo, voice" },
+  { name: "Audience", detail: "Best customers and objections" },
+  { name: "Social", detail: "Hooks, posts, captions" },
+  { name: "Images", detail: "Prompts and branded graphics" },
+  { name: "Campaigns", detail: "7 or 30 day calendars" },
+  { name: "UGC", detail: "Creator briefs and shot lists" }
+];
+
+const WORKSPACE_STEPS = ["Website", "Brand profile", "Audiences", "Drafts", "Assets", "Campaign"];
+
 type ScrapeState =
   | { status: "idle" }
   | { status: "loading" }
@@ -52,7 +63,7 @@ export default function Home() {
     <main>
       <section className="intro">
         <nav>
-          <strong>DistroNow</strong>
+          <strong className="brand-mark">DistroNow</strong>
           <span className="nav-link-row">
             <Link className="nav-action" href="/projects">
               Projects
@@ -66,33 +77,84 @@ export default function Home() {
           </span>
         </nav>
 
-        <div className="intro-grid">
-          <div>
-            <h1>Start creating content instantly for your business from only the website link.</h1>
+        <div className="intro-shell">
+          <div className="hero-copy">
+            <p className="launch-pill">AI distribution workspace from one URL</p>
+            <h1>Turn any website into a content engine.</h1>
+            <p>
+              Paste a website. DistroNow extracts the brand, finds the best customers, then builds posts, image briefs,
+              creator workflows, and campaign calendars you can review before publishing.
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="scrape-form">
+          <form onSubmit={handleSubmit} className="scrape-form hero-scrape-form">
             <label htmlFor="website">Website</label>
-            <div className="input-row">
+            <div className="input-row hero-input-row">
               <input
                 id="website"
                 name="website"
                 onChange={(event) => setUrl(event.target.value)}
-                placeholder="Enter a URL"
+                placeholder="https://yourbrand.com"
                 type="text"
                 value={url}
               />
               <button disabled={state.status === "loading"} type="submit">
-                {state.status === "loading" ? <LoadingIndicator compact label="Extracting" /> : "Extract"}
+                {state.status === "loading" ? <LoadingIndicator compact label="Building" /> : "Build workspace"}
               </button>
+            </div>
+            <div className="form-note-row">
+              <span>No account needed to start</span>
+              <span>Review everything before publishing</span>
             </div>
             {state.status === "loading" ? (
               <div className="loading-panel">
-                <LoadingIndicator label="Extracting brand identity, colors, typography, and page metadata" />
+                <LoadingIndicator label="Extracting the brand, audience, content angles, and visual system" />
               </div>
             ) : null}
             {state.status === "error" ? <div className="error-box">{state.message}</div> : null}
           </form>
+
+          <div className="agent-strip" aria-label="Generated workspace modules">
+            {AGENTS.map((agent) => (
+              <article className="agent-card" key={agent.name}>
+                <span>{agent.name.slice(0, 2)}</span>
+                <strong>{agent.name}</strong>
+                <small>{agent.detail}</small>
+              </article>
+            ))}
+          </div>
+
+          <section className="hero-workspace-preview" aria-label="Workspace preview">
+            <div className="preview-header">
+              <span>Live workspace preview</span>
+              <strong>1 URL in, campaign assets out</strong>
+            </div>
+            <div className="preview-flow">
+              {WORKSPACE_STEPS.map((step, index) => (
+                <div key={step}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{step}</strong>
+                </div>
+              ))}
+            </div>
+            <div className="preview-grid">
+              <article>
+                <span>Audience</span>
+                <strong>High-intent buyers</strong>
+                <small>Pain points, goals, objections, channels</small>
+              </article>
+              <article>
+                <span>Assets</span>
+                <strong>18 ready to review</strong>
+                <small>Posts, image prompts, UGC briefs, exports</small>
+              </article>
+              <article>
+                <span>Campaign</span>
+                <strong>7 day launch plan</strong>
+                <small>Grouped content calendar and publishing package</small>
+              </article>
+            </div>
+          </section>
         </div>
       </section>
 

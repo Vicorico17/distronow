@@ -185,6 +185,7 @@ export type Database = {
           project_id: string;
           user_id: string | null;
           brand_extraction_id: string | null;
+          campaign_id: string | null;
           channel: string;
           intent: string;
           headline: string;
@@ -207,6 +208,7 @@ export type Database = {
           project_id: string;
           user_id?: string | null;
           brand_extraction_id?: string | null;
+          campaign_id?: string | null;
           channel: string;
           intent: string;
           headline: string;
@@ -229,6 +231,7 @@ export type Database = {
           project_id?: string;
           user_id?: string | null;
           brand_extraction_id?: string | null;
+          campaign_id?: string | null;
           channel?: string;
           intent?: string;
           headline?: string;
@@ -247,6 +250,13 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "post_drafts_campaign_id_fkey";
+            columns: ["campaign_id"];
+            isOneToOne: false;
+            referencedRelation: "campaigns";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "post_drafts_brand_extraction_id_fkey";
             columns: ["brand_extraction_id"];
@@ -331,6 +341,7 @@ export type Database = {
           project_id: string;
           user_id: string | null;
           brand_extraction_id: string | null;
+          campaign_id: string | null;
           audience_id: string | null;
           asset_type: string;
           title: string;
@@ -351,6 +362,7 @@ export type Database = {
           project_id: string;
           user_id?: string | null;
           brand_extraction_id?: string | null;
+          campaign_id?: string | null;
           audience_id?: string | null;
           asset_type: string;
           title: string;
@@ -371,6 +383,7 @@ export type Database = {
           project_id?: string;
           user_id?: string | null;
           brand_extraction_id?: string | null;
+          campaign_id?: string | null;
           audience_id?: string | null;
           asset_type?: string;
           title?: string;
@@ -387,6 +400,13 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "marketing_assets_campaign_id_fkey";
+            columns: ["campaign_id"];
+            isOneToOne: false;
+            referencedRelation: "campaigns";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "marketing_assets_project_id_fkey";
             columns: ["project_id"];

@@ -28,7 +28,5 @@ export const CONTENT_ASSET_TYPES = [
 export type ContentAssetType = (typeof CONTENT_ASSET_TYPES)[number];
 
 export const PLANNED_CONTENT_ASSET_TYPES: ContentAssetType[] = [
-  "UGC workflows",
-  "Seedance video",
-  "Competitive inspiration"
+  "Seedance video"
 ];

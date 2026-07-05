@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AssetSelectionPanel } from "@/components/asset-selection-panel";
 import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
-import { getBrandAudiences, getBrandProjectWorkspace, getMarketingAssets } from "@/lib/brand-store";
+import { getBrandAudiences, getBrandProjectWorkspace, getCampaigns, getMarketingAssets } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 type AssetsPageProps = {
@@ -22,7 +22,11 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
   }
 
   const { project, latestExtraction } = workspace;
-  const [audiences, assets] = await Promise.all([getBrandAudiences(project.id), getMarketingAssets(project.id)]);
+  const [audiences, assets, campaigns] = await Promise.all([
+    getBrandAudiences(project.id),
+    getMarketingAssets(project.id),
+    getCampaigns(project.id)
+  ]);
 
   return (
     <main>
@@ -45,6 +49,7 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
         draftCount={workspace.postDrafts.length}
         initialAssets={assets}
         initialAudiences={audiences}
+        initialCampaigns={campaigns}
         initialDrafts={workspace.postDrafts}
         initialLanguage={project.language ?? latestExtraction.language ?? "Auto"}
         projectColors={workspace.project.brandColors}

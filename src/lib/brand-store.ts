@@ -75,6 +75,7 @@ export type SavedMarketingAsset = {
   id: string;
   projectId: string;
   brandExtractionId: string | null;
+  campaignId: string | null;
   audienceId: string | null;
   assetType: string;
   title: string;
@@ -91,6 +92,20 @@ export type SavedMarketingAsset = {
   updatedAt: string;
 };
 
+export type SavedCampaign = {
+  id: string;
+  projectId: string;
+  userId: string | null;
+  audienceId: string | null;
+  name: string;
+  objective: string | null;
+  durationDays: number;
+  channels: string[];
+  settings: Json;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type SavedPostDraft = Omit<
   GeneratedPostDraft,
   "language" | "tone" | "length" | "provider" | "model" | "promptVersion" | "settings"
@@ -98,6 +113,7 @@ export type SavedPostDraft = Omit<
   id: string;
   projectId: string;
   brandExtractionId: string | null;
+  campaignId: string | null;
   status: "generated" | "edited" | "approved" | "published";
   language: string | null;
   tone: string | null;
@@ -115,6 +131,7 @@ function mapSavedPostDraft(draft: {
   project_id: string;
   user_id: string | null;
   brand_extraction_id: string | null;
+  campaign_id: string | null;
   channel: string;
   intent: string;
   headline: string;
@@ -136,6 +153,7 @@ function mapSavedPostDraft(draft: {
     id: draft.id,
     projectId: draft.project_id,
     brandExtractionId: draft.brand_extraction_id,
+    campaignId: draft.campaign_id,
     channel: draft.channel as ContentChannel,
     intent: draft.intent as ContentIntent,
     status: draft.status as SavedPostDraft["status"],
@@ -156,11 +174,13 @@ function mapSavedPostDraft(draft: {
 }
 
 const postDraftSelect =
-  "id,project_id,user_id,brand_extraction_id,channel,intent,headline,body,cta,hashtags,status,language,tone,length,provider,model,prompt_version,settings,created_at,updated_at";
+  "id,project_id,user_id,brand_extraction_id,campaign_id,channel,intent,headline,body,cta,hashtags,status,language,tone,length,provider,model,prompt_version,settings,created_at,updated_at";
 const audienceSelect =
   "id,project_id,name,summary,pain_points,goals,buying_triggers,objections,channels,content_angles,is_primary,source,created_at,updated_at";
 const marketingAssetSelect =
-  "id,project_id,brand_extraction_id,audience_id,asset_type,title,brief,prompt,content,image_url,storage_path,provider,model,status,settings,created_at,updated_at";
+  "id,project_id,brand_extraction_id,campaign_id,audience_id,asset_type,title,brief,prompt,content,image_url,storage_path,provider,model,status,settings,created_at,updated_at";
+const campaignSelect =
+  "id,project_id,user_id,audience_id,name,objective,duration_days,channels,settings,created_at,updated_at";
 
 function mapSavedBrandAudience(audience: {
   id: string;
@@ -200,6 +220,7 @@ function mapSavedMarketingAsset(asset: {
   id: string;
   project_id: string;
   brand_extraction_id: string | null;
+  campaign_id: string | null;
   audience_id: string | null;
   asset_type: string;
   title: string;
@@ -219,6 +240,7 @@ function mapSavedMarketingAsset(asset: {
     id: asset.id,
     projectId: asset.project_id,
     brandExtractionId: asset.brand_extraction_id,
+    campaignId: asset.campaign_id,
     audienceId: asset.audience_id,
     assetType: asset.asset_type,
     title: asset.title,
@@ -233,6 +255,34 @@ function mapSavedMarketingAsset(asset: {
     settings: asset.settings,
     createdAt: asset.created_at,
     updatedAt: asset.updated_at
+  };
+}
+
+function mapSavedCampaign(campaign: {
+  id: string;
+  project_id: string;
+  user_id: string | null;
+  audience_id: string | null;
+  name: string;
+  objective: string | null;
+  duration_days: number;
+  channels: string[];
+  settings: Json;
+  created_at: string;
+  updated_at: string;
+}): SavedCampaign {
+  return {
+    id: campaign.id,
+    projectId: campaign.project_id,
+    userId: campaign.user_id,
+    audienceId: campaign.audience_id,
+    name: campaign.name,
+    objective: campaign.objective,
+    durationDays: campaign.duration_days,
+    channels: campaign.channels,
+    settings: campaign.settings,
+    createdAt: campaign.created_at,
+    updatedAt: campaign.updated_at
   };
 }
 
@@ -811,11 +861,13 @@ export async function getPostDrafts(projectId: string): Promise<SavedPostDraft[]
 export async function savePostDrafts({
   projectId,
   brandExtractionId,
+  campaignId,
   drafts,
   userId
 }: {
   projectId: string;
   brandExtractionId: string;
+  campaignId?: string | null;
   drafts: GeneratedPostDraft[];
   userId?: string | null;
 }) {
@@ -832,6 +884,7 @@ export async function savePostDrafts({
         project_id: projectId,
         user_id: userId ?? null,
         brand_extraction_id: brandExtractionId,
+        campaign_id: campaignId ?? null,
         channel: draft.channel,
         intent: draft.intent,
         headline: draft.headline,
@@ -930,6 +983,7 @@ export async function duplicatePostDraft({ projectId, draftId }: { projectId: st
       project_id: projectId,
       user_id: draft.user_id,
       brand_extraction_id: draft.brand_extraction_id,
+      campaign_id: draft.campaign_id,
       channel: draft.channel,
       intent: draft.intent,
       headline: draft.headline,
@@ -1106,10 +1160,77 @@ export async function getMarketingAssets(projectId: string): Promise<SavedMarket
   return data.map(mapSavedMarketingAsset);
 }
 
+export async function updateMarketingAsset({
+  projectId,
+  assetId,
+  updates
+}: {
+  projectId: string;
+  assetId: string;
+  updates: Partial<Pick<SavedMarketingAsset, "title" | "status">>;
+}) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("marketing_assets")
+    .update({
+      title: updates.title,
+      status: updates.status
+    })
+    .eq("project_id", projectId)
+    .eq("id", assetId)
+    .select(marketingAssetSelect)
+    .single();
+
+  if (error) {
+    throw new Error(`Could not update marketing asset: ${error.message}`);
+  }
+
+  return mapSavedMarketingAsset(data);
+}
+
+export async function deleteMarketingAsset({ projectId, assetId }: { projectId: string; assetId: string }) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data: asset, error: loadError } = await supabase
+    .from("marketing_assets")
+    .select("storage_path")
+    .eq("project_id", projectId)
+    .eq("id", assetId)
+    .single();
+
+  if (loadError) {
+    throw new Error(`Could not load marketing asset: ${loadError.message}`);
+  }
+
+  const { error } = await supabase.from("marketing_assets").delete().eq("project_id", projectId).eq("id", assetId);
+
+  if (error) {
+    throw new Error(`Could not delete marketing asset: ${error.message}`);
+  }
+
+  if (asset.storage_path) {
+    const { error: storageError } = await supabase.storage.from("marketing-assets").remove([asset.storage_path]);
+
+    if (storageError) {
+      console.error(storageError);
+    }
+  }
+}
+
 export async function saveMarketingAsset({
   projectId,
   userId,
   brandExtractionId,
+  campaignId,
   audienceId,
   assetType,
   title,
@@ -1126,6 +1247,7 @@ export async function saveMarketingAsset({
   projectId: string;
   userId?: string | null;
   brandExtractionId: string | null;
+  campaignId?: string | null;
   audienceId: string | null;
   assetType: string;
   title: string;
@@ -1151,6 +1273,7 @@ export async function saveMarketingAsset({
       project_id: projectId,
       user_id: userId ?? null,
       brand_extraction_id: brandExtractionId,
+      campaign_id: campaignId ?? null,
       audience_id: audienceId,
       asset_type: assetType,
       title,
@@ -1172,4 +1295,111 @@ export async function saveMarketingAsset({
   }
 
   return mapSavedMarketingAsset(data);
+}
+
+export async function getCampaigns(projectId: string): Promise<SavedCampaign[]> {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("campaigns")
+    .select(campaignSelect)
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false })
+    .limit(12);
+
+  if (error) {
+    if (error.code === "42P01") {
+      return [];
+    }
+
+    throw new Error(`Could not load campaigns: ${error.message}`);
+  }
+
+  return data.map(mapSavedCampaign);
+}
+
+export async function getCampaign({ projectId, campaignId }: { projectId: string; campaignId: string }) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("campaigns")
+    .select(campaignSelect)
+    .eq("project_id", projectId)
+    .eq("id", campaignId)
+    .single();
+
+  if (error) {
+    throw new Error(`Could not load campaign: ${error.message}`);
+  }
+
+  return mapSavedCampaign(data);
+}
+
+export async function saveCampaign({
+  projectId,
+  userId,
+  audienceId,
+  name,
+  objective,
+  durationDays,
+  channels,
+  settings
+}: {
+  projectId: string;
+  userId?: string | null;
+  audienceId?: string | null;
+  name: string;
+  objective?: string | null;
+  durationDays: number;
+  channels: string[];
+  settings?: Json;
+}) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { data, error } = await supabase
+    .from("campaigns")
+    .insert({
+      project_id: projectId,
+      user_id: userId ?? null,
+      audience_id: audienceId ?? null,
+      name,
+      objective,
+      duration_days: durationDays,
+      channels,
+      settings: settings ?? {}
+    })
+    .select(campaignSelect)
+    .single();
+
+  if (error) {
+    throw new Error(`Could not save campaign: ${error.message}`);
+  }
+
+  return mapSavedCampaign(data);
+}
+
+export async function deleteCampaign({ projectId, campaignId }: { projectId: string; campaignId: string }) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { error } = await supabase.from("campaigns").delete().eq("project_id", projectId).eq("id", campaignId);
+
+  if (error) {
+    throw new Error(`Could not delete campaign: ${error.message}`);
+  }
 }
