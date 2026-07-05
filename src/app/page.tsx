@@ -17,8 +17,6 @@ const AGENTS = [
   { name: "UGC", detail: "Creator briefs and shot lists" }
 ];
 
-const WORKSPACE_STEPS = ["Website", "Brand profile", "Audiences", "Drafts", "Assets", "Campaign"];
-
 type ScrapeState =
   | { status: "idle" }
   | { status: "loading" }
@@ -123,38 +121,6 @@ export default function Home() {
               </article>
             ))}
           </div>
-
-          <section className="hero-workspace-preview" aria-label="Workspace preview">
-            <div className="preview-header">
-              <span>Live workspace preview</span>
-              <strong>1 URL in, campaign assets out</strong>
-            </div>
-            <div className="preview-flow">
-              {WORKSPACE_STEPS.map((step, index) => (
-                <div key={step}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <strong>{step}</strong>
-                </div>
-              ))}
-            </div>
-            <div className="preview-grid">
-              <article>
-                <span>Audience</span>
-                <strong>High-intent buyers</strong>
-                <small>Pain points, goals, objections, channels</small>
-              </article>
-              <article>
-                <span>Assets</span>
-                <strong>18 ready to review</strong>
-                <small>Posts, image prompts, UGC briefs, exports</small>
-              </article>
-              <article>
-                <span>Campaign</span>
-                <strong>7 day launch plan</strong>
-                <small>Grouped content calendar and publishing package</small>
-              </article>
-            </div>
-          </section>
         </div>
       </section>
 

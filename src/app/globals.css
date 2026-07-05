@@ -284,94 +284,6 @@ nav span {
   background: var(--highlight);
 }
 
-.hero-workspace-preview {
-  background: #151a18;
-  border: 1px solid #2b3430;
-  border-radius: var(--radius);
-  box-shadow: 0 28px 80px rgba(22, 22, 21, 0.2);
-  color: #f8fbfa;
-  display: grid;
-  gap: 18px;
-  margin-top: 2px;
-  padding: 20px;
-}
-
-.preview-header {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-}
-
-.preview-header span {
-  color: #9eaaa5;
-  font-size: 12px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.preview-header strong {
-  color: #ffffff;
-  font-size: 14px;
-}
-
-.preview-flow {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-
-.preview-flow div,
-.preview-grid article {
-  background: #202824;
-  border: 1px solid #34423d;
-  border-radius: var(--radius);
-}
-
-.preview-flow div {
-  display: grid;
-  gap: 8px;
-  min-height: 82px;
-  padding: 13px;
-}
-
-.preview-flow span,
-.preview-grid span {
-  color: #a8b5af;
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.preview-flow strong {
-  align-self: end;
-  color: #ffffff;
-  font-size: 13px;
-}
-
-.preview-grid {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.preview-grid article {
-  display: grid;
-  gap: 8px;
-  min-height: 118px;
-  padding: 15px;
-}
-
-.preview-grid strong {
-  color: #ffffff;
-  font-size: 18px;
-}
-
-.preview-grid small {
-  color: #c4d1ca;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
 .eyebrow {
   color: var(--accent-strong);
   font-size: 12px;
@@ -2269,13 +2181,8 @@ code {
     padding-top: 54px;
   }
 
-  .agent-strip,
-  .preview-flow {
+  .agent-strip {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .preview-grid {
-    grid-template-columns: 1fr;
   }
 
   .brand-heading {
@@ -2352,15 +2259,6 @@ code {
   }
 
   .agent-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .preview-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .preview-flow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
