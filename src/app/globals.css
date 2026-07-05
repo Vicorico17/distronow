@@ -1035,6 +1035,15 @@ code {
   margin-bottom: 0;
 }
 
+.saved-library-toggle {
+  background: #151a18;
+  border: 1px solid #151a18;
+  border-radius: var(--radius);
+  color: #ffffff;
+  font-weight: 900;
+  padding: 11px 13px;
+}
+
 .secondary-action {
   background: #fbfdfc;
   border: 1px solid var(--line);

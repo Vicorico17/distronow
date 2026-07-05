@@ -111,6 +111,25 @@ function draftFromAudience(audience?: SavedBrandAudience): AudienceDraft {
   };
 }
 
+function audienceKey(audience: Pick<SavedBrandAudience, "name">) {
+  return audience.name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function uniqueAudiences(audiences: SavedBrandAudience[]) {
+  const seen = new Set<string>();
+
+  return audiences.filter((audience) => {
+    const key = audienceKey(audience);
+
+    if (!key || seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
 function isObjectJson(value: Json): value is Record<string, Json> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
@@ -408,12 +427,14 @@ export function AssetSelectionPanel({
   const [campaignChannels, setCampaignChannels] = useState<ContentChannel[]>(["LinkedIn", "Instagram", "TikTok script"]);
   const [libraryFilter, setLibraryFilter] = useState<LibraryFilter>("All");
   const [detailSelection, setDetailSelection] = useState<DetailSelection>(null);
+  const [showSavedLibrary, setShowSavedLibrary] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
 
+  const visibleAudiences = useMemo(() => uniqueAudiences(audiences), [audiences]);
   const selectedAudience = useMemo(
-    () => audiences.find((audience) => audience.id === selectedAudienceId) ?? audiences[0] ?? null,
-    [audiences, selectedAudienceId]
+    () => visibleAudiences.find((audience) => audience.id === selectedAudienceId) ?? visibleAudiences[0] ?? null,
+    [visibleAudiences, selectedAudienceId]
   );
   const generatedText = getTextContent(generatedTextAsset);
   const generatedImageAssets = assets.filter((asset) => Boolean(asset.imageUrl));
@@ -435,8 +456,9 @@ export function AssetSelectionPanel({
   const plannedContent = PLANNED_CONTENT_ASSET_TYPES.includes(selectedContentType);
   const hasGeneratedContent = Boolean(generatedTextAsset || sourceDraft);
   const goalText = selectedGoal === "Custom" ? customGoal.trim() : selectedGoal;
-  const recommendAudienceLabel = audiences.length ? "Recommend other audiences" : "Recommend audiences";
+  const recommendAudienceLabel = visibleAudiences.length ? "Recommend other audiences" : "Recommend audiences";
   const currentDraftCount = savedDrafts.length || draftCount + drafts.length;
+  const savedLibraryCount = savedDrafts.length + savedFolderAssets.length + campaigns.length;
   const brandColorEntries = colorEntriesFromJson(projectColors);
   const hookGenerationInputs: Array<[string, string]> = [
     ["Brand", projectTitle],
@@ -505,7 +527,12 @@ export function AssetSelectionPanel({
       return;
     }
 
-    setAudiences((current) => [...payload.audiences!, ...current]);
+    if (!payload.audiences.length) {
+      setMessage("No new audience segments found. Edit the existing audiences or add a more specific one manually.");
+      return;
+    }
+
+    setAudiences((current) => uniqueAudiences([...payload.audiences!, ...current]));
     setSelectedAudienceId(payload.audiences[0]?.id ?? "");
     resetGeneratedContent();
     setCurrentStep("audience");
@@ -601,7 +628,7 @@ export function AssetSelectionPanel({
       return;
     }
 
-    const nextAudiences = audiences.filter((audience) => audience.id !== selectedAudience.id);
+    const nextAudiences = uniqueAudiences(audiences.filter((audience) => audience.id !== selectedAudience.id));
 
     setAudiences(nextAudiences);
     setSelectedAudienceId(nextAudiences[0]?.id ?? "");
@@ -1017,8 +1044,8 @@ export function AssetSelectionPanel({
         ) : null}
 
         <div className="audience-list">
-          {audiences.length ? (
-            audiences.map((audience) => (
+          {visibleAudiences.length ? (
+            visibleAudiences.map((audience) => (
               <button
                 className={audience.id === selectedAudience?.id ? "audience-card selected" : "audience-card"}
                 key={audience.id}
@@ -1775,12 +1802,16 @@ export function AssetSelectionPanel({
             <p className="eyebrow">Generate assets</p>
             <h2>Build assets step by step.</h2>
           </div>
+          <button className="saved-library-toggle" onClick={() => setShowSavedLibrary((current) => !current)} type="button">
+            {showSavedLibrary ? "Hide saved items" : `Saved items (${savedLibraryCount})`}
+          </button>
         </div>
 
         {message ? <div className="error-box">{message}</div> : null}
         {renderCurrentStep()}
         {renderDetailPanel()}
-        <section className="selection-panel saved-folder-panel">
+        {showSavedLibrary ? (
+          <section className="selection-panel saved-folder-panel">
           <div className="panel-title">
             <h3>Saved in this project</h3>
             <div className="panel-title-actions">
@@ -1813,6 +1844,9 @@ export function AssetSelectionPanel({
                 type="button"
               >
                 Export CSV
+              </button>
+              <button onClick={() => setShowSavedLibrary(false)} type="button">
+                Close
               </button>
             </div>
           </div>
@@ -1931,7 +1965,8 @@ export function AssetSelectionPanel({
           ) : (
             <div className="empty-copy">Generated posts, assets, and campaign calendars for this project will appear here.</div>
           )}
-        </section>
+          </section>
+        ) : null}
       </section>
     </section>
   );

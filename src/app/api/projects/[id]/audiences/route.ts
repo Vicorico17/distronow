@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { generateAudienceRecommendations } from "@/lib/audience-generator";
-import { getBrandProjectWorkspace, saveBrandAudiences } from "@/lib/brand-store";
+import { getBrandAudiences, getBrandProjectWorkspace, saveBrandAudiences, type SavedBrandAudience } from "@/lib/brand-store";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
@@ -22,6 +22,28 @@ const requestSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("recommend") }),
   z.object({ action: z.literal("create"), audience: audienceSchema })
 ]);
+
+function audienceKey(audience: Pick<SavedBrandAudience, "name">) {
+  return audience.name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function uniqueNewAudiences(
+  existing: SavedBrandAudience[],
+  recommended: Array<Omit<SavedBrandAudience, "id" | "projectId" | "createdAt" | "updatedAt">>
+) {
+  const seen = new Set(existing.map(audienceKey));
+
+  return recommended.filter((audience) => {
+    const key = audienceKey(audience);
+
+    if (!key || seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
 
 type RouteContext = {
   params: Promise<{
@@ -58,10 +80,16 @@ export async function POST(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
+    const existingAudiences = parsed.data.action === "recommend" ? await getBrandAudiences(id) : [];
     const audiences =
       parsed.data.action === "recommend"
-        ? await generateAudienceRecommendations(workspace.latestExtraction)
+        ? uniqueNewAudiences(existingAudiences, await generateAudienceRecommendations(workspace.latestExtraction))
         : [{ ...parsed.data.audience, source: "manual" }];
+
+    if (!audiences.length) {
+      return NextResponse.json({ audiences: [] });
+    }
+
     const saved = await saveBrandAudiences({
       projectId: id,
       audiences,

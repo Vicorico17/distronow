@@ -13,6 +13,28 @@ function brandSummary(extraction: BrandExtraction) {
   return extraction.description?.replace(/\s+/g, " ").trim() || "A brand with a website and reusable positioning signals.";
 }
 
+function brandDomain(extraction: BrandExtraction) {
+  return new URL(extraction.sourceUrl).hostname.replace(/^www\./, "");
+}
+
+function brandSignals(extraction: BrandExtraction) {
+  return [
+    extraction.title,
+    extraction.description,
+    extraction.rawMetadata ? JSON.stringify(extraction.rawMetadata).slice(0, 1800) : null,
+    JSON.stringify(extraction.branding).slice(0, 1800)
+  ]
+    .filter(Boolean)
+    .join("\n")
+    .replace(/\s+/g, " ");
+}
+
+function isCybersecurityBrand(extraction: BrandExtraction) {
+  return /\b(zero trust|cyber|security|soc|siem|iam|identity|network|endpoint|threat|managed detection|mdr)\b/i.test(
+    brandSignals(extraction)
+  );
+}
+
 function parseJsonArray(text: string) {
   const trimmed = text.trim();
   const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i)?.[1];
@@ -50,40 +72,81 @@ function fallbackAudiences(extraction: BrandExtraction): GeneratedAudience[] {
   const name = brandName(extraction);
   const summary = brandSummary(extraction);
 
+  if (isCybersecurityBrand(extraction)) {
+    return [
+      {
+        name: "CISO with Zero Trust board pressure",
+        summary: `Security leader who has a mandate to prove Zero Trust progress but does not have enough internal bandwidth to design, deploy, and operate it alone. ${summary}`,
+        painPoints: ["Board expects measurable Zero Trust progress", "Internal teams are overloaded", "Security tooling is fragmented"],
+        goals: ["Reduce breach exposure", "Show progress quickly", "Move from architecture to operated controls"],
+        buyingTriggers: ["Audit finding", "Board deadline", "Identity or network security incident"],
+        objections: ["Needs operational proof", "Worries about vendor lock-in", "Must justify subscription spend"],
+        channels: ["LinkedIn", "Search", "Webinars"],
+        contentAngles: ["Zero Trust maturity checklist", "Board-ready risk reduction story", "Build versus subscription comparison"],
+        isPrimary: true,
+        source: "fallback"
+      },
+      {
+        name: "IT director stuck between tools and outcomes",
+        summary: `Technical buyer responsible for making security tools work together while keeping day-to-day operations stable for the business.`,
+        painPoints: ["Too many point tools", "Limited specialist staff", "Hard handoff from design to operations"],
+        goals: ["Simplify implementation", "Keep controls running 24/7", "Reduce manual security work"],
+        buyingTriggers: ["Failed rollout", "New compliance requirement", "Team capacity gap"],
+        objections: ["Needs integration details", "Needs clear implementation scope", "Needs proof of support quality"],
+        channels: ["LinkedIn", "YouTube", "Search"],
+        contentAngles: ["Deployment walkthrough", "Operations checklist", "What managed Zero Trust includes"],
+        isPrimary: false,
+        source: "fallback"
+      },
+      {
+        name: "Compliance owner needing defensible controls",
+        summary: `Risk or compliance stakeholder who needs evidence that security controls are not just documented, but deployed, monitored, and maintained.`,
+        painPoints: ["Controls are hard to evidence", "Audit timelines are tight", "Security ownership is split across teams"],
+        goals: ["Pass audits with less scramble", "Document control coverage", "Reduce unmanaged access risk"],
+        buyingTriggers: ["Upcoming audit", "Customer security questionnaire", "Regulatory pressure"],
+        objections: ["Needs reporting clarity", "Needs stakeholder buy-in", "Needs predictable cost"],
+        channels: ["LinkedIn", "Search", "Email"],
+        contentAngles: ["Audit evidence examples", "Control mapping guide", "Risk reduction proof points"],
+        isPrimary: false,
+        source: "fallback"
+      }
+    ];
+  }
+
   return [
     {
-      name: `High-intent ${name} buyer`,
-      summary: `A customer who already understands the problem space and needs a credible reason to choose ${name}. ${summary}`,
-      painPoints: ["Too many similar options", "Unclear proof", "Wants a faster decision"],
-      goals: ["Find a trusted solution", "Reduce buying risk", "Get a clear outcome"],
-      buyingTriggers: ["Specific product benefit", "Customer proof", "Strong offer"],
-      objections: ["Needs proof", "Price sensitivity", "Concern about fit"],
-      channels: ["Instagram", "TikTok", "Google", "LinkedIn"],
-      contentAngles: ["Before and after", "Proof-led explanation", "Product benefit breakdown"],
+      name: `${name} decision owner`,
+      summary: `Person responsible for solving the problem ${name} addresses, with enough urgency to compare vendors and enough authority to start a buying conversation. ${summary}`,
+      painPoints: ["Current workaround is slowing the team", "Existing options feel vague", "Needs a low-risk path to action"],
+      goals: ["Understand fit quickly", "Prove value to stakeholders", "Choose a credible provider"],
+      buyingTriggers: ["Internal deadline", "Budget planning", "Clear proof of outcome"],
+      objections: ["Needs proof", "Needs implementation clarity", "Needs confidence in ROI"],
+      channels: ["LinkedIn", "Search", "Email"],
+      contentAngles: ["Decision checklist", "Outcome proof", "Implementation expectations"],
       isPrimary: true,
       source: "fallback"
     },
     {
-      name: "Research-first comparer",
-      summary: "A careful buyer comparing alternatives before taking action.",
-      painPoints: ["Hard to compare options", "Too much vague content", "Needs specific details"],
-      goals: ["Understand the category", "Compare benefits", "Avoid regret"],
-      buyingTriggers: ["Educational carousel", "FAQ content", "Transparent comparison"],
-      objections: ["Needs more information", "Needs social proof"],
-      channels: ["LinkedIn", "Instagram", "Search"],
-      contentAngles: ["Checklist", "Common mistakes", "Comparison guide"],
+      name: `${brandDomain(extraction)} evaluator`,
+      summary: `Research-heavy prospect who is not ready for a sales call yet but is actively looking for proof, pricing signals, implementation detail, and alternatives.`,
+      painPoints: ["Cannot tell vendors apart", "Needs specific examples", "Wants to avoid a bad recommendation"],
+      goals: ["Compare approaches", "Build internal confidence", "Shortlist credible options"],
+      buyingTriggers: ["Comparison guide", "Use-case walkthrough", "Customer proof"],
+      objections: ["Needs more detail", "Needs credible proof", "Needs stakeholder alignment"],
+      channels: ["Search", "LinkedIn", "YouTube"],
+      contentAngles: ["Comparison framework", "FAQ", "Common mistakes"],
       isPrimary: false,
       source: "fallback"
     },
     {
-      name: "Social proof responder",
-      summary: "A buyer who becomes interested when they see credible examples, testimonials, or creator-led proof.",
-      painPoints: ["Does not trust brand claims", "Needs real-world context"],
-      goals: ["See the product in use", "Understand the outcome", "Feel confident acting"],
-      buyingTriggers: ["UGC", "Testimonials", "Demo content"],
-      objections: ["Skeptical of polished ads", "Needs authentic proof"],
-      channels: ["TikTok", "Instagram", "YouTube Shorts"],
-      contentAngles: ["Creator demo", "Customer story", "Objection handling"],
+      name: `${name} internal champion`,
+      summary: `Practitioner who feels the pain directly and needs sharp content they can forward to a manager, founder, or budget owner.`,
+      painPoints: ["Feels the daily operational pain", "Does not control the budget", "Needs simple language for leadership"],
+      goals: ["Get buy-in", "Show urgency", "Make the solution easy to understand"],
+      buyingTriggers: ["Shareable explainer", "ROI proof", "Before-and-after story"],
+      objections: ["Needs approval", "Needs budget owner interest", "Needs simple proof"],
+      channels: ["LinkedIn", "Email", "Instagram"],
+      contentAngles: ["Forwardable explainer", "Cost of inaction", "Team pain story"],
       isPrimary: false,
       source: "fallback"
     }
@@ -131,7 +194,14 @@ export async function generateAudienceRecommendations(extraction: BrandExtractio
           {
             role: "system",
             content:
-              "Return only valid JSON. Create 3 best-customer personas for marketing. Use keys: name, summary, painPoints, goals, buyingTriggers, objections, channels, contentAngles."
+              [
+                "Return only valid JSON.",
+                "Create exactly 3 sharp best-customer segments for marketing.",
+                "Do not use generic names like high-intent buyer, research-first comparer, social proof responder, small business owner, or busy professional.",
+                "Each segment must name a concrete role, buying situation, urgency, or job-to-be-done specific to the brand.",
+                "Make the summaries specific enough that two segments cannot describe the same buyer.",
+                "Use keys: name, summary, painPoints, goals, buyingTriggers, objections, channels, contentAngles."
+              ].join(" ")
           },
           {
             role: "user",
@@ -140,8 +210,9 @@ export async function generateAudienceRecommendations(extraction: BrandExtractio
               `Website: ${extraction.sourceUrl}`,
               `Description: ${brandSummary(extraction)}`,
               `Language: ${extraction.language ?? "unknown"}`,
-              `Brand signals: ${JSON.stringify(extraction.branding).slice(0, 6000)}`,
-              "Prioritize Instagram and TikTok audiences when relevant, but include LinkedIn when infographics or B2B proof would perform well."
+              `Brand signals: ${brandSignals(extraction).slice(0, 6000)}`,
+              "For each segment, include: who they are, what event makes them buy now, what they fear, and which channels are plausible for this specific buyer.",
+              "For B2B/security/technical brands, prefer role-based segments like CISO, IT director, compliance owner, founder, ops leader, or budget holder where appropriate."
             ].join("\n")
           }
         ],
