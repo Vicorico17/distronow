@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { claimAnonymousProjects } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
@@ -10,7 +11,8 @@ export async function POST() {
       return NextResponse.json({ error: "Log in before claiming projects." }, { status: 401 });
     }
 
-    const claimed = await claimAnonymousProjects(user.id);
+    const anonymousOwnerId = await getAnonymousOwnerId();
+    const claimed = await claimAnonymousProjects(user.id, anonymousOwnerId);
 
     return NextResponse.json({ claimed });
   } catch (error) {

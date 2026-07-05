@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProjectDeleteButton } from "@/components/project-delete-button";
+import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandProjects } from "@/lib/brand-store";
 import { getColorEntries } from "@/lib/brand";
 import type { BrandColors } from "@/lib/brand";
@@ -20,7 +21,8 @@ function formatDate(value: string) {
 
 export default async function ProjectsPage() {
   const user = await getCurrentUser();
-  const projects = await getBrandProjects(user?.id);
+  const anonymousOwnerId = await getAnonymousOwnerId();
+  const projects = await getBrandProjects(user?.id, anonymousOwnerId);
 
   return (
     <main>

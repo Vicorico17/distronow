@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AssetSelectionPanel } from "@/components/asset-selection-panel";
+import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandAudiences, getBrandProjectWorkspace, getMarketingAssets } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
@@ -13,7 +14,8 @@ type AssetsPageProps = {
 export default async function AssetsPage({ params }: AssetsPageProps) {
   const { id } = await params;
   const user = await getCurrentUser();
-  const workspace = await getBrandProjectWorkspace(id, user?.id);
+  const anonymousOwnerId = await getAnonymousOwnerId();
+  const workspace = await getBrandProjectWorkspace(id, user?.id, anonymousOwnerId);
 
   if (!workspace) {
     notFound();

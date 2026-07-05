@@ -49,7 +49,7 @@ export default async function AccountPage() {
                 <span>Ownership</span>
               </div>
               <p className="empty-copy">
-                Claim public anonymous projects into this account so they follow the same ownership rules as new projects.
+                Claim anonymous projects from this browser into this account so they follow the same ownership rules as new projects.
               </p>
               <ClaimAnonymousProjectsButton />
             </section>

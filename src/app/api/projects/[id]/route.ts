@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { deleteBrandProject } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
@@ -13,7 +14,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
   try {
     const user = await getCurrentUser();
-    await deleteBrandProject({ projectId: id, userId: user?.id });
+    const anonymousOwnerId = await getAnonymousOwnerId();
+    await deleteBrandProject({ projectId: id, userId: user?.id, anonymousOwnerId });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

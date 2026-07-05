@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandAudiences, getBrandProjectWorkspace, savePostDrafts } from "@/lib/brand-store";
 import { CHANNELS, generatePostDrafts, INTENTS, LANGUAGES, LENGTHS, TONES } from "@/lib/post-generator";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
@@ -44,7 +45,8 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const user = await getCurrentUser();
-    const workspace = await getBrandProjectWorkspace(id, user?.id);
+    const anonymousOwnerId = await getAnonymousOwnerId();
+    const workspace = await getBrandProjectWorkspace(id, user?.id, anonymousOwnerId);
 
     if (!workspace) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
@@ -58,7 +60,10 @@ export async function POST(request: Request, context: RouteContext) {
       intent: parsed.data.intent,
       language: parsed.data.language,
       tone: parsed.data.tone,
-      length: parsed.data.length
+      length: parsed.data.length,
+      audienceId: parsed.data.audienceId ?? null,
+      goal: goal?.trim() || null,
+      hook: hook?.trim() || null
     };
     const generated = await generatePostDrafts({
       extraction: workspace.latestExtraction,

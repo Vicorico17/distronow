@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { CONTENT_ASSET_TYPES } from "@/lib/asset-types";
 import { getBrandAudiences, getBrandProjectWorkspace, saveMarketingAsset } from "@/lib/brand-store";
+import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 import { generateTextAsset } from "@/lib/text-asset-generator";
 
@@ -18,6 +20,17 @@ type RouteContext = {
 };
 
 export async function POST(request: Request, context: RouteContext) {
+  const rateLimit = checkRateLimit({
+    scope: "text-asset-generation",
+    key: getClientKey(request),
+    limit: 40,
+    windowMs: 60 * 60 * 1000
+  });
+
+  if (rateLimit.limited) {
+    return NextResponse.json({ error: "Too many content generation requests. Try again later." }, { status: 429 });
+  }
+
   const { id } = await context.params;
   const body = await request.json().catch(() => null);
   const parsed = requestSchema.safeParse(body);
@@ -28,7 +41,8 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const user = await getCurrentUser();
-    const workspace = await getBrandProjectWorkspace(id, user?.id);
+    const anonymousOwnerId = await getAnonymousOwnerId();
+    const workspace = await getBrandProjectWorkspace(id, user?.id, anonymousOwnerId);
 
     if (!workspace) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });

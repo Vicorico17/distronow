@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrCreateAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { normalizeWebsiteUrl } from "@/lib/brand";
 import { saveBrandExtraction } from "@/lib/brand-store";
 import { scrapeBranding } from "@/lib/firecrawl";
@@ -32,8 +33,9 @@ export async function POST(request: Request) {
   try {
     const url = normalizeWebsiteUrl(parsed.data.url);
     const user = await getCurrentUser();
+    const anonymousOwnerId = user ? null : await getOrCreateAnonymousOwnerId();
     const extraction = await scrapeBranding(url);
-    const stored = await saveBrandExtraction(extraction, user?.id);
+    const stored = await saveBrandExtraction(extraction, user?.id, anonymousOwnerId);
 
     return NextResponse.json({ extraction, stored });
   } catch (error) {

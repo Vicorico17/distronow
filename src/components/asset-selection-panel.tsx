@@ -338,6 +338,42 @@ export function AssetSelectionPanel({
     setEditingAudienceId(null);
   }
 
+  async function deleteSelectedAudience() {
+    if (!selectedAudience) {
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete ${selectedAudience.name}? Generated posts and assets stay saved.`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setBusyAction("audience-delete");
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/audiences/${selectedAudience.id}`, {
+      method: "DELETE"
+    });
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+
+    setBusyAction(null);
+
+    if (!response.ok) {
+      setMessage(payload.error ?? "Could not delete audience.");
+      return;
+    }
+
+    const nextAudiences = audiences.filter((audience) => audience.id !== selectedAudience.id);
+
+    setAudiences(nextAudiences);
+    setSelectedAudienceId(nextAudiences[0]?.id ?? "");
+    resetGeneratedContent();
+    setCurrentStep("audience");
+  }
+
   function continueFromContent() {
     if (plannedContent || !goalText) {
       return;
@@ -546,6 +582,12 @@ export function AssetSelectionPanel({
         </div>
 
         <div className="audience-actions">
+          <button disabled={!selectedAudience} onClick={() => selectedAudience && startEditing(selectedAudience)} type="button">
+            Edit selected
+          </button>
+          <button disabled={!selectedAudience || busyAction === "audience-delete"} onClick={deleteSelectedAudience} type="button">
+            {busyAction === "audience-delete" ? <LoadingIndicator compact label="Deleting" /> : "Delete selected"}
+          </button>
           <button disabled={!selectedAudience} onClick={() => setCurrentStep("content")} type="button">
             Continue
           </button>

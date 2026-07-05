@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getBrandProjectWorkspace, updateBrandAudience } from "@/lib/brand-store";
+import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
+import { deleteBrandAudience, getBrandProjectWorkspace, updateBrandAudience } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
 const patchSchema = z.object({
@@ -33,7 +34,8 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   try {
     const user = await getCurrentUser();
-    const workspace = await getBrandProjectWorkspace(id, user?.id);
+    const anonymousOwnerId = await getAnonymousOwnerId();
+    const workspace = await getBrandProjectWorkspace(id, user?.id, anonymousOwnerId);
 
     if (!workspace) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
@@ -48,6 +50,29 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ audience });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not update audience.";
+    console.error(error);
+
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+}
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  const { id, audienceId } = await context.params;
+
+  try {
+    const user = await getCurrentUser();
+    const anonymousOwnerId = await getAnonymousOwnerId();
+    const workspace = await getBrandProjectWorkspace(id, user?.id, anonymousOwnerId);
+
+    if (!workspace) {
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+
+    await deleteBrandAudience({ projectId: id, audienceId });
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not delete audience.";
     console.error(error);
 
     return NextResponse.json({ error: message }, { status: 400 });

@@ -19,6 +19,7 @@ export type BrandProjectWorkspace = {
   project: {
     id: string;
     userId: string | null;
+    anonymousOwnerId: string | null;
     name: string | null;
     websiteUrl: string;
     domain: string;
@@ -396,7 +397,8 @@ async function copyBrandAssetsToStorage(projectId: string, assets: ReturnType<ty
 
 export async function saveBrandExtraction(
   extraction: BrandExtraction,
-  userId?: string | null
+  userId?: string | null,
+  anonymousOwnerId?: string | null
 ): Promise<StoredBrandExtraction | null> {
   const supabase = createSupabaseAdminClient();
 
@@ -404,19 +406,28 @@ export async function saveBrandExtraction(
     return null;
   }
 
+  if (!userId && !anonymousOwnerId) {
+    throw new Error("Missing anonymous project owner.");
+  }
+
   const domain = getDomain(extraction.sourceUrl);
-  const { data: existingProject, error: existingProjectError } = await supabase
+  let existingProjectQuery = supabase
     .from("projects")
-    .select("id,user_id,brand_colors")
-    .eq("domain", domain)
-    .maybeSingle();
+    .select("id,user_id,anonymous_owner_id,brand_colors")
+    .eq("domain", domain);
+
+  if (userId) {
+    existingProjectQuery = existingProjectQuery.eq("user_id", userId);
+  } else if (anonymousOwnerId) {
+    existingProjectQuery = existingProjectQuery.is("user_id", null).eq("anonymous_owner_id", anonymousOwnerId);
+  } else {
+    existingProjectQuery = existingProjectQuery.is("user_id", null).is("anonymous_owner_id", null);
+  }
+
+  const { data: existingProject, error: existingProjectError } = await existingProjectQuery.maybeSingle();
 
   if (existingProjectError) {
     throw new Error(`Could not check project: ${existingProjectError.message}`);
-  }
-
-  if (existingProject?.user_id && existingProject.user_id !== userId) {
-    throw new Error("This brand is already owned by another account.");
   }
 
   const brandAssets = buildBrandAssets(extraction);
@@ -436,7 +447,8 @@ export async function saveBrandExtraction(
     brand_assets: brandAssets as unknown as Json,
     brand_confidence: brandConfidence as unknown as Json,
     updated_at: new Date().toISOString(),
-    user_id: userId ?? existingProject?.user_id ?? null
+    user_id: userId ?? null,
+    anonymous_owner_id: userId ? null : (anonymousOwnerId ?? existingProject?.anonymous_owner_id ?? null)
   };
   const { data: project, error: projectError } = existingProject
     ? await supabase
@@ -498,7 +510,8 @@ export async function saveBrandExtraction(
 
 export async function getBrandProjectWorkspace(
   projectId: string,
-  userId?: string | null
+  userId?: string | null,
+  anonymousOwnerId?: string | null
 ): Promise<BrandProjectWorkspace | null> {
   const supabase = createSupabaseAdminClient();
 
@@ -509,7 +522,7 @@ export async function getBrandProjectWorkspace(
   const { data: project, error: projectError } = await supabase
     .from("projects")
     .select(
-      "id,user_id,name,website_url,domain,language,tone,audience,brand_name,brand_description,brand_colors,brand_fonts,brand_logo,brand_assets,brand_confidence,brand_fields_status,created_at,updated_at"
+      "id,user_id,anonymous_owner_id,name,website_url,domain,language,tone,audience,brand_name,brand_description,brand_colors,brand_fonts,brand_logo,brand_assets,brand_confidence,brand_fields_status,created_at,updated_at"
     )
     .eq("id", projectId)
     .single();
@@ -523,6 +536,10 @@ export async function getBrandProjectWorkspace(
   }
 
   if (project.user_id && project.user_id !== userId) {
+    return null;
+  }
+
+  if (!project.user_id && (!project.anonymous_owner_id || project.anonymous_owner_id !== anonymousOwnerId)) {
     return null;
   }
 
@@ -553,6 +570,7 @@ export async function getBrandProjectWorkspace(
     project: {
       id: project.id,
       userId: project.user_id,
+      anonymousOwnerId: project.anonymous_owner_id,
       name: project.name,
       websiteUrl: project.website_url,
       domain: project.domain,
@@ -585,11 +603,18 @@ export async function getBrandProjectWorkspace(
   };
 }
 
-export async function getBrandProjects(userId?: string | null): Promise<BrandProjectListItem[]> {
+export async function getBrandProjects(
+  userId?: string | null,
+  anonymousOwnerId?: string | null
+): Promise<BrandProjectListItem[]> {
   const supabase = createSupabaseAdminClient();
 
   if (!supabase) {
     throw new Error("Missing Supabase server credentials.");
+  }
+
+  if (!userId && !anonymousOwnerId) {
+    return [];
   }
 
   let query = supabase
@@ -600,8 +625,8 @@ export async function getBrandProjects(userId?: string | null): Promise<BrandPro
 
   if (userId) {
     query = query.eq("user_id", userId);
-  } else {
-    query = query.is("user_id", null);
+  } else if (anonymousOwnerId) {
+    query = query.is("user_id", null).eq("anonymous_owner_id", anonymousOwnerId);
   }
 
   const { data, error } = await query;
@@ -624,10 +649,12 @@ export async function getBrandProjects(userId?: string | null): Promise<BrandPro
 export async function updateBrandProject({
   projectId,
   userId,
+  anonymousOwnerId,
   updates
 }: {
   projectId: string;
   userId?: string | null;
+  anonymousOwnerId?: string | null;
   updates: {
     brandName?: string | null;
     brandDescription?: string | null;
@@ -646,7 +673,7 @@ export async function updateBrandProject({
     throw new Error("Missing Supabase server credentials.");
   }
 
-  const workspace = await getBrandProjectWorkspace(projectId, userId);
+  const workspace = await getBrandProjectWorkspace(projectId, userId, anonymousOwnerId);
 
   if (!workspace) {
     throw new Error("Project not found.");
@@ -679,14 +706,22 @@ export async function updateBrandProject({
   return data;
 }
 
-export async function deleteBrandProject({ projectId, userId }: { projectId: string; userId?: string | null }) {
+export async function deleteBrandProject({
+  projectId,
+  userId,
+  anonymousOwnerId
+}: {
+  projectId: string;
+  userId?: string | null;
+  anonymousOwnerId?: string | null;
+}) {
   const supabase = createSupabaseAdminClient();
 
   if (!supabase) {
     throw new Error("Missing Supabase server credentials.");
   }
 
-  const workspace = await getBrandProjectWorkspace(projectId, userId);
+  const workspace = await getBrandProjectWorkspace(projectId, userId, anonymousOwnerId);
 
   if (!workspace) {
     throw new Error("Project not found.");
@@ -699,14 +734,22 @@ export async function deleteBrandProject({ projectId, userId }: { projectId: str
   }
 }
 
-export async function claimAnonymousProjects(userId: string) {
+export async function claimAnonymousProjects(userId: string, anonymousOwnerId?: string | null) {
   const supabase = createSupabaseAdminClient();
 
   if (!supabase) {
     throw new Error("Missing Supabase server credentials.");
   }
 
-  const { data: projects, error: loadError } = await supabase.from("projects").select("id").is("user_id", null);
+  if (!anonymousOwnerId) {
+    return { projects: 0 };
+  }
+
+  const { data: projects, error: loadError } = await supabase
+    .from("projects")
+    .select("id")
+    .is("user_id", null)
+    .eq("anonymous_owner_id", anonymousOwnerId);
 
   if (loadError) {
     throw new Error(`Could not load anonymous projects: ${loadError.message}`);
@@ -723,7 +766,12 @@ export async function claimAnonymousProjects(userId: string) {
   for (const table of tables) {
     const query =
       table === "projects"
-        ? supabase.from(table).update({ user_id: userId }).in("id", projectIds).is("user_id", null)
+        ? supabase
+            .from(table)
+            .update({ user_id: userId, anonymous_owner_id: null })
+            .in("id", projectIds)
+            .is("user_id", null)
+            .eq("anonymous_owner_id", anonymousOwnerId)
         : supabase.from(table).update({ user_id: userId }).in("project_id", projectIds).is("user_id", null);
     const { error } = await query;
 
@@ -1017,6 +1065,20 @@ export async function updateBrandAudience({
   }
 
   return mapSavedBrandAudience(data);
+}
+
+export async function deleteBrandAudience({ projectId, audienceId }: { projectId: string; audienceId: string }) {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Missing Supabase server credentials.");
+  }
+
+  const { error } = await supabase.from("brand_audiences").delete().eq("project_id", projectId).eq("id", audienceId);
+
+  if (error) {
+    throw new Error(`Could not delete brand audience: ${error.message}`);
+  }
 }
 
 export async function getMarketingAssets(projectId: string): Promise<SavedMarketingAsset[]> {

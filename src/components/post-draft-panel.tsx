@@ -164,7 +164,10 @@ export function PostDraftPanel({
       intent: draft.intent,
       language: "Auto" as ContentLanguage,
       tone: "Auto" as ContentTone,
-      length: draft.length ?? ("Medium" as ContentLength)
+      length: draft.length ?? ("Medium" as ContentLength),
+      audienceId: audienceId ?? null,
+      goal: generationGoal ?? null,
+      hook: draft.headline ?? null
     };
 
     const response = await fetch(`/api/projects/${projectId}/post-drafts`, {

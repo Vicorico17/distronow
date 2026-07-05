@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { updateBrandProject } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 
@@ -32,9 +33,11 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   try {
     const user = await getCurrentUser();
+    const anonymousOwnerId = await getAnonymousOwnerId();
     await updateBrandProject({
       projectId: id,
       userId: user?.id,
+      anonymousOwnerId,
       updates: {
         brandName: parsed.data.brandName,
         brandDescription: parsed.data.brandDescription ?? null,

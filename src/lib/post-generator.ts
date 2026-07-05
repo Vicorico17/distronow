@@ -30,6 +30,9 @@ export type DraftGenerationSettings = {
   language: ContentLanguage;
   tone: ContentTone;
   length: ContentLength;
+  audienceId?: string | null;
+  goal?: string | null;
+  hook?: string | null;
 };
 
 export type GeneratedPostDraft = {
