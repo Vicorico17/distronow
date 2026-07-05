@@ -18,6 +18,7 @@ export const CONTENT_ASSET_TYPES = [
   "LinkedIn infographic",
   "Ad creative copy",
   "Image asset brief",
+  "Campaign calendar",
   "Email campaign",
   "Landing page section",
   "UGC workflows",

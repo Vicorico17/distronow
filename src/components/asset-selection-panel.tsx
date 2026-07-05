@@ -52,7 +52,7 @@ type AssetSelectionPanelProps = {
   initialLanguage?: string;
 };
 
-type AssetFlowStep = "audience" | "content" | "hook" | "script" | "assets";
+type AssetFlowStep = "audience" | "content" | "hook" | "script" | "assets" | "campaign";
 
 const GOAL_OPTIONS = [
   "Launch or announce",
@@ -615,6 +615,12 @@ export function AssetSelectionPanel({
     }
 
     resetGeneratedContent();
+
+    if (selectedContentType === "Campaign calendar") {
+      setCampaignObjective(goalText);
+      setCurrentStep("campaign");
+      return;
+    }
 
     if (selectedContentType === "Social content") {
       setCurrentStep("hook");
@@ -1452,7 +1458,7 @@ export function AssetSelectionPanel({
     return (
       <section className="selection-panel campaign-panel">
         <div className="panel-title">
-          <h3>Campaign calendar</h3>
+          <h3>3. Campaign calendar</h3>
           <span>{campaigns.length} saved</span>
         </div>
         <div className="campaign-form-grid">
@@ -1698,6 +1704,10 @@ export function AssetSelectionPanel({
       return renderScriptStep();
     }
 
+    if (currentStep === "campaign") {
+      return renderCampaignPanel();
+    }
+
     return renderAssetStep();
   }
 
@@ -1769,7 +1779,6 @@ export function AssetSelectionPanel({
 
         {message ? <div className="error-box">{message}</div> : null}
         {renderCurrentStep()}
-        {renderCampaignPanel()}
         {renderDetailPanel()}
         <section className="selection-panel saved-folder-panel">
           <div className="panel-title">
