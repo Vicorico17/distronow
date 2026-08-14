@@ -22,9 +22,12 @@ Optional for AI draft generation:
 OPENAI_API_KEY=sk-your-openai-api-key
 OPENAI_MODEL=gpt-4.1-mini
 OPENAI_IMAGE_MODEL=gpt-image-2
+OPENAI_TTS_MODEL=gpt-4o-mini-tts
 ```
 
 When `OPENAI_API_KEY` is not set, draft generation uses the deterministic template fallback.
+
+Product videos with audio additionally use [HyperFrames](https://hyperframes.video) to render a local MP4. The renderer needs a compatible Chrome/Chromium installation and FFmpeg available on the server that runs Next.js. The app generates voiceover with the same `OPENAI_API_KEY` and stores only the final MP4 in Supabase Storage.
 
 Required for persistence:
 

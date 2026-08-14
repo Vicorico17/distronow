@@ -67,6 +67,13 @@ const GOAL_OPTIONS = [
 
 type GoalOption = (typeof GOAL_OPTIONS)[number];
 
+type CreationTool = {
+  name: string;
+  description: string;
+  status: string;
+  active?: boolean;
+};
+
 type CampaignCalendarItem = {
   day: number;
   channel: string;
@@ -76,7 +83,7 @@ type CampaignCalendarItem = {
   cta: string;
 };
 
-type LibraryFilter = "All" | "Posts" | "Assets" | "Images" | "Campaigns" | "Approved" | "Published";
+type LibraryFilter = "All" | "Posts" | "Assets" | "Images" | "Videos" | "Campaigns" | "Approved" | "Published";
 
 type DetailSelection =
   | { type: "draft"; item: SavedPostDraft }
@@ -84,7 +91,7 @@ type DetailSelection =
   | { type: "campaign"; item: SavedCampaign }
   | null;
 
-const LIBRARY_FILTERS: LibraryFilter[] = ["All", "Posts", "Assets", "Images", "Campaigns", "Approved", "Published"];
+const LIBRARY_FILTERS: LibraryFilter[] = ["All", "Posts", "Assets", "Images", "Videos", "Campaigns", "Approved", "Published"];
 
 function joinList(values: string[]) {
   return values.join(", ");
@@ -168,6 +175,14 @@ function getTextContent(asset: SavedMarketingAsset | null) {
   };
 }
 
+function getVideoUrl(asset: SavedMarketingAsset | null) {
+  if (!asset || !isObjectJson(asset.content)) {
+    return "";
+  }
+
+  return readString(asset.content.videoUrl);
+}
+
 function imageNotesFromText(asset: SavedMarketingAsset | null, notes: string) {
   const content = getTextContent(asset);
 
@@ -239,6 +254,7 @@ function assetMarkdown(asset: SavedMarketingAsset) {
     `Asset type: ${asset.assetType}`,
     `Provider: ${asset.provider}`,
     asset.imageUrl ? `Image: ${asset.imageUrl}` : null,
+    getVideoUrl(asset) ? `Video: ${getVideoUrl(asset)}` : null,
     "",
     content.body || asset.brief || "",
     "",
@@ -351,14 +367,14 @@ function publishingPackageCsv({
       const content = getTextContent(asset);
 
       return [
-        asset.imageUrl ? "image" : "asset",
+        asset.imageUrl ? "image" : getVideoUrl(asset) ? "video" : "asset",
         asset.title,
         "",
         asset.status,
         asset.provider,
         content.body || asset.brief || "",
         content.cta,
-        asset.imageUrl ?? ""
+        asset.imageUrl ?? getVideoUrl(asset) ?? ""
       ];
     }),
     ...campaigns.flatMap((campaign) =>
@@ -422,6 +438,7 @@ export function AssetSelectionPanel({
   const [savedDrafts, setSavedDrafts] = useState(initialDrafts);
   const [selectedImageType, setSelectedImageType] = useState<ImageAssetType>("Social post graphic");
   const [imageNotes, setImageNotes] = useState("");
+  const [videoNotes, setVideoNotes] = useState("");
   const [campaignObjective, setCampaignObjective] = useState("Build a 7-day content plan from this brand profile.");
   const [campaignDuration, setCampaignDuration] = useState<7 | 30>(7);
   const [campaignChannels, setCampaignChannels] = useState<ContentChannel[]>(["LinkedIn", "Instagram", "TikTok script"]);
@@ -438,6 +455,7 @@ export function AssetSelectionPanel({
   );
   const generatedText = getTextContent(generatedTextAsset);
   const generatedImageAssets = assets.filter((asset) => Boolean(asset.imageUrl));
+  const generatedVideoAssets = assets.filter((asset) => Boolean(getVideoUrl(asset)));
   const savedFolderAssets = assets.filter((asset) => Boolean(asset.imageUrl || asset.content));
   const filteredDrafts = savedDrafts.filter((draft) => {
     if (libraryFilter === "Posts" || libraryFilter === "All") return true;
@@ -448,12 +466,14 @@ export function AssetSelectionPanel({
   const filteredAssets = savedFolderAssets.filter((asset) => {
     if (libraryFilter === "Assets" || libraryFilter === "All") return true;
     if (libraryFilter === "Images") return Boolean(asset.imageUrl);
+    if (libraryFilter === "Videos") return Boolean(getVideoUrl(asset));
     if (libraryFilter === "Approved") return asset.status === "approved";
     if (libraryFilter === "Published") return asset.status === "published";
     return false;
   });
   const filteredCampaigns = libraryFilter === "Campaigns" || libraryFilter === "All" ? campaigns : [];
   const plannedContent = PLANNED_CONTENT_ASSET_TYPES.includes(selectedContentType);
+  const isProductVideo = selectedContentType === "Product video with audio";
   const hasGeneratedContent = Boolean(generatedTextAsset || sourceDraft);
   const goalText = selectedGoal === "Custom" ? customGoal.trim() : selectedGoal;
   const recommendAudienceLabel = visibleAudiences.length ? "Recommend other audiences" : "Recommend audiences";
@@ -488,6 +508,29 @@ export function AssetSelectionPanel({
     ["Objective", campaignObjective],
     ["Duration", `${campaignDuration} days`],
     ["Channels", campaignChannels.join(", ")]
+  ];
+  const creationTools: CreationTool[] = [
+    {
+      name: "DistroNow AI",
+      description: "Creates the content brief and copy directly in this workspace.",
+      status: "Ready"
+    },
+    {
+      name: "Higgsfield MCP",
+      description: "Cinematic image and video creation through the connected Codex tool.",
+      status: "Use in Codex"
+    },
+    {
+      name: "Comfy Cloud MCP",
+      description: "Workflow-based image, video, audio, and 3D creation through Comfy Cloud.",
+      status: "Use in Codex"
+    },
+    {
+      name: "HyperFrames",
+      description: "Renders branded, narrated product videos into MP4 files.",
+      status: selectedContentType === "Product video with audio" ? "Selected" : "Choose product video",
+      active: selectedContentType === "Product video with audio"
+    }
   ];
 
   function campaignName(campaignId: string | null) {
@@ -801,6 +844,41 @@ export function AssetSelectionPanel({
 
     if (!response.ok || !payload.asset) {
       setMessage(payload.error ?? "Could not generate image asset.");
+      return;
+    }
+
+    setAssets((current) => [payload.asset!, ...current]);
+  }
+
+  async function generateProductVideo() {
+    if (!hasGeneratedContent) {
+      return;
+    }
+
+    const text = sourceDraft
+      ? { title: sourceDraft.headline, body: sourceDraft.body, cta: sourceDraft.cta }
+      : { title: generatedTextAsset?.title ?? "Product spotlight", body: generatedText.body, cta: generatedText.cta };
+
+    setBusyAction("video");
+    setMessage(null);
+
+    const response = await fetch(`/api/projects/${projectId}/product-videos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        audienceId: selectedAudience?.id ?? null,
+        title: text.title,
+        voiceover: text.body,
+        cta: text.cta,
+        notes: videoNotes
+      })
+    });
+    const payload = (await response.json()) as { asset?: SavedMarketingAsset; error?: string };
+
+    setBusyAction(null);
+
+    if (!response.ok || !payload.asset) {
+      setMessage(payload.error ?? "Could not generate product video.");
       return;
     }
 
@@ -1218,6 +1296,23 @@ export function AssetSelectionPanel({
             Continue
           </button>
         </div>
+        <div className="creation-tools">
+          <div className="creation-tools-heading">
+            <strong>Content creation tools</strong>
+            <span>Available in this workspace</span>
+          </div>
+          <div className="creation-tools-grid">
+            {creationTools.map((tool) => (
+              <article className={tool.active ? "creation-tool-card active" : "creation-tool-card"} key={tool.name}>
+                <div>
+                  <strong>{tool.name}</strong>
+                  <span>{tool.status}</span>
+                </div>
+                <p>{tool.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
     );
   }
@@ -1344,7 +1439,7 @@ export function AssetSelectionPanel({
               {generatedText.body ? <p>{generatedText.body}</p> : null}
               {generatedText.cta ? <small>{generatedText.cta}</small> : null}
               <button onClick={() => setCurrentStep("assets")} type="button">
-                Continue to image
+                Continue to assets
               </button>
             </article>
           ) : null}
@@ -1398,7 +1493,7 @@ export function AssetSelectionPanel({
                     }}
                     type="button"
                   >
-                    Continue to image
+                    Continue to assets
                   </button>
                 </div>
               </article>
@@ -1413,9 +1508,49 @@ export function AssetSelectionPanel({
     return (
       <section className="selection-panel image-generator-panel">
         <div className="panel-title">
-          <h3>{selectedContentType === "Social content" ? "5. Image" : "4. Image"}</h3>
-          <span>GPT Image 2</span>
+          <h3>{selectedContentType === "Social content" ? "5. Assets" : "4. Assets"}</h3>
+          <span>{isProductVideo ? "HyperFrames + OpenAI Voice" : "GPT Image 2"}</span>
         </div>
+        {isProductVideo ? (
+          <div className="image-generator-grid">
+            <label className="image-notes">
+              <span>Video direction</span>
+              <textarea
+                onChange={(event) => setVideoNotes(event.target.value)}
+                placeholder="Optional product angle or voiceover refinement."
+                value={videoNotes}
+              />
+            </label>
+            <button disabled={busyAction === "video"} onClick={generateProductVideo} type="button">
+              {busyAction === "video" ? <LoadingIndicator compact label="Rendering" /> : "Create audio product video"}
+            </button>
+          </div>
+        ) : null}
+        {isProductVideo && busyAction === "video" ? (
+          <div className="loading-panel">
+            <LoadingIndicator label="Generating voiceover and rendering the MP4" />
+          </div>
+        ) : null}
+        {isProductVideo && generatedVideoAssets.length ? (
+          <div className="asset-output-grid">
+            {generatedVideoAssets.map((asset) => {
+              const videoUrl = getVideoUrl(asset);
+              return (
+                <article className="asset-output-card" key={asset.id}>
+                  <video controls preload="metadata" src={videoUrl} />
+                  <div>
+                    <span>{asset.assetType}</span>
+                    <strong>{asset.title}</strong>
+                    <div className="asset-card-actions">
+                      <a href={videoUrl} download rel="noreferrer" target="_blank">Video</a>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : null}
+        {!isProductVideo ? <>
         <div className="image-generator-grid">
           <label>
             <span>Asset type</span>
@@ -1477,6 +1612,7 @@ export function AssetSelectionPanel({
             ))}
           </div>
         ) : null}
+        </> : null}
       </section>
     );
   }
@@ -1634,6 +1770,7 @@ export function AssetSelectionPanel({
             {campaignName(asset.campaignId) ? <span>{campaignName(asset.campaignId)}</span> : null}
           </div>
           {asset.imageUrl ? <img alt="" className="detail-image" src={asset.imageUrl} /> : null}
+          {getVideoUrl(asset) ? <video className="detail-image" controls preload="metadata" src={getVideoUrl(asset)} /> : null}
           <div className="detail-body">
             {content.body ? <p>{content.body}</p> : null}
             {content.cta ? <strong>{content.cta}</strong> : null}
@@ -1647,6 +1784,11 @@ export function AssetSelectionPanel({
             {asset.imageUrl ? (
               <a href={asset.imageUrl} download rel="noreferrer" target="_blank">
                 Image
+              </a>
+            ) : null}
+            {getVideoUrl(asset) ? (
+              <a href={getVideoUrl(asset)} download rel="noreferrer" target="_blank">
+                Video
               </a>
             ) : null}
             <button disabled={busyAction === `asset-${asset.id}`} onClick={() => updateAssetStatus(asset, "approved")} type="button">
@@ -1902,7 +2044,8 @@ export function AssetSelectionPanel({
               {filteredAssets.slice(0, 8).map((asset) => (
                 <article className="saved-folder-card" key={asset.id}>
                   {asset.imageUrl ? <img alt="" src={asset.imageUrl} /> : null}
-                  <span>{asset.imageUrl ? "Image" : "Asset"}</span>
+                  {getVideoUrl(asset) ? <video controls preload="metadata" src={getVideoUrl(asset)} /> : null}
+                  <span>{asset.imageUrl ? "Image" : getVideoUrl(asset) ? "Video" : "Asset"}</span>
                   <strong>{asset.title}</strong>
                   <small>
                     {asset.assetType} · {asset.status} · {asset.provider}
@@ -1918,6 +2061,11 @@ export function AssetSelectionPanel({
                     {asset.imageUrl ? (
                       <a href={asset.imageUrl} download rel="noreferrer" target="_blank">
                         Image
+                      </a>
+                    ) : null}
+                    {getVideoUrl(asset) ? (
+                      <a href={getVideoUrl(asset)} download rel="noreferrer" target="_blank">
+                        Video
                       </a>
                     ) : null}
                     <button

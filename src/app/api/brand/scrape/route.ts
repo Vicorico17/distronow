@@ -35,9 +35,17 @@ export async function POST(request: Request) {
     const user = await getCurrentUser();
     const anonymousOwnerId = user ? null : await getOrCreateAnonymousOwnerId();
     const extraction = await scrapeBranding(url);
-    const stored = await saveBrandExtraction(extraction, user?.id, anonymousOwnerId);
+    let stored = null;
+    let warning: string | undefined;
 
-    return NextResponse.json({ extraction, stored });
+    try {
+      stored = await saveBrandExtraction(extraction, user?.id, anonymousOwnerId);
+    } catch (storageError) {
+      console.error("Brand extraction succeeded but could not be saved:", storageError);
+      warning = "The website data was extracted, but the project could not be saved. You can still review the results below.";
+    }
+
+    return NextResponse.json({ extraction, stored, warning });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Brand extraction failed.";
     console.error(error);

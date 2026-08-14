@@ -93,6 +93,7 @@ function templateTextAsset({
     "Email campaign": `Write a concise email campaign draft for ${audienceName}, with subject line, body, and CTA.`,
     "Landing page section": `Write a landing page section for ${audienceName}, with headline, proof, benefit bullets, and CTA.`,
     "UGC workflows": `Draft a creator brief for ${audienceName} with hook, scene, and proof points.`,
+    "Product video with audio": `Write an 8-second vertical product-video script for ${audienceName}, including a concise voiceover, on-screen headline, product benefit, and CTA.`,
     "Seedance video": `Draft a short video concept for ${audienceName} that can become a text-to-video prompt.`,
     "Competitive inspiration": `Analyze competitor positioning patterns for ${audienceName} and turn them into original content directions.`
   };
@@ -167,7 +168,7 @@ async function generateWithOpenAI({
             `Language: ${language}`,
             notes ? `Extra direction: ${notes}` : null,
             "Keep it concise. If the content type is slideshow/carousel, include slide-by-slide text in body.",
-            "For Image assets, write copy and visual direction that can drive image generation.",
+            "For Image assets, write copy and visual direction that can drive image generation. For Product video with audio, make body a natural 20-word-or-fewer voiceover suitable for an 8-second vertical product video.",
             "Avoid filler and long explanations."
           ]
             .filter(Boolean)

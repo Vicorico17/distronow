@@ -22,6 +22,7 @@ export const CONTENT_ASSET_TYPES = [
   "Email campaign",
   "Landing page section",
   "UGC workflows",
+  "Product video with audio",
   "Seedance video",
   "Competitive inspiration"
 ] as const;
