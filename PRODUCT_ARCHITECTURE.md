@@ -193,6 +193,31 @@ same app. Clicking a category opens a dedicated module home with:
 The categories share data and navigation, but each should feel like a complete
 tool when opened.
 
+## Source repository consolidation
+
+The current workspace now has module surfaces for the actual marketing
+repositories in `/Users/vicorico/code`, not only conceptual placeholders:
+
+- **AClienti** — research lens, public signals, weighted qualification, buyer
+  stages, evidence-linked opportunities, and content briefs;
+- **accman** — accounts, niches, formats, trend inbox, prompts, content plans,
+  creative research briefs, and publishing states;
+- **ClipRO** — source connections, URL/upload ingest, transcripts, candidate
+  scoring, jobs, captions, rendering, and scheduling handoff;
+- **Reclip** — source inspection, playlist preparation, download jobs, status,
+  thumbnails, and transfer into ClipRO;
+- **AutoArt** — artists, Song Lab, provider queue, releases, metadata exports,
+  promo plans, and analytics imports;
+- **Streamwin** — live scenes, AI effects, destinations, IRL controls, vision
+  automations, events, and future chatter-agent controls;
+- **MassCall** — voice-agent use cases, qualification, support, reception,
+  booking, vertical workflows, and outcome attribution.
+
+Each module has a dedicated route under `/projects/[id]/modules/[module]` and
+is connected to the same project workspace. The module pages document the
+imported capabilities and handoffs while provider credentials, OAuth, workers,
+and production media jobs remain explicit implementation steps.
+
 ## Content directory import
 
 The local directory at `/Users/vicorico/content` has now been reviewed. Its

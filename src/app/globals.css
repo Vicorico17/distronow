@@ -412,6 +412,25 @@ nav span {
 .source-map-row small { color: var(--accent-strong); font-weight: 800; }
 .blueprint-footer { align-items: center; border-top: 1px solid var(--line); color: var(--muted); display: flex; font-size: 13px; gap: 18px; justify-content: space-between; margin-top: 34px; padding-top: 22px; }
 .blueprint-footer a { color: var(--accent-strong); font-weight: 800; text-decoration: none; }
+.module-page { min-height: 100vh; }
+.module-shell { margin: 0 auto; max-width: 1240px; padding: 58px 32px 80px; }
+.module-heading { align-items: end; display: flex; gap: 28px; justify-content: space-between; }
+.module-heading h1 { font-size: clamp(42px, 7vw, 80px); letter-spacing: -4px; line-height: .94; margin: 10px 0 16px; max-width: 850px; }
+.module-heading p:not(.eyebrow) { color: var(--muted); font-size: 17px; line-height: 1.6; margin: 0; max-width: 760px; }
+.module-heading-actions { align-items: flex-end; display: flex; flex-direction: column; gap: 12px; min-width: 180px; }
+.module-status { background: var(--soft); border: 1px solid var(--line); border-radius: 999px; color: var(--accent-strong); font-size: 11px; font-weight: 800; padding: 8px 12px; }
+.module-records { background: var(--ink); border-radius: 14px; color: white; display: grid; gap: 1px; grid-template-columns: repeat(4, 1fr); margin: 36px 0 14px; overflow: hidden; }
+.module-records span { background: rgba(255,255,255,.06); color: #d7e4dc; display: flex; flex-direction: column; font-size: 12px; gap: 14px; min-height: 88px; padding: 16px; }
+.module-records strong { color: var(--highlight); font-size: 20px; }
+.module-workflows { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.module-workflow, .module-detail-card { background: rgba(255,255,255,.78); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+.module-workflow h2, .module-detail-card h2 { font-size: 25px; letter-spacing: -.8px; margin: 8px 0 16px; }
+.module-workflow ol, .module-detail-card ul { font-size: 13px; line-height: 1.55; margin: 0; padding-left: 19px; }
+.module-workflow li + li, .module-detail-card li + li { margin-top: 10px; }
+.module-detail-grid { display: grid; gap: 12px; grid-template-columns: 1.35fr .65fr; margin-top: 12px; }
+.module-detail-card ul { columns: 2; }
+.module-handoff-card ul { columns: 1; }
+.module-detail-card a { color: var(--accent-strong); display: inline-block; font-size: 13px; font-weight: 800; margin-top: 20px; text-decoration: none; }
 
 .operations-dashboard { margin-top: 18px; }
 .operations-header { align-items: end; display: flex; gap: 20px; justify-content: space-between; }
@@ -463,6 +482,9 @@ nav span {
   .blueprint-heading, .blueprint-footer { align-items: flex-start; flex-direction: column; }
   .blueprint-sections { grid-template-columns: 1fr; }
   .source-map-row { grid-template-columns: 1fr; gap: 6px; }
+  .module-heading, .module-heading-actions { align-items: flex-start; flex-direction: column; }
+  .module-records, .module-workflows, .module-detail-grid { grid-template-columns: 1fr; }
+  .module-detail-card ul { columns: 1; }
 }
 
 .nav-link-row {

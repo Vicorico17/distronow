@@ -231,6 +231,24 @@ Start with these five items:
 The content directory is the Postiz application. It provides a strong
 reference implementation for accman and should influence our roadmap.
 
+## 17. Marketing repository consolidation — module surfaces added
+
+- [x] Add AClienti module surface with its real research, scoring, brief, and
+  evidence workflows.
+- [x] Add accman module surface with accounts, niches, formats, trends, prompts,
+  plans, and creative research briefs.
+- [x] Add ClipRO module surface with ingest, transcript, candidate scoring,
+  rendering, jobs, and scheduling handoff.
+- [x] Add Reclip source preparation and download-job surface.
+- [x] Add AutoArt artist, song, release, promo, and analytics surface.
+- [x] Add Streamwin live studio, destinations, IRL, vision, and event surface.
+- [x] Add MassCall voice-agent campaign surface.
+- [x] Connect each category to the shared project workspace and handoff map.
+- [ ] Replace module reference surfaces with persistent project records and
+  provider-backed actions.
+- [ ] Move shared source schemas into Supabase and connect each module’s actual
+  operations to the database.
+
 ### Add to accman
 
 - [ ] Use a real calendar-first publishing workspace.

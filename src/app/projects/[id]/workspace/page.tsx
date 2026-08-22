@@ -3,17 +3,13 @@ import { notFound } from "next/navigation";
 import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
+import { MARKETING_MODULES } from "@/lib/module-catalog";
 
 const MODULES = [
   { name: "DistroNow", title: "Brand & Content Engine", description: "Create brand-aware posts, scripts, campaigns, images, videos, and approvals.", href: "assets", action: "Open studio", active: true },
   { name: "Content Library", title: "Strategies & Playbooks", description: "Use the imported hook, angle, format, UGC, lead-magnet, slideshow, niche, and publishing systems.", href: "content-library", action: "Open playbooks", active: true },
   { name: "Blueprint", title: "Marketing OS Blueprint", description: "Understand how every local prototype becomes one connected super app and what is still left to build.", href: "blueprint", action: "Review the blueprint", active: true },
-  { name: "AClienti", title: "Customer Intelligence", description: "Turn real signals into customer profiles, pains, objections, and content opportunities.", href: "operations", action: "Review intelligence", active: true },
-  { name: "accman", title: "Account Manager", description: "Manage accounts, content plans, publishing queues, and performance analytics.", href: "#distribution", action: "Plan distribution", active: false },
-  { name: "AutoGTM", title: "Customer Acquisition", description: "Find qualified prospects, prepare personalized outreach, and track replies and meetings.", href: "operations", action: "Prepare acquisition", active: true },
-  { name: "ClipRO", title: "Video Repurposing", description: "Find the strongest moments in long videos and turn them into short clips.", href: "#repurpose", action: "Repurpose video", active: false },
-  { name: "AutoArt", title: "Music Creation", description: "Create releases and send approved music promotion into account workflows.", href: "#music", action: "Open music link", active: false },
-  { name: "Streamwin", title: "AI Livestream Chatters", description: "Deploy video-aware agents that understand the stream and participate in chat.", href: "#livestream", action: "Configure chatters", active: false }
+  ...MARKETING_MODULES.map((module) => ({ name: module.name, title: module.title, description: module.description, href: `modules/${module.slug}`, action: module.primaryAction, active: true }))
 ] as const;
 
 type WorkspacePageProps = { params: Promise<{ id: string }> };
