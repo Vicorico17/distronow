@@ -195,15 +195,25 @@ tool when opened.
 
 ## Content directory import
 
-The workspace currently does not contain a directory named `content`,
-`contents`, `content-directory`, or `okara`. When that local directory is
-available, import its useful material into these areas:
+The local directory at `/Users/vicorico/content` has now been reviewed. Its
+useful material is represented in the project-level Content Intelligence
+Library at `src/lib/content-library.ts` and exposed at
+`/projects/[id]/content-library`.
+
+The imported material covers:
 
 - `Research & Signals` — research notes and source-backed observations;
 - `Formats` — repeatable content structures;
 - `Prompt Library` — prompts and generation instructions;
 - `Playbooks` — audience, hook, campaign, and channel rules;
 - `Templates` — reusable briefs and publishing packages.
+
+Specifically, the first library includes content mix, hook patterns, creative
+angles, formats, virality, comment-to-email lead magnets, UGC production,
+consistent characters, slideshow audits, niche validation, calendar-first
+publishing, agent-feed decisions, and reviewed conversation campaigns. The
+source prototypes remain reference material; DistroNow owns the product
+workflow and its project data.
 
 The material should be stored as project-independent knowledge where possible,
 then referenced by projects. Brand-specific content remains inside the

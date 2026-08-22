@@ -42,7 +42,8 @@ export default async function ProjectsPage() {
         <div className="selection-header">
           <div>
             <p className="eyebrow">{user ? "Your account" : "Anonymous projects"}</p>
-            <h1>Brand workspaces</h1>
+            <h1>Marketing OS</h1>
+            <p className="projects-intro">One main app for your brand, content, distribution, acquisition, and learning loop.</p>
           </div>
           <Link className="primary-action" href="/">
             Add brand
@@ -51,14 +52,14 @@ export default async function ProjectsPage() {
 
         <div className="project-list">
           {projects.length ? (
-            projects.map((project) => {
+            projects.slice(0, 1).map((project) => {
               const colors = colorEntries(project.brandColors);
 
               return (
                 <article className="project-list-card" key={project.id}>
                   <Link className="project-card-link" href={`/projects/${project.id}`}>
-                    <span>{project.domain}</span>
-                    <strong>{project.name ?? project.domain}</strong>
+                    <span>Main marketing workspace · {project.domain}</span>
+                    <strong>DistroNow Marketing OS</strong>
                     {colors.length ? (
                       <div className="project-color-row" aria-label="Saved brand colors">
                         {colors.slice(0, 6).map(([name, value]) => (
@@ -87,6 +88,23 @@ export default async function ProjectsPage() {
             </div>
           )}
         </div>
+        {projects.length > 1 ? (
+          <details className="archived-projects">
+            <summary>Show {projects.length - 1} other brand workspace{projects.length === 2 ? "" : "s"}</summary>
+            <div className="project-list archived-project-list">
+              {projects.slice(1).map((project) => (
+                <article className="project-list-card" key={project.id}>
+                  <Link className="project-card-link" href={`/projects/${project.id}`}>
+                    <span>{project.domain}</span>
+                    <strong>{project.name ?? project.domain}</strong>
+                    <small>Updated {formatDate(project.updatedAt)}</small>
+                  </Link>
+                  <ProjectDeleteButton projectId={project.id} projectName={project.name ?? project.domain} />
+                </article>
+              ))}
+            </div>
+          </details>
+        ) : null}
       </section>
     </main>
   );

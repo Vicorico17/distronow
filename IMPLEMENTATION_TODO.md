@@ -209,7 +209,22 @@ Start with these five items:
 4. Build the accman calendar and account dashboard.
 5. Add the first real publishing integration, preferably LinkedIn or X.
 
-## 15. Postiz findings from `/Users/vicorico/content/postiz-app`
+## 15. Local content consolidation — initial pass complete
+
+- [x] Review `/Users/vicorico/content` for reusable product and strategy work.
+- [x] Move the strongest reusable material into the in-app Content Intelligence
+  Library.
+- [x] Add content mix, hooks, angles, formats, virality, lead magnets, UGC,
+  characters, slideshows, niche validation, agent operations, and conversation
+  campaign playbooks.
+- [x] Add a workspace route for reading the playbooks before creating content.
+- [x] Keep old brand workspaces recoverable while presenting one main Marketing
+  OS workspace in the project list.
+- [ ] Make the library editable and project-aware.
+- [ ] Let generation flows select a library playbook and persist that choice.
+- [ ] Add source file links and versioning for imported knowledge.
+
+## 16. Postiz findings from `/Users/vicorico/content/postiz-app`
 
 The content directory is the Postiz application. It provides a strong
 reference implementation for accman and should influence our roadmap.
