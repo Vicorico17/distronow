@@ -39,6 +39,12 @@ export default async function AssetsPage({ params }: AssetsPageProps) {
           <Link className="nav-action" href="/projects">
             Projects
           </Link>
+          <Link className="nav-action" href={`/projects/${project.id}/workspace`}>
+            Marketing OS
+          </Link>
+          <Link className="nav-action" href="/process">
+            Process
+          </Link>
           <Link className="nav-action" href="/account">
             Account
           </Link>

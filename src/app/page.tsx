@@ -101,6 +101,9 @@ export default function Home() {
             <Link className="nav-action" href="/projects">
               Projects
             </Link>
+            <Link className="nav-action" href="/process">
+              Process
+            </Link>
             <a className="nav-action" href="#case-studies">
               Case studies
             </a>
@@ -116,10 +119,10 @@ export default function Home() {
         <div className="intro-shell">
           <div className="hero-copy">
             <p className="launch-pill">AI distribution workspace from one URL</p>
-            <h1>Turn any website into a content engine.</h1>
+            <h1>Start with the business you already have. Build the marketing system around it.</h1>
             <p>
-              Paste a website. DistroNow extracts the brand, finds the best customers, then builds posts, image briefs,
-              creator workflows, and campaign calendars you can review before publishing.
+              Add your website. DistroNow extracts the brand, helps you define the best customers, builds the strategy,
+              creates the work, and moves approved content into accounts, acquisition, and analytics.
             </p>
           </div>
 

@@ -1,6 +1,14 @@
-# DistroNow
+# DistroNow Marketing OS
 
-DistroNow turns a website into a reusable brand profile for distribution workflows. The first pipeline uses Firecrawl branding extraction, then stores the result in Supabase for later social content generation.
+DistroNow is one marketing workspace with two connected parts: Content Studio
+for research and creation, and Distribution & Accounts for organizing,
+adapting, scheduling, publishing, and measuring approved content. It turns a
+website into a reusable brand profile and uses that shared project as the
+source of truth for the entire workflow.
+
+See [PRODUCT_ARCHITECTURE.md](PRODUCT_ARCHITECTURE.md) for the consolidation
+plan and feature mapping from AClienti, accman, ClipRO, AutoArt, Plecat Mood,
+and Streamwin.
 
 ## Local Setup
 
