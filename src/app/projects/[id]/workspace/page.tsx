@@ -9,6 +9,7 @@ const MODULES = [
   { name: "DistroNow", title: "Brand & Content Engine", description: "Create brand-aware posts, scripts, campaigns, images, videos, and approvals.", href: "assets", action: "Open studio", active: true },
   { name: "Content Library", title: "Strategies & Playbooks", description: "Use the imported hook, angle, format, UGC, lead-magnet, slideshow, niche, and publishing systems.", href: "content-library", action: "Open playbooks", active: true },
   { name: "Blueprint", title: "Marketing OS Blueprint", description: "Understand how every local prototype becomes one connected super app and what is still left to build.", href: "blueprint", action: "Review the blueprint", active: true },
+  { name: "Migration", title: "Unified Data & Login", description: "Import the other apps’ source records into this authenticated DistroNow project.", href: "modules/migration", action: "Import module data", active: true },
   ...MARKETING_MODULES.map((module) => ({ name: module.name, title: module.title, description: module.description, href: `modules/${module.slug}`, action: module.primaryAction, active: true }))
 ] as const;
 

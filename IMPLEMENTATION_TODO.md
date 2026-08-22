@@ -249,6 +249,18 @@ reference implementation for accman and should influence our roadmap.
 - [ ] Move shared source schemas into Supabase and connect each module’s actual
   operations to the database.
 
+## 18. Unified auth and source-data migration
+
+- [x] Make DistroNow Supabase magic-link auth the single login boundary.
+- [x] Add a project-owned `module_records` migration table.
+- [x] Add idempotent source seed import for AClienti, accman, ClipRO, Reclip,
+  AutoArt, Streamwin, and MassCall.
+- [x] Add a migration dashboard under the authenticated project workspace.
+- [ ] Replace source seed records with full editable module records and forms.
+- [ ] Add module-specific import/export for complete localStorage snapshots.
+- [ ] Move provider credentials, OAuth, media, jobs, and analytics into secure
+  project-owned services.
+
 ### Add to accman
 
 - [ ] Use a real calendar-first publishing workspace.
