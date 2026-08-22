@@ -3,6 +3,31 @@
 This is the handoff list after the unified flow, operations layer, and shared
 module model were added. Work from the top down.
 
+## Next session handoff — start here
+
+1. Apply and verify these Supabase migrations:
+   - `20260822120000_create_marketing_os_modules.sql`
+   - `20260822133000_create_module_records.sql`
+2. Open `/projects/[id]/modules/migration` and import the core source records.
+3. Finish AClienti as a real utility: research-lens editor, signal filters,
+   score breakdown, buyer stages, profile builder, evidence-linked briefs, and
+   JSON/CSV export.
+4. Finish accman as a real utility: account health, niche board, format/prompt
+   library, trend inbox, calendar, platform previews, approval states, and
+   analytics.
+5. Build the Video Generation module on top of the existing product-video
+   generator and fal queue boundary: provider settings, reference uploads,
+   job status, retries, outputs, credits, and approval.
+6. Merge ClipRO/Reclip into one persistent source-to-clip workflow: rights,
+   source inspection, playlist/download jobs, transcript, candidate scoring,
+   render, review, and accman handoff.
+7. Keep AutoArt, Streamwin, and MassCall as companion apps. Add deployed URLs
+   and authenticated handoff callbacks only when those apps are ready.
+8. Add RLS policies, generated Supabase types, ownership tests, and end-to-end
+   coverage before enabling production integrations.
+
+Current pushed commit: `a6184b1 Record AClienti and accman migration`.
+
 ## 0. Environment and database setup
 
 - [ ] Apply `supabase/migrations/20260822120000_create_marketing_os_modules.sql`.
