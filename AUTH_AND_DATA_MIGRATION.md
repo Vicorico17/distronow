@@ -37,13 +37,13 @@ for the included source IDs.
 ## What is imported in the first pass
 
 - AClienti: research lens, public signals, qualification scores, and content
-  brief;
-- accman: accounts, niches, formats, trends, plans, and prompts;
-- ClipRO: source records and ranked clip records;
-- Reclip: source preparation/download workflow record;
-- AutoArt: artists, song, release, and promotion campaign;
-- Streamwin: live session, scene, and vision-agent records;
-- MassCall: voice-agent use cases and action-router record.
+  briefs;
+- accman: accounts, niches, formats, trends, plans, prompts, and creative
+  research records;
+- ClipRO + Reclip: source records, ranked clips, and source
+  preparation/download workflow;
+- AutoArt, Streamwin, and MassCall remain separate companion apps and are not
+  imported into the core DistroNow project records.
 
 This is the persistent migration boundary, not the final provider integration.
 OAuth connections, workers, media storage, third-party APIs, and platform

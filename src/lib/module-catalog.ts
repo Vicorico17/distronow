@@ -52,17 +52,34 @@ export const MARKETING_MODULES: MarketingModule[] = [
     name: "ClipRO",
     title: "Long-form Video Repurposing",
     description: "Find the strongest moments in long videos, streams, and VODs, then render platform-ready clips.",
-    source: "clip-ro working MVP",
+    source: "clip-ro + reclip working MVPs",
     status: "Pipeline mapped",
     primaryAction: "Import a source",
-    records: ["Connected sources", "Videos/VODs", "Transcripts", "Candidate moments", "Clip jobs", "Rendered clips", "Rights status"],
+    records: ["Source URLs/playlists", "Connected sources", "Videos/VODs", "Transcripts", "Candidate moments", "Clip jobs", "Rendered clips", "Rights status"],
     workflows: [
-      { title: "Ingest", steps: ["Connect YouTube, Twitch, or Kick", "Sync source metadata or import a URL", "Upload a local video and probe its duration with ffprobe"] },
+      { title: "Prepare and ingest", steps: ["Inspect a URL or playlist before downloading", "Confirm rights, select the media item, and create a bounded download job", "Connect YouTube, Twitch, or Kick, or upload a local video and probe its duration with ffprobe"] },
       { title: "Find moments", steps: ["Reuse captions when available, otherwise transcribe with timestamps", "Detect keywords, pauses, laughter, audio spikes, visual changes, chat spikes, and source structure", "Score hook, clarity, payoff, pacing, platform fit, creator fit, safety, and editability"] },
       { title: "Render and distribute", steps: ["Generate only the best candidates", "Render 9:16, 1:1, or 16:9 with captions and saved settings", "Review rights and quality, then send approved clips to accman"] }
     ],
     handoffs: ["accman: approved clips become planned posts", "DistroNow: captions, titles, hooks, and campaign context", "Analytics: clip performance by source video"],
-    importedCapabilities: ["YouTube/Twitch/Kick simulated connections", "Source syncing and manual URL import", "Upload flow", "In-memory job states", "Transcription fallback", "Ranked clip candidates", "Local FFmpeg rendering", "SRT/timestamp support", "Cost-aware Scout/Muscle/Soul/Analyst agent pattern"]
+    importedCapabilities: ["Playlist/source inspection", "Download jobs and status polling", "File and thumbnail handoff", "YouTube/Twitch/Kick simulated connections", "Source syncing and manual URL import", "Upload flow", "In-memory job states", "Transcription fallback", "Ranked clip candidates", "Local FFmpeg rendering", "SRT/timestamp support", "Cost-aware Scout/Muscle/Soul/Analyst agent pattern"]
+  },
+  {
+    slug: "video-generation",
+    name: "Video Generation",
+    title: "AI Video Studio",
+    description: "Create the video assets a campaign needs from prompts, reference images, product scenes, characters, and platform requirements.",
+    source: "fal-video-runner + DistroNow product video generation",
+    status: "Provider boundary ready",
+    primaryAction: "Create a video brief",
+    records: ["Video briefs", "Reference images", "Model endpoint", "Generation jobs", "Queue status", "Rendered outputs", "Usage credits"],
+    workflows: [
+      { title: "Brief and references", steps: ["Choose text-to-video, image-to-video, or reference-to-video", "Add product, character, scene, motion, duration, aspect ratio, and negative constraints", "Upload approved reference images through server-side storage"] },
+      { title: "Generation queue", steps: ["Submit a provider-neutral job to the selected fal endpoint", "Track queued, in-progress, completed, and failed states", "Poll status or receive a webhook without exposing provider credentials in the browser"] },
+      { title: "Campaign handoff", steps: ["Review the output for brand, claims, rights, and platform fit", "Create platform variants and captions in DistroNow", "Send approved videos to accman or ClipRO follow-up workflows"] }
+    ],
+    handoffs: ["DistroNow: brand, customer, prompt, and approval context", "accman: approved videos into platform plans", "ClipRO: long generated videos into short clips", "Analytics: generation cost and creative performance"],
+    importedCapabilities: ["fal queue submission", "fal storage upload", "Reference-to-video endpoint pattern", "Request/status/response URLs", "Polling completed results", "Prompt expansion", "DistroNow product video generation", "Provider credential boundary"]
   },
   {
     slug: "reclip",
@@ -135,3 +152,7 @@ export const MARKETING_MODULES: MarketingModule[] = [
 export function getMarketingModule(slug: string) {
   return MARKETING_MODULES.find((module) => module.slug === slug);
 }
+
+export const CORE_MODULE_SLUGS = ["aclienti", "accman", "clipro", "video-generation"] as const;
+export const CORE_MARKETING_MODULES = MARKETING_MODULES.filter((module) => CORE_MODULE_SLUGS.includes(module.slug as (typeof CORE_MODULE_SLUGS)[number]));
+export const COMPANION_MODULES = MARKETING_MODULES.filter((module) => !CORE_MARKETING_MODULES.includes(module));

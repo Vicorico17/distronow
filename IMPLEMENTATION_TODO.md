@@ -261,6 +261,16 @@ reference implementation for accman and should influence our roadmap.
 - [ ] Move provider credentials, OAuth, media, jobs, and analytics into secure
   project-owned services.
 
+## 19. Core/companion boundary
+
+- [x] Keep AClienti and accman inside the main DistroNow app as core utilities.
+- [x] Combine ClipRO and Reclip into one video-repurposing category.
+- [x] Add Video Generation as a core DistroNow category using the fal queue
+  workflow and existing product-video generation.
+- [x] Keep AutoArt, Streamwin, and MassCall as separate companion apps.
+- [ ] Add explicit companion-app URLs and authenticated handoff callbacks when
+  those apps have their own deployed environments.
+
 ### Add to accman
 
 - [ ] Use a real calendar-first publishing workspace.

@@ -4,6 +4,7 @@ import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 import { getMarketingModule } from "@/lib/module-catalog";
+import { CoreUtilityDashboard } from "@/components/core-utility-dashboard";
 
 type ModulePageProps = { params: Promise<{ id: string; module: string }> };
 
@@ -70,6 +71,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
             <Link href={`/projects/${id}/workspace`}>See all categories →</Link>
           </article>
         </section>
+        {marketingModule.slug === "aclienti" || marketingModule.slug === "accman" ? <CoreUtilityDashboard projectId={id} module={marketingModule.slug} /> : null}
       </section>
     </main>
   );

@@ -3,14 +3,14 @@ import { notFound } from "next/navigation";
 import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
-import { MARKETING_MODULES } from "@/lib/module-catalog";
+import { COMPANION_MODULES, CORE_MARKETING_MODULES } from "@/lib/module-catalog";
 
 const MODULES = [
   { name: "DistroNow", title: "Brand & Content Engine", description: "Create brand-aware posts, scripts, campaigns, images, videos, and approvals.", href: "assets", action: "Open studio", active: true },
   { name: "Content Library", title: "Strategies & Playbooks", description: "Use the imported hook, angle, format, UGC, lead-magnet, slideshow, niche, and publishing systems.", href: "content-library", action: "Open playbooks", active: true },
   { name: "Blueprint", title: "Marketing OS Blueprint", description: "Understand how every local prototype becomes one connected super app and what is still left to build.", href: "blueprint", action: "Review the blueprint", active: true },
   { name: "Migration", title: "Unified Data & Login", description: "Import the other apps’ source records into this authenticated DistroNow project.", href: "modules/migration", action: "Import module data", active: true },
-  ...MARKETING_MODULES.map((module) => ({ name: module.name, title: module.title, description: module.description, href: `modules/${module.slug}`, action: module.primaryAction, active: true }))
+  ...CORE_MARKETING_MODULES.map((module) => ({ name: module.name, title: module.title, description: module.description, href: `modules/${module.slug}`, action: module.primaryAction, active: true }))
 ] as const;
 
 type WorkspacePageProps = { params: Promise<{ id: string }> };
@@ -72,6 +72,10 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           <Link href={`/projects/${id}/blueprint`}>Review full blueprint →</Link>
           <Link href={`/projects/${id}/assets`}>Open saved library →</Link>
         </div>
+        <section className="companion-apps">
+          <div><p className="eyebrow">Separate companion apps</p><h2>Keep these products independent.</h2><p>AutoArt, Streamwin, and MassCall stay as their own products. DistroNow can link to their approved outputs and promotion workflows without absorbing their full interfaces.</p></div>
+          <div className="companion-app-grid">{COMPANION_MODULES.map((module) => <article key={module.slug}><strong>{module.name}</strong><span>{module.title}</span><small>Separate app · connected through accman</small></article>)}</div>
+        </section>
       </section>
     </main>
   );
