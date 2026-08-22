@@ -361,6 +361,37 @@ nav span {
 
 .workspace-home-footer a { color: var(--accent-strong); font-weight: 800; text-decoration: none; }
 
+.operations-dashboard { margin-top: 18px; }
+.operations-header { align-items: end; display: flex; gap: 20px; justify-content: space-between; }
+.operations-header h2 { font-size: 30px; letter-spacing: -1.2px; margin: 8px 0; }
+.operations-header p:not(.eyebrow) { color: var(--muted); margin: 0; }
+.operations-status { color: var(--accent-strong); font-size: 12px; min-height: 18px; }
+.operations-stats { display: grid; gap: 10px; grid-template-columns: repeat(4, 1fr); margin: 26px 0 14px; }
+.operations-stats div { background: var(--ink); border-radius: 10px; color: white; padding: 16px; }
+.operations-stats strong, .operations-stats span { display: block; }
+.operations-stats strong { font-size: 28px; letter-spacing: -1px; }
+.operations-stats span { color: #d7e4dc; font-size: 11px; margin-top: 5px; }
+.operations-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.operation-panel { background: rgba(255,255,255,.86); border: 1px solid var(--line); border-radius: 14px; display: grid; gap: 10px; padding: 20px; }
+.operation-panel-head { display: flex; justify-content: space-between; }
+.operation-panel-head span { color: var(--accent-strong); font: 800 11px "SFMono-Regular", Consolas, monospace; letter-spacing: .8px; text-transform: uppercase; }
+.operation-panel-head small { color: var(--muted); }
+.operation-panel h3 { font-size: 20px; letter-spacing: -.7px; margin: 8px 0; }
+.operation-panel input, .operation-panel textarea, .operation-panel select { background: white; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); min-width: 0; padding: 10px; }
+.operation-panel textarea { min-height: 90px; resize: vertical; }
+.operation-form-row { display: flex; gap: 8px; }
+.operation-form-row > * { flex: 1; min-width: 0; }
+.operation-form-row label { color: var(--muted); display: grid; font-size: 11px; gap: 5px; }
+.operation-form-row label input { width: 100%; }
+.operations-lists { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; }
+.operations-lists > section { background: rgba(255,255,255,.7); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.operation-list-head { align-items: center; display: flex; justify-content: space-between; }
+.operation-list-head h3 { margin: 0; }
+.operation-list-head span { background: var(--surface-muted); border-radius: 99px; color: var(--accent-strong); font-weight: 800; padding: 4px 8px; }
+.operation-list-item { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; }
+.operation-list-item p { color: var(--muted); line-height: 1.45; margin: 5px 0; }
+.operation-list-item small { color: var(--accent-strong); }
+
 @media (max-width: 800px) {
   .process-steps,
   .module-grid,
@@ -371,6 +402,9 @@ nav span {
   .process-hero { padding-top: 58px; }
   .process-hero h1 { letter-spacing: -2px; }
   .workspace-home-footer { flex-direction: column; }
+  .operations-grid, .operations-lists { grid-template-columns: 1fr; }
+  .operations-stats { grid-template-columns: repeat(2, 1fr); }
+  .operations-header { align-items: flex-start; flex-direction: column; }
 }
 
 .nav-link-row {
