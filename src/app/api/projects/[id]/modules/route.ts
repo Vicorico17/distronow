@@ -6,6 +6,7 @@ import { getBrandProjectWorkspace } from "@/lib/brand-store";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 import { MODULE_SEED_RECORDS } from "@/lib/module-seed-data";
+import { CORE_MODULE_SLUGS } from "@/lib/module-catalog";
 
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("import_all") }),
@@ -40,7 +41,7 @@ export async function POST(request: Request, context: Context) {
   const supabase = createSupabaseAdminClient() as any;
   if (!supabase) return NextResponse.json({ error: "Supabase is not configured." }, { status: 503 });
 
-  const records = parsed.data.action === "import_all" ? MODULE_SEED_RECORDS : [parsed.data];
+  const records = parsed.data.action === "import_all" ? MODULE_SEED_RECORDS.filter((record) => CORE_MODULE_SLUGS.includes(record.module as (typeof CORE_MODULE_SLUGS)[number]) || record.module === "reclip") : [parsed.data];
   const payload = records.map((record) => ({
     project_id: id,
     module: record.module,

@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MARKETING_MODULES } from "@/lib/module-catalog";
+import { CORE_MARKETING_MODULES } from "@/lib/module-catalog";
 
 type ModuleRecord = { id: string; module: string; record_type: string; name: string; status: string; source_repo: string };
 
 export function ModuleMigrationDashboard({ projectId }: { projectId: string }) {
   const [records, setRecords] = useState<ModuleRecord[]>([]);
   const [status, setStatus] = useState("Loading unified records...");
-  const counts = useMemo(() => new Map(MARKETING_MODULES.map((module) => [module.slug, records.filter((record) => record.module === module.slug).length])), [records]);
+  const counts = useMemo(() => new Map(CORE_MARKETING_MODULES.map((module) => [module.slug, records.filter((record) => record.module === module.slug).length])), [records]);
 
   async function load() {
     const response = await fetch(`/api/projects/${projectId}/modules`);
@@ -39,7 +39,7 @@ export function ModuleMigrationDashboard({ projectId }: { projectId: string }) {
       </div>
       <span className="operations-status">{status}</span>
       <div className="module-migration-grid">
-        {MARKETING_MODULES.map((module) => <article className="module-migration-card" key={module.slug}><div><strong>{module.name}</strong><small>{module.source}</small></div><b>{counts.get(module.slug) ?? 0}</b><span>records imported</span></article>)}
+        {CORE_MARKETING_MODULES.map((module) => <article className="module-migration-card" key={module.slug}><div><strong>{module.name}</strong><small>{module.source}</small></div><b>{counts.get(module.slug) ?? 0}</b><span>records imported</span></article>)}
       </div>
       <div className="module-migration-records">{records.slice(0, 18).map((record) => <article key={record.id}><span>{record.module}</span><strong>{record.name}</strong><small>{record.record_type} · {record.status} · {record.source_repo}</small></article>)}</div>
     </section>
