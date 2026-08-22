@@ -208,3 +208,69 @@ Start with these five items:
 3. Build the AClienti signal/profile UI.
 4. Build the accman calendar and account dashboard.
 5. Add the first real publishing integration, preferably LinkedIn or X.
+
+## 15. Postiz findings from `/Users/vicorico/content/postiz-app`
+
+The content directory is the Postiz application. It provides a strong
+reference implementation for accman and should influence our roadmap.
+
+### Add to accman
+
+- [ ] Use a real calendar-first publishing workspace.
+- [ ] Add a post composer that supports one post adapted across multiple
+  platforms.
+- [ ] Add per-platform previews and validation before scheduling.
+- [ ] Add drafts, scheduled, published, failed, and missing-content states.
+- [ ] Add repeat/evergreen posts and recurring schedules.
+- [ ] Add bulk post creation and bulk scheduling.
+- [ ] Add content sets/tags for campaigns, launches, and reusable groups.
+- [ ] Add a “find next open slot” scheduling action.
+- [ ] Add post comments and team review threads.
+- [ ] Add team members, roles, permissions, and approval ownership.
+- [ ] Add a media library with search, thumbnails, upload, and reuse.
+- [ ] Add provider-specific media settings and image/video validation.
+- [ ] Add direct integrations for the major social platforms through official
+  OAuth flows.
+- [ ] Add an integration health page with missing scopes, refresh state, and
+  reconnect actions.
+- [ ] Add account-level and post-level analytics.
+- [ ] Add trending content and reusable inspiration records.
+
+### Add to the whole marketing OS
+
+- [ ] Add a public API for creating drafts, scheduling posts, reading status,
+  and retrieving analytics.
+- [ ] Add webhooks for post published, post failed, campaign completed, and
+  analytics updated events.
+- [ ] Add n8n, Make, and Zapier-compatible automation boundaries.
+- [ ] Add chat-based actions for creating content, generating a post, and
+  scheduling approved work.
+- [ ] Add generated image and video providers behind a provider-neutral media
+  job interface.
+- [ ] Add post groups/launches that connect strategy, assets, posts, and
+  results.
+- [ ] Add organization/team workspaces for agencies managing multiple brands.
+- [ ] Add agency/client separation with client review and approval flows.
+- [ ] Add notifications for approvals, failures, missing connections, and
+  performance reports.
+
+### Useful Postiz architecture ideas to reproduce
+
+- [ ] Treat every social platform as a provider with its own schema,
+  validation, limits, and preview—not as a generic text box.
+- [ ] Keep integrations behind a common manager/interface so new platforms do
+  not change the calendar or project model.
+- [ ] Use background workflows for scheduling and publishing retries.
+- [ ] Keep platform OAuth credentials server-side and let the platform handle
+  authentication directly.
+- [ ] Store media separately from post records so assets can be reused.
+- [ ] Keep comments, tags, and post groups as first-class records.
+
+### Licensing and integration note
+
+Postiz is licensed under AGPL-3.0. We can use it as a product and architecture
+reference, or operate it as a separate publishing service, but copying its
+code into DistroNow requires an explicit licensing decision and compliance
+review. The safest path is to reproduce the concepts and contracts in our own
+implementation, or connect to Postiz through its public API/SDK where that is
+appropriate.
