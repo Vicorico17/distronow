@@ -384,6 +384,34 @@ nav span {
 .content-library-footer { align-items: center; border-top: 1px solid var(--line); display: flex; gap: 24px; justify-content: space-between; margin-top: 34px; padding-top: 22px; }
 .content-library-footer p { color: var(--muted); font-size: 13px; margin: 0; }
 .content-library-footer a { color: var(--accent-strong); font-weight: 800; text-decoration: none; }
+.blueprint-page { min-height: 100vh; }
+.blueprint-shell { margin: 0 auto; max-width: 1240px; padding: 58px 32px 80px; }
+.blueprint-heading { align-items: end; display: flex; gap: 32px; justify-content: space-between; }
+.blueprint-heading h1 { font-size: clamp(42px, 7vw, 82px); letter-spacing: -4px; line-height: .93; margin: 10px 0 18px; max-width: 850px; }
+.blueprint-heading p:not(.eyebrow) { color: var(--muted); font-size: 17px; line-height: 1.6; margin: 0; max-width: 760px; }
+.blueprint-links { display: flex; flex-direction: column; gap: 10px; min-width: 190px; }
+.blueprint-links .secondary-action { text-align: center; }
+.blueprint-callout { background: var(--ink); border-radius: 14px; color: white; display: grid; gap: 8px; margin: 36px 0 14px; padding: 22px 24px; }
+.blueprint-callout strong { font-size: 22px; letter-spacing: -.6px; }
+.blueprint-callout span { color: #d7e4dc; font-size: 14px; line-height: 1.55; max-width: 900px; }
+.blueprint-sections { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.blueprint-section { background: rgba(255,255,255,.78); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+.blueprint-section h2 { font-size: 28px; letter-spacing: -1px; margin: 8px 0 12px; }
+.blueprint-summary { color: var(--muted); line-height: 1.55; margin: 0 0 16px; }
+.blueprint-section ul { font-size: 13px; line-height: 1.55; margin: 0; padding-left: 19px; }
+.blueprint-section li + li { margin-top: 9px; }
+.source-map { margin-top: 44px; }
+.blueprint-section-heading { margin-bottom: 18px; }
+.blueprint-section-heading h2 { font-size: 35px; letter-spacing: -1.2px; margin: 8px 0; }
+.blueprint-section-heading p:not(.eyebrow) { color: var(--muted); line-height: 1.55; margin: 0; }
+.source-map-table { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.source-map-row { background: rgba(255,255,255,.78); display: grid; gap: 18px; grid-template-columns: 170px 1fr 190px; padding: 16px 18px; }
+.source-map-row + .source-map-row { border-top: 1px solid var(--line); }
+.source-map-row strong { color: var(--ink); font-size: 13px; }
+.source-map-row span, .source-map-row small { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.source-map-row small { color: var(--accent-strong); font-weight: 800; }
+.blueprint-footer { align-items: center; border-top: 1px solid var(--line); color: var(--muted); display: flex; font-size: 13px; gap: 18px; justify-content: space-between; margin-top: 34px; padding-top: 22px; }
+.blueprint-footer a { color: var(--accent-strong); font-weight: 800; text-decoration: none; }
 
 .operations-dashboard { margin-top: 18px; }
 .operations-header { align-items: end; display: flex; gap: 20px; justify-content: space-between; }
@@ -432,6 +460,9 @@ nav span {
   .content-library-heading, .content-library-footer { align-items: flex-start; flex-direction: column; }
   .content-library-grid { grid-template-columns: 1fr; }
   .content-library-summary { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .blueprint-heading, .blueprint-footer { align-items: flex-start; flex-direction: column; }
+  .blueprint-sections { grid-template-columns: 1fr; }
+  .source-map-row { grid-template-columns: 1fr; gap: 6px; }
 }
 
 .nav-link-row {

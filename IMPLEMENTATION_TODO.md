@@ -220,6 +220,8 @@ Start with these five items:
 - [x] Add a workspace route for reading the playbooks before creating content.
 - [x] Keep old brand workspaces recoverable while presenting one main Marketing
   OS workspace in the project list.
+- [x] Add a full in-app Marketing OS Blueprint with the product flow, category
+  boundaries, source migration map, and remaining capability gaps.
 - [ ] Make the library editable and project-aware.
 - [ ] Let generation flows select a library playbook and persist that choice.
 - [ ] Add source file links and versioning for imported knowledge.

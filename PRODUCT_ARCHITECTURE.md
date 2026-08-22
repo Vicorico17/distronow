@@ -219,6 +219,11 @@ The material should be stored as project-independent knowledge where possible,
 then referenced by projects. Brand-specific content remains inside the
 project workspace.
 
+For a full review of the resulting product direction, open the project
+**Marketing OS Blueprint**. It explains the end-to-end system, the role of each
+category, the local-source migration map, and which work is implemented versus
+still planned.
+
 ## Naming decision
 
 Keep the application repository and product name as **DistroNow** for now,

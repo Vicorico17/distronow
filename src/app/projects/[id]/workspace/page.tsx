@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/supabase/auth-server";
 const MODULES = [
   { name: "DistroNow", title: "Brand & Content Engine", description: "Create brand-aware posts, scripts, campaigns, images, videos, and approvals.", href: "assets", action: "Open studio", active: true },
   { name: "Content Library", title: "Strategies & Playbooks", description: "Use the imported hook, angle, format, UGC, lead-magnet, slideshow, niche, and publishing systems.", href: "content-library", action: "Open playbooks", active: true },
+  { name: "Blueprint", title: "Marketing OS Blueprint", description: "Understand how every local prototype becomes one connected super app and what is still left to build.", href: "blueprint", action: "Review the blueprint", active: true },
   { name: "AClienti", title: "Customer Intelligence", description: "Turn real signals into customer profiles, pains, objections, and content opportunities.", href: "operations", action: "Review intelligence", active: true },
   { name: "accman", title: "Account Manager", description: "Manage accounts, content plans, publishing queues, and performance analytics.", href: "#distribution", action: "Plan distribution", active: false },
   { name: "AutoGTM", title: "Customer Acquisition", description: "Find qualified prospects, prepare personalized outreach, and track replies and meetings.", href: "operations", action: "Prepare acquisition", active: true },
@@ -71,6 +72,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         <div className="workspace-home-footer">
           <Link href="/process">Read the DistroNow process →</Link>
           <Link href={`/projects/${id}/content-library`}>Open content playbooks →</Link>
+          <Link href={`/projects/${id}/blueprint`}>Review full blueprint →</Link>
           <Link href={`/projects/${id}/assets`}>Open saved library →</Link>
         </div>
       </section>
