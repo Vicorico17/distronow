@@ -48,3 +48,10 @@ for the included source IDs.
 This is the persistent migration boundary, not the final provider integration.
 OAuth connections, workers, media storage, third-party APIs, and platform
 publishing still need to be wired to these project-owned records.
+
+## Source cleanup
+
+The local `ACLIENTI` and `accman` source projects have now been removed after
+their core utilities were moved into DistroNow. The remaining companion and
+media-engine projects were intentionally preserved because they are still
+separate products or have implementation work that has not been migrated.

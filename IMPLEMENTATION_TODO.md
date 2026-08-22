@@ -270,6 +270,8 @@ reference implementation for accman and should influence our roadmap.
 - [x] Keep AutoArt, Streamwin, and MassCall as separate companion apps.
 - [ ] Add explicit companion-app URLs and authenticated handoff callbacks when
   those apps have their own deployed environments.
+- [x] Remove the local `ACLIENTI` and `accman` source projects after core
+  utility migration.
 
 ### Add to accman
 
