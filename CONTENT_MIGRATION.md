@@ -44,8 +44,10 @@ The already-migrated strategy/content prototypes have been removed:
 - `untapped niches`
 - `virality`
 
-The following remain intentionally because their implementations or reference
-repositories were not fully migrated into DistroNow:
+The useful strategy material is now also preserved as editable source knowledge
+under `content/strategies/` in the main DistroNow repository. The following
+remain intentionally because their implementations or reference repositories
+were not fully migrated into DistroNow:
 
 - `postiz-app` — AGPL-licensed source code and a reference implementation;
 - `clipping` — working ClipRO prototype implementation;
