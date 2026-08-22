@@ -32,10 +32,22 @@ project through:
 `obsidian-releases` and unrelated Obsidian configuration files are not part of
 the marketing product and were intentionally not imported.
 
-## Cleanup boundary
+## Cleanup status
 
-Do not delete the original directory until this migration record and the two
-in-app review pages have been checked. Postiz is AGPL-licensed source code and
-should remain separate unless a deliberate license decision is made. The
-original source directory can be removed after review if the source code itself
-is no longer needed.
+The already-migrated strategy/content prototypes have been removed:
+
+- `ai-marketing-os`
+- `character generation`
+- `emailing-leadmagnet`
+- `script generation`
+- `slideshows`
+- `untapped niches`
+- `virality`
+
+The following remain intentionally because their implementations or reference
+repositories were not fully migrated into DistroNow:
+
+- `postiz-app` — AGPL-licensed source code and a reference implementation;
+- `clipping` — working ClipRO prototype implementation;
+- `growth-agent-hub` — provider integration contracts and operational notes;
+- `obsidian-releases` and `obsisdian files` — unrelated Obsidian material.
