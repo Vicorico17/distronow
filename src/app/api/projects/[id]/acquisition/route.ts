@@ -170,9 +170,9 @@ export async function POST(request: Request, context: Context) {
     const currentCampaign = state.campaigns.find((c) => c.id === campaign.id)!;
     try {
       if (action.action === "discover")
-        await discoverBuyers(state, currentCampaign);
+        await discoverBuyers(state, currentCampaign, id);
       else if (action.action === "enrich")
-        await enrichBuyer(state, currentProspect!);
+        await enrichBuyer(state, currentProspect!, id);
       else if (action.action === "draft") {
         const generated = await generateOutreach(
           currentProspect!,

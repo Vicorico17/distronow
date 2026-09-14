@@ -42,6 +42,13 @@ const tabs = [
 const demoKey = "distronow:acquisition-demo:v1";
 const LEAD_SOURCES = [
   {
+    slug: "treg",
+    name: "Treg routed search",
+    note: "live connector",
+    detail:
+      "Routes discovery, work-email finding, and verification across available people-data providers.",
+  },
+  {
     slug: "getleads",
     name: "GetLeads",
     note: "strong all rounder",
@@ -70,7 +77,7 @@ const LEAD_SOURCES = [
 ] as const;
 function leadSourceName(slug: string) {
   return (
-    LEAD_SOURCES.find((source) => source.slug === slug)?.name ?? "GetLeads"
+    LEAD_SOURCES.find((source) => source.slug === slug)?.name ?? "Treg routed search"
   );
 }
 function download(name: string, text: string, type = "text/csv") {
@@ -271,7 +278,7 @@ export function AcquisitionWorkspace({
       dailyLimit: Number(values.get("dailyLimit")),
       budget: Number(values.get("budget")),
       leadSource: String(values.get("leadSource")) as
-        "getleads" | "quickenrich" | "blitz" | "moltsets",
+        "treg" | "getleads" | "quickenrich" | "blitz" | "moltsets",
     };
     if (await run({ action: "create_campaign", value })) {
       form.reset();
@@ -552,7 +559,8 @@ export function AcquisitionWorkspace({
               </label>
               <label>
                 Preferred lead source
-                <select name="leadSource" defaultValue="getleads">
+                <select name="leadSource" defaultValue="treg">
+                  <option value="treg">Treg · routed people search</option>
                   <option value="getleads">
                     GetLeads · strong all rounder
                   </option>
@@ -852,10 +860,10 @@ export function AcquisitionWorkspace({
               {demo
                 ? "Demo buyers are fictional. You can add your own fictional examples to explore the workflow."
                 : !connections.discovery
-                  ? "Connect Explee to discover buyers, or add a buyer with source evidence manually."
+                  ? "Connect Treg to discover buyers, or add a buyer with source evidence manually."
                   : !campaignId
                     ? "Select a campaign to search using its customer profile."
-                    : "Search uses your campaign profile and connected Explee credits. Provider fit scores are suggestions to review."}
+                    : "Search uses your campaign profile and connected Treg balance. Every result still requires review."}
             </p>
             {showBuyer && (
               <form className="agency-panel agency-form" onSubmit={createBuyer}>
@@ -1006,7 +1014,7 @@ export function AcquisitionWorkspace({
                 [
                   "Buyer discovery",
                   connections.discovery,
-                  "Explee searches decision makers and verifies email addresses. Requests use your connected account credits.",
+                  "Treg routes people search, work-email finding, and a separate deliverability check. Requests use your connected Treg balance.",
                 ],
                 [
                   "AI drafting",
@@ -1049,14 +1057,13 @@ export function AcquisitionWorkspace({
                 <span className="agency-pill">Provider options</span>
               </div>
               <p>
-                These sources are part of the Leads Finder plan. Each connector
-                will have its own coverage, cost, limits, and verification
-                result. Campaigns keep a preferred source so discovery can be
-                routed deliberately.
+                Treg is the live route for discovery and verification. Legacy
+                campaign source preferences remain visible for existing data;
+                Treg records the provider that served each request.
               </p>
               <p className="agency-muted">
-                Current live adapter: Explee. The four sources below are the
-                planned source stack to wire into discovery and enrichment.
+                Calls run only on the server, with a configurable cost ceiling
+                and project-level usage attribution.
               </p>
               <div className="lead-source-grid">
                 {LEAD_SOURCES.map((source) => (
@@ -1067,7 +1074,9 @@ export function AcquisitionWorkspace({
                     <strong>{source.name}</strong>
                     <span>{source.note}</span>
                     <p>{source.detail}</p>
-                    <small>Connector planned</small>
+                    <small>
+                      {source.slug === "treg" ? "Connector live" : "Legacy preference"}
+                    </small>
                   </article>
                 ))}
               </div>

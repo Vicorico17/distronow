@@ -34,29 +34,39 @@ tables, pagination and background jobs before increasing these limits.
 
 ## Discovery and enrichment
 
-Leads Finder is designed to use a deliberate source stack:
+Leads Finder uses Treg as its live people-data gateway:
 
-- **GetLeads** — strong all rounder and the default source candidate.
-- **QuickEnrich** — great for US, but limited elsewhere.
-- **Blitz API** — adds about 10% extra coverage, but is a nice to have.
-- **MoltSets** — waterfall enrichment on crack for cascading lookups.
+- `treg.people.search` discovers up to ten people from the campaign brief.
+- `treg.people.email.find` finds a work email from the saved identity.
+- `treg.people.email.verify` independently checks deliverability before send.
 
-Each campaign stores its preferred source. The UI currently exposes the source
-choice and marks the connectors as planned; the live discovery adapter remains
-Explee until these four provider connectors are implemented and verified.
+Create a Treg token and set it only on the server:
 
-Set `EXPLEE_API_KEY` server-side. A signed-in project owner can search 10 buyers
-per request, using campaign audience, country codes, exclusions and roles.
-The adapter uses Explee's documented `/search/people` and `/enrich/email`
-endpoints. Search pages advance and duplicate identities are skipped. No
-provider requests run during tests or automatically when opening a screen.
+```bash
+TREG_TOKEN=your-team-or-agent-token
+TREG_MAX_COST_USD=0.25
+# Only identity/login tokens also need the team slug:
+TREG_ORG=your-team-slug
+```
 
-Email enrichment uses the premium preset and costs connected-account credits.
-Only a `valid` email result permits sending; catch-all results stay blocked.
-Explee fit scores represent provider assessment, not proven purchase intent.
-Source evidence remains visible for human qualification.
+Calls go to `https://treg.to/call/<endpoint>` with the project ID attached as
+the `workspace` usage tag. `TREG_MAX_COST_USD` is a hard per-call route ceiling;
+it defaults to $0.25 and this app rejects values above $10. It is not a daily or
+campaign spending cap. Use Treg organization budgets for aggregate limits.
 
-API contract: https://api.explee.com/public/api/openapi.json
+A signed-in project owner can search 10 buyers per request using the campaign
+audience, role, exclusion, and country brief. Treg returns provider-native rows,
+so incomplete rows are skipped and the serving provider is retained in the
+activity evidence. Duplicate identities are skipped. No provider requests run
+during tests or automatically when opening a screen. `EXPLEE_API_KEY` remains a
+legacy fallback only when `TREG_TOKEN` is absent.
+
+An email returned by search or email-find is never treated as deliverable.
+Leads Finder makes the separate verification call and only a `valid` or
+deliverable verdict permits sending; catch-all, risky, unknown, invalid, and
+missing results stay blocked. Source evidence remains visible for human review.
+
+API contract: https://treg.to/docs and https://treg.to/catalog/people
 
 ## Drafting
 
@@ -76,7 +86,7 @@ Only an allowed signed-in project owner can send, and only after activating
 the campaign, approving the buyer, verifying the email, saving and approving
 the draft, and confirming the individual send. A sender address and opt-out
 footer are included. Per-campaign daily limits apply in UTC. The planning
-budget is not a spending cap; Explee credits are recorded separately.
+budget is not a spending cap; Treg's returned cost is recorded in activity.
 
 An SMTP acceptance creates an email_sent event. This means the sending server
 accepted the message, not that the receiving mailbox delivered it. There is

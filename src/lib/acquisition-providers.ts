@@ -13,6 +13,14 @@ import {
   type Campaign,
   type Prospect,
 } from "./acquisition";
+import {
+  normalizeTregPerson,
+  tregCost,
+  tregEmailFindResponse,
+  tregEmailStatus,
+  tregEmailVerifyResponse,
+  tregPeopleResponse,
+} from "./treg";
 
 function configured(name: string) {
   const value = process.env[name];
@@ -24,7 +32,7 @@ export function acquisitionConnections(userId?: string) {
     .map((value) => value.trim())
     .filter(Boolean);
   return {
-    discovery: configured("EXPLEE_API_KEY"),
+    discovery: configured("TREG_TOKEN") || configured("EXPLEE_API_KEY"),
     drafting: configured("OPENAI_API_KEY"),
     sending: Boolean(
       userId &&
@@ -40,6 +48,42 @@ export function acquisitionConnections(userId?: string) {
     sender: process.env.OUTREACH_FROM ?? "",
     calendar: "manual" as const,
   };
+}
+async function treg(
+  endpoint: string,
+  body: unknown,
+  projectId: string,
+  timeout = 95000,
+) {
+  if (!configured("TREG_TOKEN"))
+    throw new Error("Connect Treg in server settings before discovery or verification.");
+  const ceiling = Number(process.env.TREG_MAX_COST_USD || "0.25");
+  if (!Number.isFinite(ceiling) || ceiling <= 0 || ceiling > 10)
+    throw new Error("TREG_MAX_COST_USD must be between 0 and 10.");
+  const response = await fetch(`https://treg.to/call/${endpoint}`, {
+    method: "POST",
+    headers: {
+      "X-Treg-Token": process.env.TREG_TOKEN!,
+      ...(configured("TREG_ORG") ? { "X-Treg-Org": process.env.TREG_ORG! } : {}),
+      "X-Treg-Route-Max-Cost": String(ceiling),
+      "X-Treg-Meta": `workspace=${projectId}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(timeout),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    const detail =
+      typeof payload?.detail === "string"
+        ? payload.detail
+        : typeof payload?.detail?.message === "string"
+          ? payload.detail.message
+          : "Request failed. Check the connected account and its balance.";
+    throw new Error(`Treg ${response.status}: ${detail}`);
+  }
+  return response.json();
 }
 async function explee(path: string, body: unknown) {
   if (!acquisitionConnections().discovery)
@@ -80,7 +124,68 @@ const personResponse = z.object({
 export async function discoverBuyers(
   state: AcquisitionState,
   campaign: Campaign,
+  projectId = "unknown",
 ) {
+  if (configured("TREG_TOKEN")) {
+    const countries = campaign.countries
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    const result = tregPeopleResponse.parse(
+      await treg(
+        "treg.people.search",
+        {
+          q: [
+            campaign.audience,
+            campaign.roles,
+            countries.length > 1 && `Countries: ${countries.join(", ")}`,
+            campaign.exclusions && `Exclude ${campaign.exclusions}`,
+          ]
+            .filter(Boolean)
+            .join("; "),
+          ...(countries.length === 1 ? { country: countries[0] } : {}),
+          keywords: [campaign.audience, campaign.offer],
+          limit: 10,
+        },
+        projectId,
+      ),
+    );
+    let added = 0;
+    for (const row of result.output.people) {
+      const person = normalizeTregPerson(row);
+      const candidate = prospectInput.safeParse({
+        campaignId: campaign.id,
+        company: person.company,
+        name: person.name,
+        role: person.role,
+        domain: person.domain,
+        email: "",
+        sourceUrl: person.sourceUrl,
+        evidence: [
+          `Treg routed people search${result._treg?.served_by ? ` via ${result._treg.served_by}` : ""}.`,
+          person.location ? `Reported location: ${person.location}.` : "",
+          "Review the source profile and fit before approval.",
+        ].filter(Boolean).join(" "),
+        fit: 0,
+      });
+      if (!candidate.success || state.prospects.some((p) => samePerson(p, candidate.data)))
+        continue;
+      addProspect(state, candidate.data, "treg");
+      added++;
+    }
+    campaign.searchPage++;
+    const cost = tregCost(result._treg);
+    logEvent(
+      state,
+      campaign.id,
+      "",
+      "discovery_completed",
+      `${added} new buyers via Treg${result._treg?.served_by ? ` / ${result._treg.served_by}` : ""}; ${result.output.people.length - added} duplicates or incomplete profiles skipped.${cost ? ` Cost: $${cost.toFixed(6)}.` : ""}`,
+      "provider",
+      cost,
+    );
+    return;
+  }
   const result = z
     .object({
       people: z.array(personResponse),
@@ -156,12 +261,58 @@ export async function discoverBuyers(
     result.meta.credits_charged ?? 0,
   );
 }
-export async function enrichBuyer(state: AcquisitionState, prospect: Prospect) {
+export async function enrichBuyer(
+  state: AcquisitionState,
+  prospect: Prospect,
+  projectId = "unknown",
+) {
   const [first, ...last] = prospect.name.trim().split(/\s+/);
   if (!last.length || !prospect.domain)
     throw new Error(
       "A full name and company domain are required for email verification.",
     );
+  if (configured("TREG_TOKEN")) {
+    const found = tregEmailFindResponse.parse(
+      await treg(
+        "treg.people.email.find",
+        {
+          first_name: first,
+          last_name: last.join(" "),
+          full_name: prospect.name,
+          domain: prospect.domain,
+          ...(prospect.sourceUrl.includes("linkedin.com/in/")
+            ? { linkedin_url: prospect.sourceUrl }
+            : {}),
+        },
+        projectId,
+      ),
+    );
+    if (!found.output.email) {
+      prospect.email = "";
+      prospect.emailStatus = "not_found";
+      logEvent(state, prospect.campaignId, prospect.id, "email_verified", "not_found via Treg", "provider", tregCost(found._treg));
+      return;
+    }
+    const verified = tregEmailVerifyResponse.parse(
+      await treg("treg.people.email.verify", { email: found.output.email }, projectId),
+    );
+    if (state.prospects.some((p) => p.id !== prospect.id && p.email.toLowerCase() === found.output.email!.toLowerCase()))
+      throw new Error("The returned email already belongs to a buyer in this project; review that existing record.");
+    prospect.email = found.output.email;
+    prospect.emailStatus = tregEmailStatus(verified.output);
+    if (prospect.draftStatus === "approved") prospect.draftStatus = "draft";
+    const cost = tregCost(found._treg) + tregCost(verified._treg);
+    logEvent(
+      state,
+      prospect.campaignId,
+      prospect.id,
+      "email_verified",
+      `${prospect.emailStatus} via Treg${verified._treg?.served_by ? ` / ${verified._treg.served_by}` : ""}${cost ? `; cost $${cost.toFixed(6)}` : ""}`,
+      "provider",
+      cost,
+    );
+    return;
+  }
   const result = z
     .object({
       email: z.string().email().nullable().optional(),

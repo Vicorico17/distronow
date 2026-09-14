@@ -4,7 +4,8 @@
 
 Implemented `/agency` as an isolated browser demo and
 `/projects/[id]/acquisition` as the persistent acquisition desk. This includes
-campaign briefs, buyer evidence, Explee discovery/enrichment adapters, editable
+campaign briefs, buyer evidence, Treg routed discovery/email verification (with
+an Explee fallback), editable
 drafts, approval transitions, individual SMTP sending, suppression, manual
 reply/meeting/revenue recording, event-derived funnel counts and CSV export.
 The main workspace now shows acquisition decisions and accurate module status.
