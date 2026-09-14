@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/supabase/auth-server";
 import { getMarketingModule } from "@/lib/module-catalog";
 import { CoreUtilityDashboard } from "@/components/core-utility-dashboard";
 import { MetadataReencoder } from "@/components/metadata-reencoder";
+import { TwitchStreamDashboard } from "@/components/twitch-stream-dashboard";
 
 type ModulePageProps = { params: Promise<{ id: string; module: string }> };
 
@@ -20,8 +21,9 @@ export default async function ModulePage({ params }: ModulePageProps) {
   const title = workspace.latestExtraction.title ?? workspace.project.name ?? workspace.project.domain;
   const utility = marketingModule.slug === "aclienti" || marketingModule.slug === "accman";
   const reencoder = marketingModule.slug === "metadata-reencoder";
-  const actionHref = utility || reencoder ? "#module-tool" : marketingModule.slug === "video-generation" ? `/projects/${id}/assets` : "#module-workflows";
-  const actionLabel = utility || reencoder ? marketingModule.primaryAction : marketingModule.slug === "video-generation" ? "Open product video generator" : "Review planned pipeline";
+  const twitchStudio = marketingModule.slug === "streamwin";
+  const actionHref = utility || reencoder || twitchStudio ? "#module-tool" : marketingModule.slug === "video-generation" ? `/projects/${id}/assets` : "#module-workflows";
+  const actionLabel = utility || reencoder || twitchStudio ? marketingModule.primaryAction : marketingModule.slug === "video-generation" ? "Open product video generator" : "Review planned pipeline";
 
   return (
     <main className="module-page">
@@ -56,7 +58,8 @@ export default async function ModulePage({ params }: ModulePageProps) {
 
         {utility && <section id="module-tool"><CoreUtilityDashboard projectId={id} module={marketingModule.slug as "aclienti" | "accman"} /></section>}
         {reencoder && <section id="module-tool"><MetadataReencoder /></section>}
-        {!utility && !reencoder && <p className="workspace-notice">This page maps the module workflow. {marketingModule.slug === "video-generation" ? "The product video generator is available in the content studio; the fal queue interface is not connected yet." : "The standalone source pipeline is not yet connected to this project’s records."}</p>}
+        {twitchStudio && <TwitchStreamDashboard projectId={id} />}
+        {!utility && !reencoder && !twitchStudio && <p className="workspace-notice">This page maps the module workflow. {marketingModule.slug === "video-generation" ? "The product video generator is available in the content studio; the fal queue interface is not connected yet." : "The standalone source pipeline is not yet connected to this project’s records."}</p>}
         <div className="module-workflows" id="module-workflows">
           {marketingModule.workflows.map((workflow) => (
             <article className="module-workflow" key={workflow.title}>

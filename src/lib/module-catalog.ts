@@ -444,13 +444,13 @@ export const MARKETING_MODULES: MarketingModule[] = [
   },
   {
     slug: "streamwin",
-    name: "Streamwin",
-    title: "Live Studio and Vision Agents",
+    name: "Twitch Stream Users",
+    title: "Live Studio & Stream Agents",
     description:
       "Operate live video, destinations, IRL controls, visual effects, and video-aware automations from one studio.",
-    source: "Streamwin interactive prototype",
-    status: "Live studio mapped",
-    primaryAction: "Configure a live session",
+    source: "TTVfans + Streamwin unified app",
+    status: "Unified app ready",
+    primaryAction: "Open live control room",
     records: [
       "Live sessions",
       "Scenes",
@@ -459,6 +459,7 @@ export const MARKETING_MODULES: MarketingModule[] = [
       "Vision agents",
       "Events",
       "Chat actions",
+      "Agent personalities",
     ],
     workflows: [
       {
@@ -500,6 +501,8 @@ export const MARKETING_MODULES: MarketingModule[] = [
       "IRL phone health indicators",
       "Vision automation toggles",
       "Recent event feed",
+      "Co-host and clip-hunter agents",
+      "Agent thoughts and live activity",
       "WebRTC/provider/RTMP roadmap",
     ],
   },
