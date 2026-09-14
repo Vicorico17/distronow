@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CoreUtilityDashboard } from "@/components/core-utility-dashboard";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   actionSchema,
@@ -33,6 +34,7 @@ const disconnected: Connections = {
 };
 const tabs = [
   "Overview",
+  "Research",
   "Campaigns",
   "Buyers",
   "Outreach",
@@ -726,6 +728,22 @@ export function AcquisitionWorkspace({
               </div>
             )}
           </>
+        )}
+        {tab === "Research" && (
+          projectId ? (
+            <CoreUtilityDashboard projectId={projectId} module="leads-finder" />
+          ) : (
+            <section className="agency-panel">
+              <p className="eyebrow">CUSTOMER INTELLIGENCE</p>
+              <h2>Research is part of Leads Finder.</h2>
+              <p>
+                In a project, capture a research lens, public customer signals,
+                qualification scores, and evidence-linked briefs here before
+                turning the strongest evidence into buyer campaigns.
+              </p>
+              <Link href="/projects">Open a project to save research →</Link>
+            </section>
+          )
         )}
         {tab === "Campaigns" && (
           <div className="agency-campaign-grid">

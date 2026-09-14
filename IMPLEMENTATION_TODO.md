@@ -29,7 +29,7 @@ module model were added. Work from the top down.
    - `20260822120000_create_marketing_os_modules.sql`
    - `20260822133000_create_module_records.sql`
 2. Open `/projects/[id]/modules/migration` and import the core source records.
-3. Finish AClienti as a real utility: research-lens editor, signal filters,
+3. Finish Leads Finder research: research-lens editor, signal filters,
    score breakdown, buyer stages, profile builder, evidence-linked briefs, and
    JSON/CSV export.
 4. Finish accman as a real utility: account health, niche board, format/prompt
@@ -67,13 +67,13 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
   - [ ] Competitor Analysis
   - [ ] Brand Voice
   - [ ] Content Strategy
-- [ ] Seed the first drafts from the existing brand extraction and AClienti
+- [ ] Seed the first drafts from the existing brand extraction and Leads Finder
       customer profiles.
 - [ ] Add document versioning and confirmed/archive states.
 - [ ] Pass confirmed strategy documents into every generation prompt.
 - [ ] Add source links and evidence references to strategy decisions.
 
-## 2. AClienti — Customer Intelligence
+## 2. Leads Finder — Customer Intelligence and Acquisition
 
 - [ ] Build the customer-signal list and detail view.
 - [ ] Add signal filters: type, score, source, date, status, and buyer stage.
@@ -288,13 +288,13 @@ reference implementation for accman and should influence our roadmap.
 
 ## 17. Marketing repository consolidation — module surfaces added
 
-- [x] Add AClienti module surface with its real research, scoring, brief, and
-      evidence workflows.
+- [x] Move AClienti research, scoring, briefs, and evidence workflows into
+      Leads Finder.
 - [x] Add accman module surface with accounts, niches, formats, trends, prompts,
       plans, and creative research briefs.
 - [x] Add ClipRO module surface with ingest, transcript, candidate scoring,
       rendering, jobs, and scheduling handoff.
-- [x] Add Reclip source preparation and download-job surface.
+- [x] Move Reclip source preparation and download jobs into ClipRO.
 - [x] Add AutoArt artist, song, release, promo, and analytics surface.
 - [x] Add Streamwin live studio, destinations, IRL, vision, and event surface.
 - [x] Add MassCall voice-agent campaign surface.
@@ -308,7 +308,7 @@ reference implementation for accman and should influence our roadmap.
 
 - [x] Make DistroNow Supabase magic-link auth the single login boundary.
 - [x] Add a project-owned `module_records` migration table.
-- [x] Add idempotent source seed import for AClienti, accman, ClipRO, Reclip,
+- [x] Add idempotent source seed import for Leads Finder, accman, ClipRO,
       AutoArt, Streamwin, and MassCall.
 - [x] Add a migration dashboard under the authenticated project workspace.
 - [ ] Replace source seed records with full editable module records and forms.
@@ -318,7 +318,7 @@ reference implementation for accman and should influence our roadmap.
 
 ## 19. Core/companion boundary
 
-- [x] Keep AClienti and accman inside the main DistroNow app as core utilities.
+- [x] Keep Leads Finder research and accman inside the main app as core utilities.
 - [x] Combine ClipRO and Reclip into one video-repurposing category.
 - [x] Add Video Generation as a core DistroNow category using the fal queue
       workflow and existing product-video generation.

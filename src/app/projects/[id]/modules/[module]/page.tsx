@@ -19,7 +19,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
   if (!workspace || !marketingModule) notFound();
 
   const title = workspace.latestExtraction.title ?? workspace.project.name ?? workspace.project.domain;
-  const utility = marketingModule.slug === "aclienti" || marketingModule.slug === "accman";
+  const utility = marketingModule.slug === "accman";
   const reencoder = marketingModule.slug === "metadata-reencoder";
   const twitchStudio = marketingModule.slug === "streamwin";
   const actionHref = utility || reencoder || twitchStudio ? "#module-tool" : marketingModule.slug === "video-generation" ? `/projects/${id}/assets` : "#module-workflows";
@@ -56,7 +56,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
           {marketingModule.records.map((record, index) => <span key={record}><strong>0{index + 1}</strong>{record}</span>)}
         </div>
 
-        {utility && <section id="module-tool"><CoreUtilityDashboard projectId={id} module={marketingModule.slug as "aclienti" | "accman"} /></section>}
+        {utility && <section id="module-tool"><CoreUtilityDashboard projectId={id} module="accman" /></section>}
         {reencoder && <section id="module-tool"><MetadataReencoder /></section>}
         {twitchStudio && <TwitchStreamDashboard projectId={id} />}
         {!utility && !reencoder && !twitchStudio && <p className="workspace-notice">This page maps the module workflow. {marketingModule.slug === "video-generation" ? "The product video generator is available in the content studio; the fal queue interface is not connected yet." : "The standalone source pipeline is not yet connected to this project’s records."}</p>}

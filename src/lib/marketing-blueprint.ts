@@ -20,7 +20,7 @@ export const MARKETING_BLUEPRINT_SECTIONS: BlueprintSection[] = [
   },
   {
     label: "02 / Customer intelligence",
-    title: "AClienti finds who should matter most",
+    title: "Leads Finder identifies who should matter most",
     summary:
       "The customer layer turns vague audiences into evidence-backed customer profiles that guide both content and acquisition.",
     items: [
@@ -144,7 +144,7 @@ export const SOURCE_MIGRATION_MAP = [
     source: "untapped niches",
     contribution:
       "Niche scoring, buyer proof, audience urgency, validation prompts, offer ideas, risk boundaries",
-    destination: "AClienti + AutoGTM + Strategy",
+    destination: "Leads Finder + Strategy",
   },
   {
     source: "clipping",

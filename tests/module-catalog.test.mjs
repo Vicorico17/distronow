@@ -37,3 +37,11 @@ test("SEO/GEO and Launched are available in the core module menu", () => {
     ),
   );
 });
+
+test("overlapping customer and clipping products are consolidated", () => {
+  assert.equal(getMarketingModule("aclienti"), undefined);
+  assert.equal(getMarketingModule("reclip"), undefined);
+  const clipro = getMarketingModule("clipro");
+  assert.ok(clipro);
+  assert.ok(clipro.importedCapabilities.includes("Playlist/source inspection"));
+});

@@ -14,65 +14,6 @@ export type MarketingModule = {
 
 export const MARKETING_MODULES: MarketingModule[] = [
   {
-    slug: "aclienti",
-    name: "AClienti",
-    title: "Customer Intelligence",
-    description:
-      "Turn public customer signals into evidence-backed content direction and qualified opportunities.",
-    source: "ACLIENTI working MVP",
-    status: "Foundation connected",
-    primaryAction: "Capture a signal",
-    records: [
-      "Research lens",
-      "Public signals",
-      "Qualification scores",
-      "Buyer stages",
-      "Content briefs",
-      "Evidence exports",
-    ],
-    workflows: [
-      {
-        title: "Signal desk",
-        steps: [
-          "Define product, target customer, promised outcome, and disqualifiers",
-          "Capture pain, request, workaround, switching, or company-trigger evidence",
-          "Preserve source URL, visible date, and response channel",
-        ],
-      },
-      {
-        title: "Qualification",
-        steps: [
-          "Score pain, product fit, timing, reachability, and evidence quality",
-          "Calculate score = pain/5×25 + fit/5×25 + timing/5×20 + reach/5×15 + evidence/5×15",
-          "Prioritize 80–100 as strong, 65–79 as promising, and below 65 for validation",
-        ],
-      },
-      {
-        title: "Content briefs",
-        steps: [
-          "Convert qualified signals into headline, angle, format, and source-linked brief",
-          "Use the customer’s language without implying endorsement",
-          "Send confirmed briefs into DistroNow creation",
-        ],
-      },
-    ],
-    handoffs: [
-      "DistroNow: customer language and content briefs",
-      "AutoGTM: qualified business opportunities",
-      "Analytics: signal-to-content performance",
-    ],
-    importedCapabilities: [
-      "Product/ICP lens editor",
-      "Public source and signal-date capture",
-      "Weighted 0–100 qualification",
-      "Buyer-stage filtering",
-      "Evidence-linked prospect cards",
-      "Local content-brief generation",
-      "JSON report export",
-      "Public-information safety boundary",
-    ],
-  },
-  {
     slug: "accman",
     name: "accman",
     title: "Account Manager",
@@ -119,7 +60,7 @@ export const MARKETING_MODULES: MarketingModule[] = [
     ],
     handoffs: [
       "DistroNow: approved assets and strategy",
-      "ClipRO/Reclip: approved clips into content plans",
+      "ClipRO: approved clips into content plans",
       "AutoArt: release promo assets",
       "Streamwin: live destinations and automations",
       "Analytics: account and post results",
@@ -256,7 +197,7 @@ export const MARKETING_MODULES: MarketingModule[] = [
     ],
     handoffs: [
       "DistroNow: approved content, offers, and brand voice",
-      "AClienti: customer language and segments",
+      "Leads Finder: customer language and segments",
       "Leads Finder: qualified buyers remain one-to-one outreach records",
       "Analytics: email performance and revenue attribution",
     ],
@@ -328,57 +269,6 @@ export const MARKETING_MODULES: MarketingModule[] = [
       "Prompt expansion",
       "DistroNow product video generation",
       "Provider credential boundary",
-    ],
-  },
-  {
-    slug: "reclip",
-    name: "Reclip",
-    title: "Source Downloader",
-    description:
-      "Download and prepare online video sources or playlists for lawful local processing and repurposing.",
-    source: "reclip local application",
-    status: "Pipeline mapped",
-    primaryAction: "Prepare a source",
-    records: [
-      "Source URLs",
-      "Playlist items",
-      "Download jobs",
-      "Job status",
-      "Thumbnails",
-      "Local media files",
-    ],
-    workflows: [
-      {
-        title: "Source preparation",
-        steps: [
-          "Inspect a URL or playlist",
-          "Show source information before downloading",
-          "Choose the media item and confirm rights",
-        ],
-      },
-      {
-        title: "Download job",
-        steps: [
-          "Start a bounded download",
-          "Poll status by job ID",
-          "Expose thumbnail and completed file endpoints",
-          "Send the local source into ClipRO",
-        ],
-      },
-    ],
-    handoffs: [
-      "ClipRO: downloaded source for transcript and clipping",
-      "DistroNow: source metadata and rights record",
-      "accman: approved clips only",
-    ],
-    importedCapabilities: [
-      "Flask source-info endpoint",
-      "Playlist inspection",
-      "Download jobs",
-      "Status polling",
-      "File and thumbnail endpoints",
-      "Dockerized local workflow",
-      "Explicit content-rights requirement",
     ],
   },
   {
@@ -555,7 +445,7 @@ export const MARKETING_MODULES: MarketingModule[] = [
       },
     ],
     handoffs: [
-      "AClienti: customer questions and evidence language",
+      "Leads Finder: customer questions and evidence language",
       "DistroNow: approved search briefs and page content",
       "accman: distribution that earns genuine discovery and references",
       "Analytics: organic traffic, conversions, and AI citations",
@@ -625,7 +515,7 @@ export const MARKETING_MODULES: MarketingModule[] = [
       "SEO / GEO: launch page, changelog, indexation, and earned references",
       "accman: approved social launch schedule",
       "Email Marketing: permission-based customer announcement",
-      "AClienti: launch feedback and buyer signals",
+      "Leads Finder: launch feedback and buyer signals",
     ],
     importedCapabilities: [
       "Owned, earned, community, directory, and partner channel map",
@@ -756,7 +646,6 @@ export function getMarketingModule(slug: string) {
 }
 
 export const CORE_MODULE_SLUGS = [
-  "aclienti",
   "accman",
   "email-marketing",
   "clipro",

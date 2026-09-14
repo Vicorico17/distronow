@@ -13,7 +13,7 @@ const PROCESS_STEPS = [
     number: "02",
     title: "Understand the best customer",
     description:
-      "AClienti turns public customer signals, pains, objections, and buying triggers into a custom customer profile. You review the evidence before it guides content or outreach.",
+      "Leads Finder turns public customer signals, pains, objections, and buying triggers into a reviewed customer profile before it guides content or outreach.",
     output: "Customer intelligence"
   },
   {

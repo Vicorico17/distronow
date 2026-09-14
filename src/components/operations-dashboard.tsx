@@ -220,8 +220,8 @@ export function OperationsDashboard({ projectId }: OperationsDashboardProps) {
           onSubmit={(event) => submit(event, "add_signal")}
         >
           <div className="operation-panel-head">
-            <span>AClienti</span>
-            <small>Customer Intelligence</small>
+            <span>Leads Finder</span>
+            <small>Customer intelligence</small>
           </div>
           <h3>Capture a customer signal.</h3>
           <input name="title" placeholder="Signal title" required />
@@ -318,9 +318,8 @@ export function OperationsDashboard({ projectId }: OperationsDashboardProps) {
             <small>Next actions</small>
           </div>
           <h3>Turn a decision into a trackable task.</h3>
-          <select name="category" defaultValue="DistroNow">
-            <option>DistroNow</option>
-            <option>AClienti</option>
+          <select name="category" defaultValue="Content Studio">
+            <option>Content Studio</option>
             <option>accman</option>
             <option>Leads Finder</option>
             <option>ClipRO</option>

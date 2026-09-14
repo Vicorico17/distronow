@@ -10,10 +10,10 @@ import {
 
 const MODULES = [
   {
-    name: "DistroNow",
-    title: "Brand & Content Engine",
+    name: "Content Studio",
+    title: "Website-to-Content Workspace",
     description:
-      "Create brand-aware posts, scripts, campaigns, images, videos, and approvals.",
+      "Use the website-derived brand context to create posts, scripts, campaigns, images, videos, and approvals.",
     href: "assets",
     action: "Open studio",
     active: true,
