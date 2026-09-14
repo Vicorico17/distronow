@@ -504,6 +504,66 @@ export const MARKETING_MODULES: MarketingModule[] = [
     ],
   },
   {
+    slug: "metadata-reencoder",
+    name: "Metadata Reencoder",
+    title: "Privacy-safe Media Re-encoding",
+    description:
+      "Create a clean image copy by decoding pixels and writing a new file without inherited camera, location, editor, EXIF, IPTC, or XMP metadata.",
+    source: "HeliosGen mediaMetadata pattern",
+    status: "Image utility connected",
+    primaryAction: "Clean an image",
+    records: [
+      "Source image",
+      "Output format",
+      "Quality setting",
+      "Pixel dimensions",
+      "Output size",
+      "Rights confirmation",
+    ],
+    workflows: [
+      {
+        title: "Privacy-safe export",
+        steps: [
+          "Choose an owned or authorized JPEG, PNG, or WebP file",
+          "Select the output format and lossy quality where applicable",
+          "Decode the visible pixels locally and encode a new metadata-free container",
+          "Review and download the clean copy while retaining the original for provenance",
+        ],
+      },
+      {
+        title: "Publishing handoff",
+        steps: [
+          "Visually compare the clean copy with the source",
+          "Add platform alt text and accessibility metadata at publish time",
+          "Keep licensing and attribution records outside the stripped delivery file",
+        ],
+      },
+      {
+        title: "Screen-recording method",
+        steps: [
+          "Enable Do Not Disturb and close private windows or notifications",
+          "Display or play the owned media full-screen at the highest practical quality",
+          "Record the screen, then trim the new capture",
+          "Inspect resolution, color, audio, visible private data, and quality before publishing",
+        ],
+      },
+    ],
+    handoffs: [
+      "DistroNow Studio: clean delivery asset",
+      "accman: platform-ready upload copy",
+      "Content Library: retain the original and rights evidence",
+    ],
+    importedCapabilities: [
+      "Browser-local processing",
+      "JPEG, PNG, and WebP decoding/re-encoding",
+      "EXIF/IPTC/XMP and GPS metadata removal by pixel rebuild",
+      "Output format and quality control",
+      "Documented screen-recording recapture method",
+      "Before/after byte-size reporting",
+      "Explicit rights and provenance boundary",
+    ],
+  },
+  {
     slug: "masscall",
     name: "MassCall",
     title: "Voice Conversation Campaigns",
@@ -566,6 +626,7 @@ export const CORE_MODULE_SLUGS = [
   "email-marketing",
   "clipro",
   "video-generation",
+  "metadata-reencoder",
 ] as const;
 export const CORE_MARKETING_MODULES = MARKETING_MODULES.filter((module) =>
   CORE_MODULE_SLUGS.includes(module.slug as (typeof CORE_MODULE_SLUGS)[number]),
