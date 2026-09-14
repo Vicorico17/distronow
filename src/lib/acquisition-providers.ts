@@ -151,7 +151,7 @@ export async function discoverBuyers(
     campaign.id,
     "",
     "discovery_completed",
-    `${added} new buyers; ${result.people.length - added} duplicates or incomplete profiles skipped. Scores reflect provider assessment, not purchase intent.`,
+    `${added} new buyers via Explee (campaign source preference: ${campaign.leadSource}); ${result.people.length - added} duplicates or incomplete profiles skipped. Scores reflect provider assessment, not purchase intent.`,
     "provider",
     result.meta.credits_charged ?? 0,
   );

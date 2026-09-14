@@ -2,7 +2,7 @@
 
 ## Test immediately
 
-Run `npm install` and `npm run dev`, then open `/agency`.
+Run `npm install` and `npm run dev`, then open `/leads-finder`.
 This is a clearly labeled fictional workspace, stored only in this browser.
 It never calls discovery, email, AI, calendar, or project-write APIs.
 
@@ -22,8 +22,8 @@ Server routes first verify ownership using the existing user/anonymous-owner
 boundary, then access it with the service role. Generic module import routes
 cannot change acquisition events. No browser-supplied aggregate state is accepted.
 
-Open a project → Marketing OS → Acquisition, or
-`/projects/<project-id>/acquisition`. Campaigns, buyers, editable drafts,
+Open a project → Marketing OS → Leads Finder, or
+`/projects/<project-id>/leads-finder`. Campaigns, buyers, editable drafts,
 approvals, events, replies, meeting outcomes and revenue persist per project.
 
 One state record per project provides atomic transitions and optimistic
@@ -33,6 +33,17 @@ requests must refresh. The initial version is bounded to 200 campaigns,
 tables, pagination and background jobs before increasing these limits.
 
 ## Discovery and enrichment
+
+Leads Finder is designed to use a deliberate source stack:
+
+- **GetLeads** — strong all rounder and the default source candidate.
+- **QuickEnrich** — great for US, but limited elsewhere.
+- **Blitz API** — adds about 10% extra coverage, but is a nice to have.
+- **MoltSets** — waterfall enrichment on crack for cascading lookups.
+
+Each campaign stores its preferred source. The UI currently exposes the source
+choice and marks the connectors as planned; the live discovery adapter remains
+Explee until these four provider connectors are implemented and verified.
 
 Set `EXPLEE_API_KEY` server-side. A signed-in project owner can search 10 buyers
 per request, using campaign audience, country codes, exclusions and roles.
@@ -90,8 +101,7 @@ separately. Revenue is operator-recorded, not connected accounting data.
 - `npm test`: lifecycle, approvals, suppression, deduplication, uncertain-send
   reconciliation, funnel accounting and CSV protections. Requires Node 22.6+.
 - `npm run build` and `npm run lint`.
-- `npm run test:ui`: production build must exist; uses local Chrome on port
-  3104. Tests use only demo data and assert no POST requests leave the browser.
+- `npm run test:ui`: production build must exist; uses local Chrome on port 3104. Tests use only demo data and assert no POST requests leave the browser.
 
 ## Follow-on integrations
 

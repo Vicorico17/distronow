@@ -1,10 +1,17 @@
 import { test, expect } from "@playwright/test";
 
-test("API rejects cross-origin and malformed writes before any provider action", async ({ request }) => {
+test("API rejects cross-origin and malformed writes before any provider action", async ({
+  request,
+}) => {
   const path = "/api/projects/00000000-0000-4000-8000-000000000000/acquisition";
-  const crossOrigin = await request.post(path, { headers: { origin: "https://unrelated.example" }, data: { action: "send" } });
+  const crossOrigin = await request.post(path, {
+    headers: { origin: "https://unrelated.example" },
+    data: { action: "send" },
+  });
   expect(crossOrigin.status()).toBe(403);
-  const malformed = await request.post(path, { data: { action: "replace_state", state: { prospects: [] } } });
+  const malformed = await request.post(path, {
+    data: { action: "replace_state", state: { prospects: [] } },
+  });
   expect(malformed.status()).toBe(400);
 });
 
@@ -17,7 +24,7 @@ test("demo completes review, outreach, reply, meeting and customer lifecycle wit
   page.on("request", (request) => {
     if (request.method() === "POST") writes.push(request.url());
   });
-  await page.goto("/agency");
+  await page.goto("/leads-finder");
   await expect(
     page.getByRole("heading", { name: "Your pipeline, in motion." }),
   ).toBeVisible();

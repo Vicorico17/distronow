@@ -22,6 +22,9 @@ export const campaignInput = z.object({
   bookingUrl: webUrl.or(z.literal("")),
   dailyLimit: z.number().int().min(1).max(50),
   budget: z.number().min(0).max(1000000),
+  leadSource: z
+    .enum(["getleads", "quickenrich", "blitz", "moltsets"])
+    .default("getleads"),
 });
 export const campaignSchema = campaignInput.extend({
   id: z.string().uuid(),
@@ -505,6 +508,7 @@ export function demoAcquisition(): AcquisitionState {
     bookingUrl: "",
     dailyLimit: 10,
     budget: 500,
+    leadSource: "getleads",
     status: "active",
     searchPage: 1,
     createdAt: new Date().toISOString(),

@@ -40,7 +40,7 @@ const PROCESS_STEPS = [
     number: "06",
     title: "Distribute and learn",
     description:
-      "accman connects the approved work to accounts, schedules and publishes it, then measures what performs. AutoGTM finds prospects, while ClipRO, AutoArt, and Streamwin feed their specialist workflows.",
+      "accman connects the approved work to accounts, schedules and publishes it, then measures what performs. Leads Finder finds prospects, while ClipRO, AutoArt, and Streamwin feed their specialist workflows.",
     output: "Performance learnings"
   }
 ] as const;
@@ -49,7 +49,7 @@ const MODULES = [
   ["DistroNow", "Brand and Content Engine", "Turn brand and customer context into campaigns, posts, scripts, and assets."],
   ["AClienti", "Customer Intelligence", "Build evidence-backed customer profiles from real pains, signals, and buying triggers."],
   ["accman", "Account Manager", "Plan, publish, and compare performance across every account and channel."],
-  ["AutoGTM", "Customer Acquisition", "Find qualified prospects, prepare personalized outreach, and track conversations."],
+  ["Leads Finder", "Buyer Intelligence & Outreach", "Find qualified prospects, prepare personalized outreach, and track conversations."],
   ["ClipRO", "Video Repurposing", "Find the strongest moments in long videos and render them as short clips."],
   ["AutoArt", "Music Creation", "Create music releases and send approved promotional assets into accman."],
   ["Streamwin", "AI Livestream Chatters", "Deploy video-aware agents that understand the stream and participate in chat."]

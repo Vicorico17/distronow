@@ -1,8 +1,9 @@
 # DistroNow Marketing OS
 
-Try the new agency / Acquisition workflow at `/agency` (fictional demo, no
-external sends), or open a project's Marketing OS → Acquisition for persistent
-campaigns. See [ACQUISITION_SETUP.md](ACQUISITION_SETUP.md) for the database
+Try Leads Finder at `/leads-finder` (fictional demo, no external sends), or
+open a project's Marketing OS → Leads Finder for persistent campaigns. The
+internal agency workspace remains focused on brand, content, and distribution.
+See [ACQUISITION_SETUP.md](ACQUISITION_SETUP.md) for the database
 migration, Explee discovery, mailbox setup, and the testing walkthrough.
 
 DistroNow is one marketing workspace with two connected parts: Content Studio

@@ -55,7 +55,7 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
 - [ ] Replace temporary service-route typing with generated Supabase types.
 - [ ] Add a migration verification script or CI check.
 - [ ] Confirm production environment variables for Supabase, Firecrawl, and
-  OpenAI.
+      OpenAI.
 
 ## 1. Strategy Library
 
@@ -67,7 +67,7 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
   - [ ] Brand Voice
   - [ ] Content Strategy
 - [ ] Seed the first drafts from the existing brand extraction and AClienti
-  customer profiles.
+      customer profiles.
 - [ ] Add document versioning and confirmed/archive states.
 - [ ] Pass confirmed strategy documents into every generation prompt.
 - [ ] Add source links and evidence references to strategy decisions.
@@ -79,12 +79,12 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
 - [ ] Add customer-profile generation from multiple qualified signals.
 - [ ] Add profile editing, confirmation, and archive states.
 - [ ] Add customer language, objections, goals, buying triggers, and content
-  angles.
+      angles.
 - [ ] Add public-source discovery integrations where permitted.
 - [ ] Add Reddit keyword monitoring and high-intent thread discovery.
 - [ ] Summarize community rules before generating responses.
 - [ ] Feed confirmed customer profiles into DistroNow, AutoGTM, SEO, GEO, and
-  campaign generation.
+      campaign generation.
 
 ## 3. DistroNow — Brand and Content Engine
 
@@ -104,7 +104,7 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
 
 - [ ] Create the account-management dashboard.
 - [ ] Add account connection flows for LinkedIn, X, Instagram, TikTok, and
-  YouTube.
+      YouTube.
 - [ ] Store OAuth credentials securely and scope them per project/account.
 - [ ] Add account health, connection errors, permissions, and pause controls.
 - [ ] Build the visual content calendar.
@@ -120,16 +120,16 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
 - [ ] Store daily post metrics snapshots.
 - [ ] Add account, platform, post, campaign, and audience dashboards.
 - [ ] Calculate engagement rate, click-through rate, conversion rate, and
-  cost-per-result where cost data exists.
+      cost-per-result where cost data exists.
 - [ ] Compare best and worst posts.
 - [ ] Identify winning hooks, formats, channels, audiences, and publishing
-  times.
+      times.
 - [ ] Generate weekly performance summaries.
 - [ ] Turn performance findings into Agent Feed recommendations.
 
-## 6. AutoGTM — Customer Acquisition
+## 6. Leads Finder — Buyer Intelligence & Outreach
 
-- [ ] Build the AutoGTM module home.
+- [ ] Build the Leads Finder module home.
 - [ ] Add ICP Builder connected to AClienti and the Strategy Library.
 - [ ] Add company search provider integration.
 - [ ] Add people/contact search provider integration.
@@ -140,12 +140,12 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
 - [ ] Add personalized email drafting.
 - [ ] Add message review and approval queue.
 - [ ] Add reply classification: interested, objection, not now, wrong person,
-  unsubscribe, and out of office.
+      unsubscribe, and out of office.
 - [ ] Add reply drafting with human approval.
 - [ ] Add calendar booking integration.
 - [ ] Add meeting, opportunity, and revenue attribution.
 - [ ] Add campaign metrics: sends, replies, positive replies, meetings, and
-  cost per lead.
+      cost per lead.
 
 ## 7. Outreach safety and compliance
 
@@ -173,7 +173,7 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
 
 - [ ] Keep AutoArt as a separate product/workspace.
 - [ ] Define the release handoff schema: artist, track, artwork, metadata,
-  release date, rights, and promo assets.
+      release date, rights, and promo assets.
 - [ ] Send approved releases into accman campaigns.
 - [ ] Generate music-specific captions, clips, and account plans.
 - [ ] Track release and promo performance across accounts.
@@ -207,7 +207,7 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
 - [ ] Add SEO audit provider and site crawl boundary.
 - [ ] Track keyword positions and competitor pages.
 - [ ] Check metadata, headings, canonicals, internal links, images, and
-  performance.
+      performance.
 - [ ] Generate two prioritized fixes per day with copy-ready snippets.
 - [ ] Add Google Search Console integration.
 - [ ] Add AI visibility checks across ChatGPT, Perplexity, Claude, and Gemini.
@@ -257,15 +257,15 @@ Start with these five items:
 
 - [x] Review `/Users/vicorico/content` for reusable product and strategy work.
 - [x] Move the strongest reusable material into the in-app Content Intelligence
-  Library.
+      Library.
 - [x] Add content mix, hooks, angles, formats, virality, lead magnets, UGC,
-  characters, slideshows, niche validation, agent operations, and conversation
-  campaign playbooks.
+      characters, slideshows, niche validation, agent operations, and conversation
+      campaign playbooks.
 - [x] Add a workspace route for reading the playbooks before creating content.
 - [x] Keep old brand workspaces recoverable while presenting one main Marketing
-  OS workspace in the project list.
+      OS workspace in the project list.
 - [x] Add a full in-app Marketing OS Blueprint with the product flow, category
-  boundaries, source migration map, and remaining capability gaps.
+      boundaries, source migration map, and remaining capability gaps.
 - [ ] Make the library editable and project-aware.
 - [ ] Let generation flows select a library playbook and persist that choice.
 - [ ] Add source file links and versioning for imported knowledge.
@@ -278,50 +278,50 @@ reference implementation for accman and should influence our roadmap.
 ## 17. Marketing repository consolidation — module surfaces added
 
 - [x] Add AClienti module surface with its real research, scoring, brief, and
-  evidence workflows.
+      evidence workflows.
 - [x] Add accman module surface with accounts, niches, formats, trends, prompts,
-  plans, and creative research briefs.
+      plans, and creative research briefs.
 - [x] Add ClipRO module surface with ingest, transcript, candidate scoring,
-  rendering, jobs, and scheduling handoff.
+      rendering, jobs, and scheduling handoff.
 - [x] Add Reclip source preparation and download-job surface.
 - [x] Add AutoArt artist, song, release, promo, and analytics surface.
 - [x] Add Streamwin live studio, destinations, IRL, vision, and event surface.
 - [x] Add MassCall voice-agent campaign surface.
 - [x] Connect each category to the shared project workspace and handoff map.
 - [ ] Replace module reference surfaces with persistent project records and
-  provider-backed actions.
+      provider-backed actions.
 - [ ] Move shared source schemas into Supabase and connect each module’s actual
-  operations to the database.
+      operations to the database.
 
 ## 18. Unified auth and source-data migration
 
 - [x] Make DistroNow Supabase magic-link auth the single login boundary.
 - [x] Add a project-owned `module_records` migration table.
 - [x] Add idempotent source seed import for AClienti, accman, ClipRO, Reclip,
-  AutoArt, Streamwin, and MassCall.
+      AutoArt, Streamwin, and MassCall.
 - [x] Add a migration dashboard under the authenticated project workspace.
 - [ ] Replace source seed records with full editable module records and forms.
 - [ ] Add module-specific import/export for complete localStorage snapshots.
 - [ ] Move provider credentials, OAuth, media, jobs, and analytics into secure
-  project-owned services.
+      project-owned services.
 
 ## 19. Core/companion boundary
 
 - [x] Keep AClienti and accman inside the main DistroNow app as core utilities.
 - [x] Combine ClipRO and Reclip into one video-repurposing category.
 - [x] Add Video Generation as a core DistroNow category using the fal queue
-  workflow and existing product-video generation.
+      workflow and existing product-video generation.
 - [x] Keep AutoArt, Streamwin, and MassCall as separate companion apps.
 - [ ] Add explicit companion-app URLs and authenticated handoff callbacks when
-  those apps have their own deployed environments.
+      those apps have their own deployed environments.
 - [x] Remove the local `ACLIENTI` and `accman` source projects after core
-  utility migration.
+      utility migration.
 
 ### Add to accman
 
 - [ ] Use a real calendar-first publishing workspace.
 - [ ] Add a post composer that supports one post adapted across multiple
-  platforms.
+      platforms.
 - [ ] Add per-platform previews and validation before scheduling.
 - [ ] Add drafts, scheduled, published, failed, and missing-content states.
 - [ ] Add repeat/evergreen posts and recurring schedules.
@@ -333,39 +333,39 @@ reference implementation for accman and should influence our roadmap.
 - [ ] Add a media library with search, thumbnails, upload, and reuse.
 - [ ] Add provider-specific media settings and image/video validation.
 - [ ] Add direct integrations for the major social platforms through official
-  OAuth flows.
+      OAuth flows.
 - [ ] Add an integration health page with missing scopes, refresh state, and
-  reconnect actions.
+      reconnect actions.
 - [ ] Add account-level and post-level analytics.
 - [ ] Add trending content and reusable inspiration records.
 
 ### Add to the whole marketing OS
 
 - [ ] Add a public API for creating drafts, scheduling posts, reading status,
-  and retrieving analytics.
+      and retrieving analytics.
 - [ ] Add webhooks for post published, post failed, campaign completed, and
-  analytics updated events.
+      analytics updated events.
 - [ ] Add n8n, Make, and Zapier-compatible automation boundaries.
 - [ ] Add chat-based actions for creating content, generating a post, and
-  scheduling approved work.
+      scheduling approved work.
 - [ ] Add generated image and video providers behind a provider-neutral media
-  job interface.
+      job interface.
 - [ ] Add post groups/launches that connect strategy, assets, posts, and
-  results.
+      results.
 - [ ] Add organization/team workspaces for agencies managing multiple brands.
 - [ ] Add agency/client separation with client review and approval flows.
 - [ ] Add notifications for approvals, failures, missing connections, and
-  performance reports.
+      performance reports.
 
 ### Useful Postiz architecture ideas to reproduce
 
 - [ ] Treat every social platform as a provider with its own schema,
-  validation, limits, and preview—not as a generic text box.
+      validation, limits, and preview—not as a generic text box.
 - [ ] Keep integrations behind a common manager/interface so new platforms do
-  not change the calendar or project model.
+      not change the calendar or project model.
 - [ ] Use background workflows for scheduling and publishing retries.
 - [ ] Keep platform OAuth credentials server-side and let the platform handle
-  authentication directly.
+      authentication directly.
 - [ ] Store media separately from post records so assets can be reused.
 - [ ] Keep comments, tags, and post groups as first-class records.
 

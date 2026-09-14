@@ -158,7 +158,7 @@ The unified workspace should use this top-level structure:
 - **accman** — Account Manager, content planning, publishing, analytics, and
   Streamwin AI Livestream Chatters;
 - **AutoArt** — separate Music Creation product linked to accman;
-- **Acquisition (AutoGTM)** — core customer-acquisition workspace linked to
+- **Leads Finder** — separate buyer-intelligence and outreach product linked to
   AClienti, DistroNow, and accman;
 - **Library** — every post, asset, campaign, and export;
 - **Brand** — the source of truth used by both modules;
@@ -181,14 +181,14 @@ same app. Clicking a category opens a dedicated module home with:
 - clearly labeled connections to the other categories;
 - recent activity and useful metrics for that category.
 
-| Category | Module home | Primary action |
-| --- | --- | --- |
+| Category  | Module home              | Primary action                             |
+| --------- | ------------------------ | ------------------------------------------ |
 | DistroNow | Brand and Content Engine | Create content from brand/customer context |
-| AClienti | Customer Intelligence | Build a customer/persona profile |
-| accman | Account Manager | Plan, publish, and analyze posts |
-| ClipRO | Video Repurposing | Find and render the best clips |
-| AutoArt | Music Creation | Create a release and send it to promotion |
-| Streamwin | AI Livestream Chatters | Deploy video-aware chat agents |
+| AClienti  | Customer Intelligence    | Build a customer/persona profile           |
+| accman    | Account Manager          | Plan, publish, and analyze posts           |
+| ClipRO    | Video Repurposing        | Find and render the best clips             |
+| AutoArt   | Music Creation           | Create a release and send it to promotion  |
+| Streamwin | AI Livestream Chatters   | Deploy video-aware chat agents             |
 
 The categories share data and navigation, but each should feel like a complete
 tool when opened.
@@ -274,11 +274,11 @@ economics. Explee presents this as one pipeline: learn what is sold → define
 who buys → find the right people → write individually relevant emails → manage
 replies and meetings → learn which segments produce the best cost per lead.
 
-This should become a separate **AutoGTM — Customer Acquisition** category in
+This is the separate **Leads Finder — Buyer Intelligence & Outreach** category in
 the marketing super app. It should connect to AClienti, DistroNow, and accman,
 but should not be hidden inside any of them.
 
-### AutoGTM module: what it does
+### Leads Finder module: what it does
 
 **What it does:** Finds qualified prospects and turns them into reviewed,
 personalized conversations and booked meetings. It is the outbound and demand

@@ -4,10 +4,8 @@ import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 import { COMPANION_MODULES, CORE_MARKETING_MODULES } from "@/lib/module-catalog";
-import { DailyAgencyBrief } from "@/components/daily-agency-brief";
 
 const MODULES = [
-  { name: "Acquisition", title: "Buyers, Outreach & Meetings", description: "Find buyers, review their evidence, approve outreach, and track conversations through to customers.", href: "acquisition", action: "Open acquisition", active: true, status: "Review workflow ready" },
   { name: "DistroNow", title: "Brand & Content Engine", description: "Create brand-aware posts, scripts, campaigns, images, videos, and approvals.", href: "assets", action: "Open studio", active: true },
   { name: "Content Library", title: "Strategies & Playbooks", description: "Use the imported hook, angle, format, UGC, lead-magnet, slideshow, niche, and publishing systems.", href: "content-library", action: "Open playbooks", active: true },
   { name: "Blueprint", title: "Marketing OS Blueprint", description: "Understand how every local prototype becomes one connected super app and what is still left to build.", href: "blueprint", action: "Review the blueprint", active: true },
@@ -53,8 +51,6 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           </div>
         </div>
 
-        <DailyAgencyBrief projectId={id} approved={approvedCount} />
-
         <div className="workspace-flow">
           <span>01 Brand</span><i>→</i><span>02 Customer</span><i>→</i><span>03 Strategy</span><i>→</i><span>04 Create</span><i>→</i><span>05 Approve</span><i>→</i><span>06 Distribute</span>
         </div>
@@ -70,6 +66,18 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           ))}
         </section>
 
+        <section className="specialist-products">
+          <div>
+            <p className="eyebrow">SPECIALIST PRODUCTS</p>
+            <h2>Open a focused product when the job changes.</h2>
+            <p>Leads Finder and ClipRO use the project’s brand context, but each has its own workflow, records, and success metrics.</p>
+          </div>
+          <div className="specialist-product-grid">
+            <article><span>Leads Finder</span><small>Buyer intelligence & outreach</small><p>Find qualified companies and decision makers, verify contacts, review messages, and track calls booked.</p><Link className="primary-action" href={`/projects/${id}/leads-finder`}>Open Leads Finder →</Link></article>
+            <article><span>ClipRO</span><small>Video repurposing</small><p>Ingest long videos, find strong moments, render clips, review them, and hand approved work to accman.</p><Link className="primary-action" href={`/projects/${id}/modules/clipro`}>Open ClipRO →</Link></article>
+          </div>
+        </section>
+
         <div className="workspace-home-footer">
           <Link href="/process">Read the DistroNow process →</Link>
           <Link href={`/projects/${id}/content-library`}>Open content playbooks →</Link>
@@ -77,7 +85,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           <Link href={`/projects/${id}/assets`}>Open saved library →</Link>
         </div>
         <section className="companion-apps">
-          <div><p className="eyebrow">Separate companion apps</p><h2>Keep these products independent.</h2><p>AutoArt, Streamwin, and MassCall stay as their own products. DistroNow can link to their approved outputs and promotion workflows without absorbing their full interfaces.</p></div>
+          <div><p className="eyebrow">Separate companion apps</p><h2>Keep these products independent.</h2><p>AutoArt, Streamwin, and MassCall stay as their own companion products. DistroNow can link to their approved outputs and promotion workflows without absorbing their full interfaces.</p></div>
           <div className="companion-app-grid">{COMPANION_MODULES.map((module) => <article key={module.slug}><strong>{module.name}</strong><span>{module.title}</span><small>Separate app · connected through accman</small></article>)}</div>
         </section>
       </section>

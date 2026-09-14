@@ -40,6 +40,39 @@ const tabs = [
   "Connections",
 ] as const;
 const demoKey = "distronow:acquisition-demo:v1";
+const LEAD_SOURCES = [
+  {
+    slug: "getleads",
+    name: "GetLeads",
+    note: "strong all rounder",
+    detail: "Primary source candidate for broad company and contact discovery.",
+  },
+  {
+    slug: "quickenrich",
+    name: "QuickEnrich",
+    note: "great for US, limited elsewhere",
+    detail:
+      "Best suited to US focused enrichment, supplemented in other markets.",
+  },
+  {
+    slug: "blitz",
+    name: "Blitz API",
+    note: "adds about 10% extra",
+    detail: "Nice to have for incremental coverage after the primary search.",
+  },
+  {
+    slug: "moltsets",
+    name: "MoltSets",
+    note: "waterfall enrichment on crack",
+    detail:
+      "Candidate waterfall for cascading lookups when the first source has no answer.",
+  },
+] as const;
+function leadSourceName(slug: string) {
+  return (
+    LEAD_SOURCES.find((source) => source.slug === slug)?.name ?? "GetLeads"
+  );
+}
 function download(name: string, text: string, type = "text/csv") {
   const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement("a");
@@ -64,10 +97,14 @@ export function AcquisitionWorkspace({
   projectId,
   brand,
   approvedContent = 0,
+  productName = "Leads Finder",
+  productSubtitle = "Find buyers. Start conversations. Track what converts.",
 }: {
   projectId?: string;
   brand: BrandContext;
   approvedContent?: number;
+  productName?: string;
+  productSubtitle?: string;
 }) {
   const demo = !projectId;
   const [state, setState] = useState<AcquisitionState>(emptyAcquisition);
@@ -233,6 +270,8 @@ export function AcquisitionWorkspace({
       bookingUrl: String(values.get("bookingUrl")),
       dailyLimit: Number(values.get("dailyLimit")),
       budget: Number(values.get("budget")),
+      leadSource: String(values.get("leadSource")) as
+        "getleads" | "quickenrich" | "blitz" | "moltsets",
     };
     if (await run({ action: "create_campaign", value })) {
       form.reset();
@@ -271,9 +310,11 @@ export function AcquisitionWorkspace({
           <span>d.</span>DistroNow
         </Link>
         <div className="agency-brand">
-          <small>YOUR IN-HOUSE AGENCY</small>
+          <small>SPECIALIST PRODUCT</small>
           <strong>{brand.name}</strong>
-          <span>{demo ? "Demo workspace" : "Acquisition desk"}</span>
+          <span>
+            {productName} · {demo ? "Demo workspace" : "Project workspace"}
+          </span>
         </div>
         <nav aria-label="Acquisition navigation">
           {tabs.map((item, i) => (
@@ -315,7 +356,7 @@ export function AcquisitionWorkspace({
       <section className="agency-main">
         <header className="agency-topbar">
           <span>
-            Marketing agency <i>/</i> Acquisition
+            {productName} <i>/</i> {productSubtitle}
           </span>
           <span className="agency-mode">
             {demo ? "DEMO · NO LIVE SENDS" : "REVIEW BEFORE SENDING"}
@@ -344,7 +385,10 @@ export function AcquisitionWorkspace({
         )}
         <div className="agency-page-heading">
           <div>
-            <p className="eyebrow">FROM YOUR BUSINESS TO YOUR NEXT CUSTOMER</p>
+            <p className="eyebrow">
+              {productName.toUpperCase()} · FROM YOUR BUSINESS TO YOUR NEXT
+              CUSTOMER
+            </p>
             <h1>
               {tab === "Overview"
                 ? "Your pipeline, in motion."
@@ -505,6 +549,19 @@ export function AcquisitionWorkspace({
                   max="50"
                   defaultValue="10"
                 />
+              </label>
+              <label>
+                Preferred lead source
+                <select name="leadSource" defaultValue="getleads">
+                  <option value="getleads">
+                    GetLeads · strong all rounder
+                  </option>
+                  <option value="quickenrich">QuickEnrich · US focused</option>
+                  <option value="blitz">Blitz API · extra coverage</option>
+                  <option value="moltsets">
+                    MoltSets · waterfall enrichment
+                  </option>
+                </select>
               </label>
             </div>
             <p className="agency-muted">
@@ -688,6 +745,8 @@ export function AcquisitionWorkspace({
                       <dd>{c.dailyLimit} emails</dd>
                       <dt>Planning budget</dt>
                       <dd>€{c.budget}</dd>
+                      <dt>Lead source</dt>
+                      <dd>{leadSourceName(c.leadSource)}</dd>
                     </dl>
                     <div className="agency-mini-stats">
                       <span>
@@ -981,6 +1040,38 @@ export function AcquisitionWorkspace({
                 </article>
               ))}
             </div>
+            <section className="agency-panel">
+              <div className="agency-section-heading">
+                <div>
+                  <p className="eyebrow">LEAD SOURCES</p>
+                  <h2>Build the source stack.</h2>
+                </div>
+                <span className="agency-pill">Provider options</span>
+              </div>
+              <p>
+                These sources are part of the Leads Finder plan. Each connector
+                will have its own coverage, cost, limits, and verification
+                result. Campaigns keep a preferred source so discovery can be
+                routed deliberately.
+              </p>
+              <p className="agency-muted">
+                Current live adapter: Explee. The four sources below are the
+                planned source stack to wire into discovery and enrichment.
+              </p>
+              <div className="lead-source-grid">
+                {LEAD_SOURCES.map((source) => (
+                  <article
+                    className={`lead-source-card ${state.campaigns.some((campaign) => campaign.leadSource === source.slug) ? "is-selected" : ""}`}
+                    key={source.slug}
+                  >
+                    <strong>{source.name}</strong>
+                    <span>{source.note}</span>
+                    <p>{source.detail}</p>
+                    <small>Connector planned</small>
+                  </article>
+                ))}
+              </div>
+            </section>
             <section className="agency-panel">
               <h2>What runs when you press a button</h2>
               <p>
@@ -1359,7 +1450,12 @@ function BuyerDetail({
             <h3>Record a reply from your mailbox</h3>
             <label>
               Reply text
-              <textarea aria-label="Reply text" name="reply" required defaultValue={p.reply} />
+              <textarea
+                aria-label="Reply text"
+                name="reply"
+                required
+                defaultValue={p.reply}
+              />
             </label>
             <label>
               Classification
