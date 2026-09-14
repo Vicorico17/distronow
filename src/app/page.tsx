@@ -13,8 +13,8 @@ const AGENTS = [
   { name: "Audience", detail: "Best customers and objections" },
   { name: "Social", detail: "Hooks, posts, captions" },
   { name: "Images", detail: "Prompts and branded graphics" },
-  { name: "Campaigns", detail: "7 or 30 day calendars" },
-  { name: "UGC", detail: "Creator briefs and shot lists" }
+  { name: "Campaigns", detail: "Social, email, and nurture calendars" },
+  { name: "UGC", detail: "Creator briefs and shot lists" },
 ];
 
 const CASE_STUDIES = [
@@ -22,32 +22,52 @@ const CASE_STUDIES = [
     archetype: "The Visionary",
     reference: "Elon Musk",
     promise: "A future worth joining",
-    business: "Turns ambitious beliefs into products, movements, and category-defining stories.",
-    playbook: ["Name the impossible future", "Make progress visible", "Invite the audience into the mission"],
-    accent: "visionary"
+    business:
+      "Turns ambitious beliefs into products, movements, and category-defining stories.",
+    playbook: [
+      "Name the impossible future",
+      "Make progress visible",
+      "Invite the audience into the mission",
+    ],
+    accent: "visionary",
   },
   {
     archetype: "The Jester",
     reference: "Jack Sparrow",
     promise: "Freedom from the expected",
-    business: "Wins attention through wit, surprise, and a refusal to behave like the rest of the category.",
-    playbook: ["Break a familiar rule", "Turn flaws into charm", "Make the audience part of the joke"],
-    accent: "jester"
+    business:
+      "Wins attention through wit, surprise, and a refusal to behave like the rest of the category.",
+    playbook: [
+      "Break a familiar rule",
+      "Turn flaws into charm",
+      "Make the audience part of the joke",
+    ],
+    accent: "jester",
   },
   {
     archetype: "The Sage",
     reference: "David Attenborough",
     promise: "Clarity in a noisy world",
-    business: "Builds trust by making complex ideas feel understandable, useful, and worth remembering.",
-    playbook: ["Teach before selling", "Reveal the hidden pattern", "Let evidence carry the story"],
-    accent: "sage"
-  }
+    business:
+      "Builds trust by making complex ideas feel understandable, useful, and worth remembering.",
+    playbook: [
+      "Teach before selling",
+      "Reveal the hidden pattern",
+      "Let evidence carry the story",
+    ],
+    accent: "sage",
+  },
 ] as const;
 
 type ScrapeState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "success"; extraction: BrandExtraction; stored: StoredBrandExtraction | null; warning?: string }
+  | {
+      status: "success";
+      extraction: BrandExtraction;
+      stored: StoredBrandExtraction | null;
+      warning?: string;
+    }
   | { status: "error"; message: string };
 
 export default function Home() {
@@ -63,7 +83,7 @@ export default function Home() {
       const response = await fetch("/api/brand/scrape", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url })
+        body: JSON.stringify({ url }),
       });
 
       const payload = (await response.json()) as {
@@ -74,7 +94,10 @@ export default function Home() {
       };
 
       if (!response.ok || !payload.extraction) {
-        setState({ status: "error", message: payload.error ?? "Brand extraction failed." });
+        setState({
+          status: "error",
+          message: payload.error ?? "Brand extraction failed.",
+        });
         return;
       }
 
@@ -83,11 +106,17 @@ export default function Home() {
         return;
       }
 
-      setState({ status: "success", extraction: payload.extraction, stored: null, warning: payload.warning });
+      setState({
+        status: "success",
+        extraction: payload.extraction,
+        stored: null,
+        warning: payload.warning,
+      });
     } catch {
       setState({
         status: "error",
-        message: "We could not reach the brand builder. Check the URL and connection, then try again."
+        message:
+          "We could not reach the brand builder. Check the URL and connection, then try again.",
       });
     }
   }
@@ -98,7 +127,9 @@ export default function Home() {
         <nav>
           <strong className="brand-mark">DistroNow</strong>
           <span className="nav-link-row">
-            <Link className="nav-action" href="/leads-finder">Leads Finder</Link>
+            <Link className="nav-action" href="/leads-finder">
+              Leads Finder
+            </Link>
             <Link className="nav-action" href="/projects">
               Projects
             </Link>
@@ -119,15 +150,24 @@ export default function Home() {
 
         <div className="intro-shell">
           <div className="hero-copy">
-            <p className="launch-pill">AI distribution workspace from one URL</p>
-            <h1>Start with the business you already have. Build the marketing system around it.</h1>
+            <p className="launch-pill">
+              AI distribution workspace from one URL
+            </p>
+            <h1>
+              Start with the business you already have. Build the marketing
+              system around it.
+            </h1>
             <p>
-              Add your website. DistroNow extracts the brand, helps you define the best customers, builds the strategy,
-              creates the work, and moves approved content into accounts, acquisition, and analytics.
+              Add your website. DistroNow extracts the brand, helps you define
+              the best customers, builds the strategy, creates the work, and
+              moves approved content into accounts, acquisition, and analytics.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="scrape-form hero-scrape-form">
+          <form
+            onSubmit={handleSubmit}
+            className="scrape-form hero-scrape-form"
+          >
             <label htmlFor="website">Website</label>
             <div className="input-row hero-input-row">
               <input
@@ -142,7 +182,11 @@ export default function Home() {
                 value={url}
               />
               <button disabled={state.status === "loading"} type="submit">
-                {state.status === "loading" ? <LoadingIndicator compact label="Building" /> : "Build workspace"}
+                {state.status === "loading" ? (
+                  <LoadingIndicator compact label="Building" />
+                ) : (
+                  "Build workspace"
+                )}
               </button>
             </div>
             <div className="form-note-row">
@@ -154,7 +198,9 @@ export default function Home() {
                 <LoadingIndicator label="Extracting the brand, audience, content angles, and visual system" />
               </div>
             ) : null}
-            {state.status === "error" ? <div className="error-box">{state.message}</div> : null}
+            {state.status === "error" ? (
+              <div className="error-box">{state.message}</div>
+            ) : null}
           </form>
 
           <div className="agent-strip" aria-label="Generated workspace modules">
@@ -169,7 +215,9 @@ export default function Home() {
         </div>
       </section>
 
-      {state.status === "success" ? <BrandProfile extraction={state.extraction} stored={state.stored} /> : null}
+      {state.status === "success" ? (
+        <BrandProfile extraction={state.extraction} stored={state.stored} />
+      ) : null}
       {state.status === "success" && state.warning ? (
         <div className="workspace-notice" role="status">
           {state.warning}
@@ -183,14 +231,18 @@ export default function Home() {
             <h2>Every memorable brand plays a recognizable role.</h2>
           </div>
           <p>
-            An archetype is not a costume or a celebrity impression. It is the repeatable promise, behavior, and
-            story system that makes a business feel consistent wherever it shows up.
+            An archetype is not a costume or a celebrity impression. It is the
+            repeatable promise, behavior, and story system that makes a business
+            feel consistent wherever it shows up.
           </p>
         </div>
 
         <div className="case-study-grid">
           {CASE_STUDIES.map((study, index) => (
-            <article className={`case-study-card case-study-${study.accent}`} key={study.archetype}>
+            <article
+              className={`case-study-card case-study-${study.accent}`}
+              key={study.archetype}
+            >
               <div className="case-study-number">0{index + 1}</div>
               <div className="case-study-title">
                 <p>{study.reference} energy</p>
@@ -212,7 +264,10 @@ export default function Home() {
 
         <div className="case-study-takeaway">
           <span>What DistroNow extracts</span>
-          <p>Role → promise → point of view → repeatable content formats → campaigns that still sound like you.</p>
+          <p>
+            Role → promise → point of view → repeatable content formats →
+            campaigns that still sound like you.
+          </p>
         </div>
       </section>
     </main>

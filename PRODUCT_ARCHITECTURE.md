@@ -160,6 +160,9 @@ The unified workspace should use this top-level structure:
 - **AutoArt** — separate Music Creation product linked to accman;
 - **Leads Finder** — separate buyer-intelligence and outreach product linked to
   AClienti, DistroNow, and accman;
+- **Email Marketing** — permission-based newsletters, nurture sequences, and
+  lifecycle campaigns connected to DistroNow, AClienti, Leads Finder, and
+  Analytics;
 - **Library** — every post, asset, campaign, and export;
 - **Brand** — the source of truth used by both modules;
 - **Analytics** — performance by project, channel, campaign, and asset.

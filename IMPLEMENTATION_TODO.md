@@ -143,6 +143,16 @@ Current pushed commit: `a6184b1 Record AClienti and accman migration`.
       unsubscribe, and out of office.
 - [ ] Add reply drafting with human approval.
 - [ ] Add calendar booking integration.
+
+## 7. Email Marketing — Lifecycle Campaigns
+
+- [ ] Build the email marketing module home.
+- [ ] Add subscriber, segment, consent, and suppression records.
+- [ ] Add newsletter and nurture sequence builders with human approval.
+- [ ] Add verified sending-domain setup and SPF/DKIM/DMARC health.
+- [ ] Add delivery, open, click, bounce, complaint, and unsubscribe events.
+- [ ] Connect approved DistroNow content and AClienti segments to campaigns.
+- [ ] Keep Leads Finder one-to-one outreach separate from marketing sends.
 - [ ] Add meeting, opportunity, and revenue attribution.
 - [ ] Add campaign metrics: sends, replies, positive replies, meetings, and
       cost per lead.

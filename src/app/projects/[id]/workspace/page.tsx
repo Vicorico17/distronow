@@ -3,14 +3,60 @@ import { notFound } from "next/navigation";
 import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
-import { COMPANION_MODULES, CORE_MARKETING_MODULES } from "@/lib/module-catalog";
+import {
+  COMPANION_MODULES,
+  CORE_MARKETING_MODULES,
+} from "@/lib/module-catalog";
 
 const MODULES = [
-  { name: "DistroNow", title: "Brand & Content Engine", description: "Create brand-aware posts, scripts, campaigns, images, videos, and approvals.", href: "assets", action: "Open studio", active: true },
-  { name: "Content Library", title: "Strategies & Playbooks", description: "Use the imported hook, angle, format, UGC, lead-magnet, slideshow, niche, and publishing systems.", href: "content-library", action: "Open playbooks", active: true },
-  { name: "Blueprint", title: "Marketing OS Blueprint", description: "Understand how every local prototype becomes one connected super app and what is still left to build.", href: "blueprint", action: "Review the blueprint", active: true },
-  { name: "Migration", title: "Unified Data & Login", description: "Import the other apps’ source records into this authenticated DistroNow project.", href: "modules/migration", action: "Import module data", active: true },
-  ...CORE_MARKETING_MODULES.map((module) => ({ name: module.name, title: module.title, description: module.description, href: `modules/${module.slug}`, action: module.slug === "clipro" || module.slug === "video-generation" ? "View workflow & current tools" : module.primaryAction, active: true, status: module.status }))
+  {
+    name: "DistroNow",
+    title: "Brand & Content Engine",
+    description:
+      "Create brand-aware posts, scripts, campaigns, images, videos, and approvals.",
+    href: "assets",
+    action: "Open studio",
+    active: true,
+  },
+  {
+    name: "Content Library",
+    title: "Strategies & Playbooks",
+    description:
+      "Use the imported hook, angle, format, UGC, lead-magnet, slideshow, niche, and publishing systems.",
+    href: "content-library",
+    action: "Open playbooks",
+    active: true,
+  },
+  {
+    name: "Blueprint",
+    title: "Marketing OS Blueprint",
+    description:
+      "Understand how every local prototype becomes one connected super app and what is still left to build.",
+    href: "blueprint",
+    action: "Review the blueprint",
+    active: true,
+  },
+  {
+    name: "Migration",
+    title: "Unified Data & Login",
+    description:
+      "Import the other apps’ source records into this authenticated DistroNow project.",
+    href: "modules/migration",
+    action: "Import module data",
+    active: true,
+  },
+  ...CORE_MARKETING_MODULES.map((module) => ({
+    name: module.name,
+    title: module.title,
+    description: module.description,
+    href: `modules/${module.slug}`,
+    action:
+      module.slug === "clipro" || module.slug === "video-generation"
+        ? "View workflow & current tools"
+        : module.primaryAction,
+    active: true,
+    status: module.status,
+  })),
 ] as const;
 
 type WorkspacePageProps = { params: Promise<{ id: string }> };
@@ -19,11 +65,20 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   const { id } = await params;
   const user = await getCurrentUser();
   const anonymousOwnerId = await getAnonymousOwnerId();
-  const workspace = await getBrandProjectWorkspace(id, user?.id, anonymousOwnerId);
+  const workspace = await getBrandProjectWorkspace(
+    id,
+    user?.id,
+    anonymousOwnerId,
+  );
   if (!workspace) notFound();
 
-  const title = workspace.latestExtraction.title ?? workspace.project.name ?? workspace.project.domain;
-  const approvedCount = workspace.postDrafts.filter((draft) => draft.status === "approved").length;
+  const title =
+    workspace.latestExtraction.title ??
+    workspace.project.name ??
+    workspace.project.domain;
+  const approvedCount = workspace.postDrafts.filter(
+    (draft) => draft.status === "approved",
+  ).length;
 
   return (
     <main className="workspace-home">
@@ -31,9 +86,15 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         <nav>
           <Link href={`/projects/${id}`}>DistroNow</Link>
           <span className="nav-link-row">
-            <Link className="nav-action" href="/process">Process</Link>
-            <Link className="nav-action" href="/projects">Projects</Link>
-            <Link className="nav-action" href="/account">Account</Link>
+            <Link className="nav-action" href="/process">
+              Process
+            </Link>
+            <Link className="nav-action" href="/projects">
+              Projects
+            </Link>
+            <Link className="nav-action" href="/account">
+              Account
+            </Link>
           </span>
         </nav>
       </section>
@@ -43,25 +104,67 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           <div>
             <p className="eyebrow">Marketing OS / {workspace.project.domain}</p>
             <h1>{title}</h1>
-            <p>One business workspace for deciding who to reach, what to create, where to publish, and what to learn.</p>
+            <p>
+              One business workspace for deciding who to reach, what to create,
+              where to publish, and what to learn.
+            </p>
           </div>
           <div className="workspace-health">
             <span>Next decision</span>
-            <strong>{approvedCount ? "Send approved work to accman" : "Create and approve the first content"}</strong>
+            <strong>
+              {approvedCount
+                ? "Send approved work to accman"
+                : "Create and approve the first content"}
+            </strong>
           </div>
         </div>
 
         <div className="workspace-flow">
-          <span>01 Brand</span><i>→</i><span>02 Customer</span><i>→</i><span>03 Strategy</span><i>→</i><span>04 Create</span><i>→</i><span>05 Approve</span><i>→</i><span>06 Distribute</span>
+          <span>01 Brand</span>
+          <i>→</i>
+          <span>02 Customer</span>
+          <i>→</i>
+          <span>03 Strategy</span>
+          <i>→</i>
+          <span>04 Create</span>
+          <i>→</i>
+          <span>05 Approve</span>
+          <i>→</i>
+          <span>06 Distribute</span>
         </div>
 
-        <section className="workspace-module-directory" aria-label="Marketing modules">
+        <section
+          className="workspace-module-directory"
+          aria-label="Marketing modules"
+        >
           {MODULES.map((module) => (
-            <article className={`workspace-module-card ${module.active ? "is-active" : "is-planned"}`} id={module.href.startsWith("#") ? module.href.slice(1) : undefined} key={module.name}>
-              <div className="workspace-module-top"><span>{module.name}</span><small>{"status" in module ? module.status : "Available"}</small></div>
+            <article
+              className={`workspace-module-card ${module.active ? "is-active" : "is-planned"}`}
+              id={
+                module.href.startsWith("#") ? module.href.slice(1) : undefined
+              }
+              key={module.name}
+            >
+              <div className="workspace-module-top">
+                <span>{module.name}</span>
+                <small>
+                  {"status" in module ? module.status : "Available"}
+                </small>
+              </div>
               <h2>{module.title}</h2>
               <p>{module.description}</p>
-              {module.active ? <Link className="primary-action" href={`/projects/${id}/${module.href}`}>{module.action} →</Link> : <button className="secondary-action" type="button">{module.action} →</button>}
+              {module.active ? (
+                <Link
+                  className="primary-action"
+                  href={`/projects/${id}/${module.href}`}
+                >
+                  {module.action} →
+                </Link>
+              ) : (
+                <button className="secondary-action" type="button">
+                  {module.action} →
+                </button>
+              )}
             </article>
           ))}
         </section>
@@ -70,23 +173,74 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           <div>
             <p className="eyebrow">SPECIALIST PRODUCTS</p>
             <h2>Open a focused product when the job changes.</h2>
-            <p>Leads Finder and ClipRO use the project’s brand context, but each has its own workflow, records, and success metrics.</p>
+            <p>
+              Leads Finder and ClipRO use the project’s brand context, but each
+              has its own workflow, records, and success metrics. Email
+              Marketing is a core channel for permission-based lifecycle
+              campaigns.
+            </p>
           </div>
           <div className="specialist-product-grid">
-            <article><span>Leads Finder</span><small>Buyer intelligence & outreach</small><p>Find qualified companies and decision makers, verify contacts, review messages, and track calls booked.</p><Link className="primary-action" href={`/projects/${id}/leads-finder`}>Open Leads Finder →</Link></article>
-            <article><span>ClipRO</span><small>Video repurposing</small><p>Ingest long videos, find strong moments, render clips, review them, and hand approved work to accman.</p><Link className="primary-action" href={`/projects/${id}/modules/clipro`}>Open ClipRO →</Link></article>
+            <article>
+              <span>Leads Finder</span>
+              <small>Buyer intelligence & outreach</small>
+              <p>
+                Find qualified companies and decision makers, verify contacts,
+                review messages, and track calls booked.
+              </p>
+              <Link
+                className="primary-action"
+                href={`/projects/${id}/leads-finder`}
+              >
+                Open Leads Finder →
+              </Link>
+            </article>
+            <article>
+              <span>ClipRO</span>
+              <small>Video repurposing</small>
+              <p>
+                Ingest long videos, find strong moments, render clips, review
+                them, and hand approved work to accman.
+              </p>
+              <Link
+                className="primary-action"
+                href={`/projects/${id}/modules/clipro`}
+              >
+                Open ClipRO →
+              </Link>
+            </article>
           </div>
         </section>
 
         <div className="workspace-home-footer">
           <Link href="/process">Read the DistroNow process →</Link>
-          <Link href={`/projects/${id}/content-library`}>Open content playbooks →</Link>
-          <Link href={`/projects/${id}/blueprint`}>Review full blueprint →</Link>
+          <Link href={`/projects/${id}/content-library`}>
+            Open content playbooks →
+          </Link>
+          <Link href={`/projects/${id}/blueprint`}>
+            Review full blueprint →
+          </Link>
           <Link href={`/projects/${id}/assets`}>Open saved library →</Link>
         </div>
         <section className="companion-apps">
-          <div><p className="eyebrow">Separate companion apps</p><h2>Keep these products independent.</h2><p>AutoArt, Streamwin, and MassCall stay as their own companion products. DistroNow can link to their approved outputs and promotion workflows without absorbing their full interfaces.</p></div>
-          <div className="companion-app-grid">{COMPANION_MODULES.map((module) => <article key={module.slug}><strong>{module.name}</strong><span>{module.title}</span><small>Separate app · connected through accman</small></article>)}</div>
+          <div>
+            <p className="eyebrow">Separate companion apps</p>
+            <h2>Keep these products independent.</h2>
+            <p>
+              AutoArt, Streamwin, and MassCall stay as their own companion
+              products. DistroNow can link to their approved outputs and
+              promotion workflows without absorbing their full interfaces.
+            </p>
+          </div>
+          <div className="companion-app-grid">
+            {COMPANION_MODULES.map((module) => (
+              <article key={module.slug}>
+                <strong>{module.name}</strong>
+                <span>{module.title}</span>
+                <small>Separate app · connected through accman</small>
+              </article>
+            ))}
+          </div>
         </section>
       </section>
     </main>
