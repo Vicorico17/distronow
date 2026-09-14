@@ -20,3 +20,20 @@ test("metadata reencoder is available in the core module menu", () => {
     ),
   );
 });
+
+test("SEO/GEO and Launched are available in the core module menu", () => {
+  for (const slug of ["seo-geo", "launched"]) {
+    assert.ok(getMarketingModule(slug));
+    assert.ok(CORE_MARKETING_MODULES.some((module) => module.slug === slug));
+  }
+  assert.ok(
+    getMarketingModule("seo-geo").importedCapabilities.includes(
+      "No guaranteed rankings or GEO hacks",
+    ),
+  );
+  assert.ok(
+    getMarketingModule("launched").importedCapabilities.includes(
+      "Anti-spam and authentic-engagement checks",
+    ),
+  );
+});

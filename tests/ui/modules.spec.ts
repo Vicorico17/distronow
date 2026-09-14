@@ -15,6 +15,8 @@ test("global modules menu exposes every process module and the reencoder", async
     "AutoArt",
     "Streamwin",
     "MassCall",
+    "SEO / GEO",
+    "Launched",
     "Metadata Reencoder",
     "Leads Finder",
   ]) {

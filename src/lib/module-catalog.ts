@@ -504,6 +504,138 @@ export const MARKETING_MODULES: MarketingModule[] = [
     ],
   },
   {
+    slug: "seo-geo",
+    name: "SEO / GEO",
+    title: "Search and Answer Visibility",
+    description:
+      "Improve discoverability across traditional search and generative answers with crawlable, useful, attributable, and measurable content.",
+    source: "Google Search Central + Bing Webmaster guidance",
+    status: "Strategy workflow ready",
+    primaryAction: "Run a visibility audit",
+    records: [
+      "Site audits",
+      "Search intents",
+      "Topic clusters",
+      "Page briefs",
+      "Entity evidence",
+      "Structured data",
+      "Citations",
+      "Search performance",
+    ],
+    workflows: [
+      {
+        title: "Technical discoverability",
+        steps: [
+          "Audit crawl access, indexability, canonicals, redirects, sitemaps, internal links, rendering, mobile experience, and page speed",
+          "Resolve duplicate or conflicting URLs and keep important information available as visible text",
+          "Validate structured data against the visible page instead of inventing AI-specific markup",
+          "Submit accurate sitemaps and notify participating engines of meaningful changes with IndexNow",
+        ],
+      },
+      {
+        title: "Intent and authority",
+        steps: [
+          "Map customer questions, comparison needs, objections, and purchase intents to existing or proposed pages",
+          "Create unique expert-led content with first-party evidence, clear authorship, dates, sources, and factual claims",
+          "Connect related pages into topic clusters without producing thin keyword variants",
+          "Keep organization, product, person, and location facts consistent across the site and trusted profiles",
+        ],
+      },
+      {
+        title: "SEO and generative visibility",
+        steps: [
+          "Track queries, indexed pages, clicks, conversions, backlinks, and rich-result eligibility in webmaster tools",
+          "Track cited pages and citations in AI performance reports where platforms expose them",
+          "Test representative customer questions and retain dated evidence rather than claiming deterministic AI rankings",
+          "Refresh or consolidate content based on accuracy, usefulness, conversion, and citation evidence",
+        ],
+      },
+    ],
+    handoffs: [
+      "AClienti: customer questions and evidence language",
+      "DistroNow: approved search briefs and page content",
+      "accman: distribution that earns genuine discovery and references",
+      "Analytics: organic traffic, conversions, and AI citations",
+    ],
+    importedCapabilities: [
+      "Crawl/index/canonical audit",
+      "Sitemap and IndexNow plan",
+      "Search-intent and topic-cluster mapping",
+      "People-first content briefs",
+      "Schema-to-visible-content validation",
+      "Entity consistency review",
+      "Search Console and Bing Webmaster measurement",
+      "AI citation evidence log",
+      "No guaranteed rankings or GEO hacks",
+    ],
+  },
+  {
+    slug: "launched",
+    name: "Launched",
+    title: "Launch Distribution Planner",
+    description:
+      "Choose where a new product, feature, business, or creative release should be announced, then tailor the launch to each community.",
+    source: "DistroNow launch distribution workflow",
+    status: "Launch workflow ready",
+    primaryAction: "Plan a launch",
+    records: [
+      "Launch brief",
+      "Audience segments",
+      "Destination shortlist",
+      "Community rules",
+      "Channel variants",
+      "Launch calendar",
+      "Responses and feedback",
+      "Conversion results",
+    ],
+    workflows: [
+      {
+        title: "Choose the right launch surfaces",
+        steps: [
+          "Define what is launching, who can use it now, category, geography, price, proof, and launch goal",
+          "Shortlist owned channels: website, changelog, email list, customer community, social accounts, and partner network",
+          "Evaluate Product Hunt for live technology products and Show HN for substantial things people can actually try",
+          "Find niche communities, relevant subreddits, Slack/Discord groups, directories, newsletters, podcasts, local press, and industry publications where the audience already participates",
+        ],
+      },
+      {
+        title: "Community-fit review",
+        steps: [
+          "Read each destination's current rules and recent posts before drafting",
+          "Score audience fit, eligibility, credibility, effort, timing, expected feedback, and conversion path",
+          "Exclude destinations that ban promotion or where the launch has no genuine community value",
+          "Never coordinate fake votes, mass unsolicited posts, duplicate announcements, or undisclosed promotion",
+        ],
+      },
+      {
+        title: "Launch, respond, and learn",
+        steps: [
+          "Prepare a distinct title, explanation, demo, founder story, visuals, and call to action for each selected surface",
+          "Schedule posts when the maker can stay present and answer questions",
+          "Record URLs, publication state, feedback, referrals, signups, revenue, and qualitative objections",
+          "Turn real launch feedback into product fixes, customer intelligence, SEO pages, and follow-up content",
+        ],
+      },
+    ],
+    handoffs: [
+      "DistroNow: launch story, visuals, demos, and channel variants",
+      "SEO / GEO: launch page, changelog, indexation, and earned references",
+      "accman: approved social launch schedule",
+      "Email Marketing: permission-based customer announcement",
+      "AClienti: launch feedback and buyer signals",
+    ],
+    importedCapabilities: [
+      "Owned, earned, community, directory, and partner channel map",
+      "Product Hunt readiness checklist",
+      "Show HN eligibility checklist",
+      "Niche community and subreddit rule review",
+      "Platform-specific launch variants",
+      "Anti-spam and authentic-engagement checks",
+      "Launch-day response plan",
+      "Referral, signup, revenue, and feedback tracking",
+    ],
+  },
+  {
     slug: "metadata-reencoder",
     name: "Metadata Reencoder",
     title: "Privacy-safe Media Re-encoding",
@@ -627,6 +759,8 @@ export const CORE_MODULE_SLUGS = [
   "clipro",
   "video-generation",
   "metadata-reencoder",
+  "seo-geo",
+  "launched",
 ] as const;
 export const CORE_MARKETING_MODULES = MARKETING_MODULES.filter((module) =>
   CORE_MODULE_SLUGS.includes(module.slug as (typeof CORE_MODULE_SLUGS)[number]),
