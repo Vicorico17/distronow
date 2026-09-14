@@ -219,10 +219,13 @@ nav span {
   text-transform: uppercase;
 }
 
+.module-card h2,
 .module-card h3 {
   font-size: 20px;
   margin-top: 28px;
 }
+
+.module-card small { color: var(--muted); display: block; margin-top: 14px; }
 
 .module-card-link {
   display: block;

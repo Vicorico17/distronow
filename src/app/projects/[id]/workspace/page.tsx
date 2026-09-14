@@ -86,6 +86,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         <nav>
           <Link href={`/projects/${id}`}>DistroNow</Link>
           <span className="nav-link-row">
+            <Link className="nav-action" href="/modules">Modules</Link>
             <Link className="nav-action" href="/process">
               Process
             </Link>

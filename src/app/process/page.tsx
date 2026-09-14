@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MODULE_DIRECTORY } from "@/lib/module-directory";
 
 const PROCESS_STEPS = [
   {
@@ -45,16 +46,6 @@ const PROCESS_STEPS = [
   }
 ] as const;
 
-const MODULES = [
-  ["DistroNow", "Brand and Content Engine", "Turn brand and customer context into campaigns, posts, scripts, and assets."],
-  ["AClienti", "Customer Intelligence", "Build evidence-backed customer profiles from real pains, signals, and buying triggers."],
-  ["accman", "Account Manager", "Plan, publish, and compare performance across every account and channel."],
-  ["Leads Finder", "Buyer Intelligence & Outreach", "Find qualified prospects, prepare personalized outreach, and track conversations."],
-  ["ClipRO", "Video Repurposing", "Find the strongest moments in long videos and render them as short clips."],
-  ["AutoArt", "Music Creation", "Create music releases and send approved promotional assets into accman."],
-  ["Streamwin", "AI Livestream Chatters", "Deploy video-aware agents that understand the stream and participate in chat."]
-] as const;
-
 export default function ProcessPage() {
   return (
     <main className="process-page">
@@ -62,6 +53,7 @@ export default function ProcessPage() {
         <Link href="/" className="brand-mark">DistroNow</Link>
         <span className="nav-link-row">
           <Link className="nav-action" href="/">Start with a website</Link>
+          <Link className="nav-action" href="/modules">Modules</Link>
           <Link className="nav-action" href="/projects">Projects</Link>
         </span>
       </nav>
@@ -97,12 +89,12 @@ export default function ProcessPage() {
           <p>Everything shares the same project, brand, customer, asset, and performance context.</p>
         </div>
         <div className="module-grid">
-          {MODULES.map(([name, title, description]) => (
-            <article className="module-card" key={name}>
-              <span className="module-card-name">{name}</span>
-              <h3>{title}</h3>
-              <p>{description}</p>
-              <span className="module-card-link">Dedicated module · Shared workspace</span>
+          {MODULE_DIRECTORY.map((module) => (
+            <article className="module-card" key={module.slug}>
+              <span className="module-card-name">{module.name}</span>
+              <h3>{module.title}</h3>
+              <p>{module.description}</p>
+              <Link className="module-card-link" href={module.href}>Open module →</Link>
             </article>
           ))}
         </div>

@@ -133,6 +133,7 @@ export default function Home() {
             <Link className="nav-action" href="/projects">
               Projects
             </Link>
+            <Link className="nav-action" href="/modules">Modules</Link>
             <Link className="nav-action" href="/process">
               Process
             </Link>

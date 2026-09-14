@@ -29,6 +29,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
         <nav>
           <Link href={`/projects/${id}/workspace`}>DistroNow</Link>
           <span className="nav-link-row">
+            <Link className="nav-action" href="/modules">Modules</Link>
             <Link className="nav-action" href={`/projects/${id}/blueprint`}>Blueprint</Link>
             <Link className="nav-action" href={`/projects/${id}/operations`}>Operations</Link>
             <Link className="nav-action" href="/process">Process</Link>
