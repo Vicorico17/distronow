@@ -98,6 +98,7 @@ export default function Home() {
         <nav>
           <strong className="brand-mark">DistroNow</strong>
           <span className="nav-link-row">
+            <Link className="nav-action" href="/agency">Agency demo</Link>
             <Link className="nav-action" href="/projects">
               Projects
             </Link>

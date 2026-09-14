@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./agency.css";
 
 export const metadata: Metadata = {
   title: "DistroNow Marketing OS",

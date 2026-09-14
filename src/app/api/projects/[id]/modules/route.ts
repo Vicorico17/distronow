@@ -36,6 +36,7 @@ export async function POST(request: Request, context: Context) {
   const { id } = await context.params;
   const parsed = actionSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Send a valid module migration action." }, { status: 400 });
+  if (parsed.data.action === "upsert_record" && parsed.data.module === "acquisition") return NextResponse.json({ error: "Use the Acquisition workflow to modify its records." }, { status: 400 });
   const workspace = await authorizedProject(id);
   if (!workspace) return NextResponse.json({ error: "Project not found." }, { status: 404 });
   const supabase = createSupabaseAdminClient() as any;

@@ -5,3 +5,6 @@ out
 .env*.local
 *.log
 dist
+*.tsbuildinfo
+test-results/
+playwright-report/

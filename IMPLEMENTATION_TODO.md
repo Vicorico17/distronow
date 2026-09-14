@@ -1,5 +1,24 @@
 # DistroNow Marketing OS — Remaining Implementation TODO
 
+## September 14 acquisition delivery
+
+Implemented `/agency` as an isolated browser demo and
+`/projects/[id]/acquisition` as the persistent acquisition desk. This includes
+campaign briefs, buyer evidence, Explee discovery/enrichment adapters, editable
+drafts, approval transitions, individual SMTP sending, suppression, manual
+reply/meeting/revenue recording, event-derived funnel counts and CSV export.
+The main workspace now shows acquisition decisions and accurate module status.
+
+Apply `20260914090000_create_acquisition_workspaces.sql` and configure provider
+credentials before live use. See `ACQUISITION_SETUP.md` for the complete test
+path and setup. Live database verification was blocked locally by DNS resolution
+of the configured Supabase hostname. No external emails were sent during tests.
+
+Remaining: automatic inbox/calendar sync, delivery events, scheduled follow-ups,
+real publishing integrations, and full ClipRO/fal runtime integration. The
+older checklist below includes broader planned capabilities, not all of which
+are part of this first acquisition release.
+
 This is the handoff list after the unified flow, operations layer, and shared
 module model were added. Work from the top down.
 

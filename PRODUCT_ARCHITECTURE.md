@@ -158,8 +158,8 @@ The unified workspace should use this top-level structure:
 - **accman** — Account Manager, content planning, publishing, analytics, and
   Streamwin AI Livestream Chatters;
 - **AutoArt** — separate Music Creation product linked to accman;
-- **AutoGTM** — separate Customer Acquisition product linked to AClienti,
-  DistroNow, and accman;
+- **Acquisition (AutoGTM)** — core customer-acquisition workspace linked to
+  AClienti, DistroNow, and accman;
 - **Library** — every post, asset, campaign, and export;
 - **Brand** — the source of truth used by both modules;
 - **Analytics** — performance by project, channel, campaign, and asset.

@@ -1,5 +1,10 @@
 # DistroNow Marketing OS
 
+Try the new agency / Acquisition workflow at `/agency` (fictional demo, no
+external sends), or open a project's Marketing OS → Acquisition for persistent
+campaigns. See [ACQUISITION_SETUP.md](ACQUISITION_SETUP.md) for the database
+migration, Explee discovery, mailbox setup, and the testing walkthrough.
+
 DistroNow is one marketing workspace with two connected parts: Content Studio
 for research and creation, and Distribution & Accounts for organizing,
 adapting, scheduling, publishing, and measuring approved content. It turns a

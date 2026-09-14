@@ -17,6 +17,9 @@ export default async function ModulePage({ params }: ModulePageProps) {
   if (!workspace || !marketingModule) notFound();
 
   const title = workspace.latestExtraction.title ?? workspace.project.name ?? workspace.project.domain;
+  const utility = marketingModule.slug === "aclienti" || marketingModule.slug === "accman";
+  const actionHref = utility ? "#module-tool" : marketingModule.slug === "video-generation" ? `/projects/${id}/assets` : "#module-workflows";
+  const actionLabel = utility ? marketingModule.primaryAction : marketingModule.slug === "video-generation" ? "Open product video generator" : "Review planned pipeline";
 
   return (
     <main className="module-page">
@@ -40,7 +43,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
           </div>
           <div className="module-heading-actions">
             <span className="module-status">{marketingModule.status}</span>
-            <Link className="primary-action" href={`/projects/${id}/operations`}>{marketingModule.primaryAction} →</Link>
+            <Link className="primary-action" href={actionHref}>{actionLabel} →</Link>
           </div>
         </div>
 
@@ -48,7 +51,9 @@ export default async function ModulePage({ params }: ModulePageProps) {
           {marketingModule.records.map((record, index) => <span key={record}><strong>0{index + 1}</strong>{record}</span>)}
         </div>
 
-        <div className="module-workflows">
+        {utility && <section id="module-tool"><CoreUtilityDashboard projectId={id} module={marketingModule.slug as "aclienti" | "accman"} /></section>}
+        {!utility && <p className="workspace-notice">This page maps the module workflow. {marketingModule.slug === "video-generation" ? "The product video generator is available in the content studio; the fal queue interface is not connected yet." : "The standalone source pipeline is not yet connected to this project’s records."}</p>}
+        <div className="module-workflows" id="module-workflows">
           {marketingModule.workflows.map((workflow) => (
             <article className="module-workflow" key={workflow.title}>
               <p className="eyebrow">Workflow</p>
@@ -61,7 +66,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
         <section className="module-detail-grid">
           <article className="module-detail-card">
             <p className="eyebrow">Imported from {marketingModule.source}</p>
-            <h2>Capabilities brought into the super app</h2>
+            <h2>Source capabilities & integration scope</h2>
             <ul>{marketingModule.importedCapabilities.map((capability) => <li key={capability}>{capability}</li>)}</ul>
           </article>
           <article className="module-detail-card module-handoff-card">
@@ -71,7 +76,6 @@ export default async function ModulePage({ params }: ModulePageProps) {
             <Link href={`/projects/${id}/workspace`}>See all categories →</Link>
           </article>
         </section>
-        {marketingModule.slug === "aclienti" || marketingModule.slug === "accman" ? <CoreUtilityDashboard projectId={id} module={marketingModule.slug} /> : null}
       </section>
     </main>
   );
