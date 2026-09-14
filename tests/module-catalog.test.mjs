@@ -32,6 +32,16 @@ test("SEO/GEO and Launched are available in the core module menu", () => {
     ),
   );
   assert.ok(
+    getMarketingModule("seo-geo").workflows.some(
+      (workflow) => workflow.title === "Passage-level answer design",
+    ),
+  );
+  assert.ok(
+    getMarketingModule("seo-geo").importedCapabilities.includes(
+      "Vertex AI Search patterns kept separate from confirmed Google Search ranking guidance",
+    ),
+  );
+  assert.ok(
     getMarketingModule("launched").importedCapabilities.includes(
       "Anti-spam and authentic-engagement checks",
     ),

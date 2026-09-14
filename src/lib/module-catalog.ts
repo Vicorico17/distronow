@@ -402,7 +402,8 @@ export const MARKETING_MODULES: MarketingModule[] = [
     title: "Search and Answer Visibility",
     description:
       "Improve discoverability across traditional search and generative answers with crawlable, useful, attributable, and measurable content.",
-    source: "Google Search Central + Bing Webmaster guidance",
+    source:
+      "Google Search Central + Bing Webmaster guidance + retrieval-pattern research",
     status: "Strategy workflow ready",
     primaryAction: "Run a visibility audit",
     records: [
@@ -410,6 +411,7 @@ export const MARKETING_MODULES: MarketingModule[] = [
       "Search intents",
       "Topic clusters",
       "Page briefs",
+      "Answer blocks",
       "Entity evidence",
       "Structured data",
       "Citations",
@@ -435,6 +437,15 @@ export const MARKETING_MODULES: MarketingModule[] = [
         ],
       },
       {
+        title: "Passage-level answer design",
+        steps: [
+          "Turn important customer prompts into descriptive or question-based headings with a direct two-to-three-sentence answer first",
+          "Keep each key answer self-contained, supported by attributable facts, and easy to extract without losing its surrounding meaning",
+          "Use definitions, lists, tables, and honest X-versus-Y or best-for comparisons when they make the decision clearer",
+          "Add useful summaries and clean semantic HTML, then test different section lengths instead of treating a 500-token chunk as a confirmed Google Search rule",
+        ],
+      },
+      {
         title: "SEO and generative visibility",
         steps: [
           "Track queries, indexed pages, clicks, conversions, backlinks, and rich-result eligibility in webmaster tools",
@@ -455,10 +466,14 @@ export const MARKETING_MODULES: MarketingModule[] = [
       "Sitemap and IndexNow plan",
       "Search-intent and topic-cluster mapping",
       "People-first content briefs",
+      "Passage-level direct-answer briefs",
+      "Definitions and evidence-backed comparison blocks",
+      "Extractability and context-loss review",
       "Schema-to-visible-content validation",
       "Entity consistency review",
       "Search Console and Bing Webmaster measurement",
       "AI citation evidence log",
+      "Vertex AI Search patterns kept separate from confirmed Google Search ranking guidance",
       "No guaranteed rankings or GEO hacks",
     ],
   },
