@@ -34,14 +34,14 @@ export function TwitchStreamDashboard({ projectId }: { projectId: string }) {
   function toggleDestination(name: string) { setDestinations((current) => current.includes(name) ? current.filter((item) => item !== name) : [...current, name]); }
   async function saveAgent() {
     setMessage("Saving agent…");
-    const response = await fetch(`/api/projects/${projectId}/modules`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "upsert_record", module: "streamwin", recordType: "vision_agent", externalId: `agent-${Date.now()}`, name: `Agent ${agents.length + 1}`, status: "standby", sourceRepo: "TTVfans + Streamwin unified app", payload: { role: "Twitch stream assistant", scene, destinations } }) });
+    const response = await fetch(`/api/projects/${projectId}/modules`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "upsert_record", module: "streamwin", recordType: "vision_agent", externalId: `agent-${Date.now()}`, name: `Agent ${agents.length + 1}`, status: "standby", sourceRepo: "Streamwin / CHATTERS.AI", payload: { role: "Twitch stream assistant", scene, destinations } }) });
     const data = await response.json();
     if (!response.ok) { setMessage(data.error ?? "Could not save agent."); return; }
     await load(); setMessage("Agent added to this project.");
   }
 
   return <section className="twitch-studio" id="module-tool">
-    <header className="twitch-studio-head"><div><p className="eyebrow">Twitch stream users</p><h2>Your live control room</h2><p>Run the show and give your stream a second set of eyes from one DistroNow app.</p></div><button className={live ? "stream-live-button active" : "stream-live-button"} onClick={() => setLive(!live)}><i />{live ? "End stream" : "Go live"}</button></header>
+    <header className="twitch-studio-head"><div><p className="eyebrow">Streamwin / CHATTERS.AI</p><h2>Your live control room</h2><p>Run the show and give your stream a second set of eyes from one DistroNow app.</p></div><button className={live ? "stream-live-button active" : "stream-live-button"} onClick={() => setLive(!live)}><i />{live ? "End stream" : "Go live"}</button></header>
     <div className="twitch-studio-grid"><div>
       <div className={effect ? "stream-preview effect-on" : "stream-preview"}><div className="stream-preview-top"><span><i />{live ? "LIVE" : "PREVIEW"}</span><small>1080p · 60fps</small></div><div className="stream-avatar">D</div><div className="stream-caption"><b>{scene}</b><span>Vision agents are {live ? "watching now" : "ready"}</span></div><div className="stream-thought">✦ Clutch moment detected · clip marked</div></div>
       <div className="stream-controls"><button onClick={() => setEffect(!effect)} className={effect ? "selected" : ""}>✦ AI effect</button>{["Twitch", "YouTube", "TikTok LIVE"].map((name) => <button key={name} className={destinations.includes(name) ? "selected" : ""} onClick={() => toggleDestination(name)}>{name}</button>)}</div>

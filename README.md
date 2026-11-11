@@ -64,5 +64,8 @@ Current tables:
 - `post_drafts`: saved social post ideas generated from a project brand profile.
 - `brand_audiences`: recommended and manually edited best-customer personas.
 - `marketing_assets`: generated image/content asset records linked to projects and audiences.
+- `accman_accounts`: signed-in users' email, Instagram, and TikTok account sets. Email passwords are encrypted before storage.
+
+For the ACCMAN account vault, apply `supabase/migrations/20260928120000_create_accman_accounts.sql`. Email password encryption derives a separate key from the existing server-only `SUPABASE_SERVICE_ROLE_KEY`; keep that value consistent across deployments. Rotating it requires re-encrypting stored passwords first. The account list is available at `/modules/accman` after login, and supports spreadsheet paste in batches of 100 tab-separated rows.
 
 The API route `POST /api/brand/scrape` works without Supabase keys, but it only saves results when the server role key is configured.

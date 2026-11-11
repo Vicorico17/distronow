@@ -56,6 +56,12 @@ one undifferentiated feature list.
 
 ### Category: AClienti / Customer Intelligence → DistroNow Studio
 
+Source: [Vicorico17/ACLIENTI](https://github.com/Vicorico17/ACLIENTI).
+ACLIENTI is included in the marketing super app's scope. The current
+implementation groups its research-lens, signal, qualification, and brief
+records under Leads Finder; preserve the AClienti identity as the customer
+research capability without creating a second copy of those records.
+
 **What it does:** Finds and describes the customers most likely to need a
 product. It turns public customer signals into evidence-backed customer
 profiles, pains, objections, buying triggers, and content opportunities.
@@ -71,6 +77,35 @@ DistroNow Studio. Its output is a custom customer/persona profile: who needs
 the product, what they care about, what language they use, and what the brand
 should create next. Its profiles feed DistroNow content generation while its
 evidence and scoring remain separate.
+
+Integration flow: a project's brand and target customer define the research
+lens; dated public signals become scored opportunities and evidence-linked
+briefs; DistroNow Studio turns those briefs into content; accman receives the
+approved assets for account-specific planning. Qualified opportunities also
+feed Leads Finder. Keep sources and dates attached throughout this handoff.
+
+The source MVP supports manual signal capture, weighted scoring, local brief
+generation, browser persistence, and JSON export. Automated discovery,
+scheduled monitoring, AI synthesis, and CRM/publishing integrations are future
+work, not capabilities implied by including the module.
+
+### Category: LORO / Creator Licensing & Campaigns
+
+Source: [Vicorico17/LORO](https://github.com/Vicorico17/LORO).
+
+LORO is a core module at `/projects/[id]/modules/loro`, with a public overview
+at `/modules/loro`. It uses the existing project-authorized module-record API
+for creator profiles, niches, usage-rights notes, consent references, campaign
+briefs, channel lists, proposed creator shares, and campaign selections.
+Selections can be removed before a campaign is marked started. JSON export
+provides a manual handoff of briefs and creator context to content production
+and account planning.
+
+This is an internal campaign workspace: recording a selection does not verify
+creator identity, establish consent, execute a license, or publish content.
+AI persona generation, LoRA training, creator-facing access, payments, live
+performance analytics, and automatic ACCMAN/ClipRO handoffs remain unconnected.
+No fictional creators or earnings are imported as real project data.
 
 ### Category: accman / Account Manager
 
@@ -123,13 +158,34 @@ accman, where they can be assigned to accounts, scheduled, published, and
 measured. DistroNow can optionally provide the brand and audience context for
 the promotional content.
 
-### Category: Streamwin / AI Livestream Chatters → accman
+### Category: Streamwin (CHATTERS.AI) / Stream Audience & AI Chatters → accman
 
 **What it does:** Deploys multiple AI agents as livestream chatters. Each agent
 watches the livestream through a video-recognition model, understands what is
 happening on screen, and writes relevant messages in the chat. Streamwin is
 connected to accman because the livestream destinations, accounts, content,
 and performance belong there.
+
+**Streamwin and CHATTERS.AI are one product.** Streamwin is the canonical name
+and route (`/modules/streamwin`); CHATTERS.AI refers to its video-aware AI
+chatters, not a separate category or integration.
+
+Streamwin also belongs in the marketing super app as a dedicated,
+project-linked product surface. The requested scope includes automated viewer
+sessions and AI chatters for streams, with stream selection, session controls,
+chatter personalities, activity logs, and reporting. Automated activity must
+be identified separately from organic audience metrics.
+
+This is planned scope, not an existing viewer-delivery integration. The source
+repository currently provides an interactive live-studio prototype; the
+DistroNow dashboard provides studio controls and saved agent records. Live
+viewer sessions, stream-aware chat execution, and provider connections still
+need implementation. Keep the Streamwin service independently deployable while
+exposing its controls and session records inside the shared project workspace.
+
+Connections: accman supplies the project's channel/account context; Streamwin
+supplies live-session activity; ClipRO can turn stream recordings or marked
+moments into promotional clips for the same project's approval queue.
 
 Do not add Plecat Mood to DistroNow.
 
@@ -412,3 +468,23 @@ checks are in place.
 5. campaign and reply tracking;
 6. calendar booking and revenue attribution;
 7. optional approved automation with limits and auditability.
+
+
+## Complete category directory
+
+`/modules` is the review directory for all product modules, contributing
+projects, and playbooks/references. Every entry has a dedicated
+`/modules/[slug]` page with its contribution, current integration limits,
+shared workflow destination, and previous/next review navigation.
+
+ACLIENTI, Reclip, Orbit, TTVfans, AutoGTM, fal-video-runner, and HeliosGen now
+have separate overview pages while retaining their shared underlying
+workflows. Source playbooks and Postiz have reference pages, not claims of
+running integrations. Plecat Mood and the unimported Obsidian material are
+excluded. These pages do not create duplicate project records or activate
+unconnected services.
+
+
+## Research-backed implementation backlog
+
+See [the 60-feature Explee, Okara, and Streamwin research shortlist](docs/research/marketing-feature-roadmap-2026-11-11.md) for dated sources, current implementation gaps, priorities, and recommended acceptance criteria. These are proposed additions, not completed integrations.

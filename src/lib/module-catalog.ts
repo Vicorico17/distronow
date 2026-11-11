@@ -14,6 +14,22 @@ export type MarketingModule = {
 
 export const MARKETING_MODULES: MarketingModule[] = [
   {
+    slug: "loro",
+    name: "LORO",
+    title: "Creator Licensing & Campaigns",
+    description: "Organize creator profiles, usage rights, campaign briefs, and participation selections in your project.",
+    source: "Vicorico17/LORO",
+    status: "Campaign workspace connected",
+    primaryAction: "Open creator campaigns",
+    records: ["Creators", "Usage-rights notes", "Campaign briefs", "Creator shares", "Campaign selections"],
+    workflows: [
+      { title: "Creator roster", steps: ["Add a creator and niche", "Record the agreed usage scope and consent reference", "Keep verification separate from workspace notes"] },
+      { title: "Campaign picks", steps: ["Write a brief and assign a creator", "Set channels and proposed creator share", "Select or remove a campaign before it starts", "Record the campaign start once ready"] },
+    ],
+    handoffs: ["DistroNow: campaign briefs and brand context", "ACCMAN: export selected briefs for publishing preparation", "ClipRO: use campaign scope when preparing creator clips"],
+    importedCapabilities: ["Creator roster", "Campaign briefs", "Selection count and reversible picks", "Project-persisted records", "JSON campaign export", "Generation, payouts, and identity verification are not connected"],
+  },
+  {
     slug: "accman",
     name: "accman",
     title: "Account Manager",
@@ -21,7 +37,7 @@ export const MARKETING_MODULES: MarketingModule[] = [
       "Manage social accounts, niches, formats, trends, prompts, content plans, publishing states, and performance.",
     source: "accman / Orbit browser MVP",
     status: "Foundation connected",
-    primaryAction: "Plan content",
+    primaryAction: "Manage accounts",
     records: [
       "Accounts",
       "Niches",
@@ -334,12 +350,12 @@ export const MARKETING_MODULES: MarketingModule[] = [
   },
   {
     slug: "streamwin",
-    name: "Twitch Stream Users",
-    title: "Live Studio & Stream Agents",
+    name: "Streamwin",
+    title: "Livestream, Restream & AI Chatters",
     description:
-      "Operate live video, destinations, IRL controls, visual effects, and video-aware automations from one studio.",
-    source: "TTVfans + Streamwin unified app",
-    status: "Unified app ready",
+      "Streamwin brings livestreaming, restreaming, IRL controls, and CHATTERS.AI video-aware chatters into one product.",
+    source: "Streamwin / CHATTERS.AI, with TTVfans concepts",
+    status: "Prototype dashboard",
     primaryAction: "Open live control room",
     records: [
       "Live sessions",
@@ -661,6 +677,7 @@ export function getMarketingModule(slug: string) {
 }
 
 export const CORE_MODULE_SLUGS = [
+  "loro",
   "accman",
   "email-marketing",
   "clipro",

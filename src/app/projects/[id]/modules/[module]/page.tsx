@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { LoroDashboard } from "@/components/loro-dashboard";
 import { notFound } from "next/navigation";
 import { getAnonymousOwnerId } from "@/lib/anonymous-owner";
 import { getBrandProjectWorkspace } from "@/lib/brand-store";
 import { getCurrentUser } from "@/lib/supabase/auth-server";
 import { getMarketingModule } from "@/lib/module-catalog";
 import { CoreUtilityDashboard } from "@/components/core-utility-dashboard";
+import { AccmanAccountVault } from "@/components/accman-account-vault";
 import { MetadataReencoder } from "@/components/metadata-reencoder";
 import { TwitchStreamDashboard } from "@/components/twitch-stream-dashboard";
 
@@ -19,11 +21,12 @@ export default async function ModulePage({ params }: ModulePageProps) {
   if (!workspace || !marketingModule) notFound();
 
   const title = workspace.latestExtraction.title ?? workspace.project.name ?? workspace.project.domain;
+  const loro = marketingModule.slug === "loro";
   const utility = marketingModule.slug === "accman";
   const reencoder = marketingModule.slug === "metadata-reencoder";
   const twitchStudio = marketingModule.slug === "streamwin";
-  const actionHref = utility || reencoder || twitchStudio ? "#module-tool" : marketingModule.slug === "video-generation" ? `/projects/${id}/assets` : "#module-workflows";
-  const actionLabel = utility || reencoder || twitchStudio ? marketingModule.primaryAction : marketingModule.slug === "video-generation" ? "Open product video generator" : "Review planned pipeline";
+  const actionHref = utility || reencoder || twitchStudio || loro ? "#module-tool" : marketingModule.slug === "video-generation" ? `/projects/${id}/assets` : "#module-workflows";
+  const actionLabel = utility || reencoder || twitchStudio || loro ? marketingModule.primaryAction : marketingModule.slug === "video-generation" ? "Open product video generator" : "Review planned pipeline";
 
   return (
     <main className="module-page">
@@ -56,10 +59,11 @@ export default async function ModulePage({ params }: ModulePageProps) {
           {marketingModule.records.map((record, index) => <span key={record}><strong>0{index + 1}</strong>{record}</span>)}
         </div>
 
-        {utility && <section id="module-tool"><CoreUtilityDashboard projectId={id} module="accman" /></section>}
+        {utility && <section id="module-tool">{user ? <AccmanAccountVault /> : <p className="workspace-notice">Log in to manage your account vault. <Link href="/login">Log in →</Link></p>}<CoreUtilityDashboard projectId={id} module="accman" /></section>}
         {reencoder && <section id="module-tool"><MetadataReencoder /></section>}
+        {loro && <LoroDashboard key={id} projectId={id} />}
         {twitchStudio && <TwitchStreamDashboard projectId={id} />}
-        {!utility && !reencoder && !twitchStudio && <p className="workspace-notice">This page maps the module workflow. {marketingModule.slug === "video-generation" ? "The product video generator is available in the content studio; the fal queue interface is not connected yet." : "The standalone source pipeline is not yet connected to this project’s records."}</p>}
+        {!utility && !reencoder && !twitchStudio && !loro && <p className="workspace-notice">This page maps the module workflow. {marketingModule.slug === "video-generation" ? "The product video generator is available in the content studio; the fal queue interface is not connected yet." : "The standalone source pipeline is not yet connected to this project’s records."}</p>}
         <div className="module-workflows" id="module-workflows">
           {marketingModule.workflows.map((workflow) => (
             <article className="module-workflow" key={workflow.title}>

@@ -1,0 +1,17 @@
+.dashboard { margin: 32px 0; padding: clamp(16px, 3vw, 32px); border: 1px solid #d9dfd5; border-radius: 24px; background: #f7f8f3; color: #20342c; }
+.heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.dashboard h2 { font-size: clamp(28px, 4vw, 44px); margin: 8px 0; }
+.dashboard h3 { margin: 24px 0 16px; }
+.dashboard h4 { font-size: 20px; margin: 12px 0; }
+.notice { line-height: 1.6; max-width: 85ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+.card { background: white; border: 1px solid #d9dfd5; border-radius: 16px; padding: 24px; min-width: 0; overflow-wrap: anywhere; }
+.card p { white-space: pre-wrap; }
+.card fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; }
+.card label { display: grid; gap: 7px; font-size: 14px; font-weight: 600; }
+.card input, .card textarea, .card select { width: 100%; box-sizing: border-box; border: 1px solid #929e94; background: #fff; color: #20342c; padding: 10px 12px; border-radius: 8px; font: inherit; }
+.card textarea { min-height: 95px; resize: vertical; }
+.dashboard button { border: 1px solid #20342c; border-radius: 8px; padding: 10px 16px; background: #20342c; color: white; cursor: pointer; font: inherit; }
+.dashboard button:disabled { opacity: .5; cursor: not-allowed; }
+.dashboard :is(button, input, select, textarea):focus-visible { outline: 3px solid #748d37; outline-offset: 3px; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
